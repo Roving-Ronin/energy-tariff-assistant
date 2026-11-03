@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+# Fetched by scripts/fetch_fixtures.sh; source repo has no licence file.
+tests/fixtures/energy_manager/

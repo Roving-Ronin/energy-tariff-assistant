@@ -1,0 +1,3 @@
+holidays>=0.60
+jsonschema>=4.20
+pytest>=8.0

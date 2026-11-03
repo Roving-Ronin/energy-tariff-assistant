@@ -1,0 +1,91 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Covau",
+  "plan": "SolarMax Residential TOU",
+  "plan_id": "COV1117612MRE3",
+  "customer_type": "residential",
+  "effective_from": "2026-07-01",
+  "effective_to": null,
+  "source": {
+    "type": "manual",
+    "url": null,
+    "checked": "2026-08-25"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.29999,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "offpeak",
+        "name": "Off-peak",
+        "rate": 0.165,
+        "windows": [
+          { "days": "all", "start": "00:00", "end": "06:00" }
+        ]
+      },
+      {
+        "id": "free",
+        "name": "Free",
+        "tiers": [
+          { "up_to_kwh": 50, "rate": 0.0 },
+          { "use_period": "shoulder" }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          { "days": "all", "start": "11:00", "end": "14:00" }
+        ]
+      },
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.45331,
+        "windows": [
+          { "days": "all", "start": "15:00", "end": "21:00" }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.27478,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "super",
+        "name": "Super FiT",
+        "tiers": [
+          { "up_to_kwh": 30, "rate": 0.15 },
+          { "use_period": "standard" }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          { "days": "all", "start": "18:00", "end": "21:00" }
+        ]
+      },
+      {
+        "id": "standard",
+        "name": "Standard FiT",
+        "rate": 0.05,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from energy-manager-tariffs Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json. Check against EME: supply charge 2.29999 (looks like 2.30 after rounding); whether the 30 kWh super FiT cap resets daily; whether public holidays change anything."
+}

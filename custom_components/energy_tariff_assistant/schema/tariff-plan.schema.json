@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Roving-Ronin/energy-tariff-assistant/schema/tariff-plan.schema.json",
+  "title": "Energy Tariff Assistant plan (ha_tariff_plan v1)",
+  "description": "Structure of one electricity plan. Cross-field rules (one default period, no overlapping windows, tier order, use_period references) are checked by engine/validate.py.",
+  "type": "object",
+  "required": [
+    "format", "version", "country", "region", "retailer", "plan",
+    "effective_from", "source", "currency", "timezone", "supply_charge",
+    "import", "export"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": { "const": "ha_tariff_plan" },
+    "version": { "const": 1 },
+    "country": { "type": "string", "pattern": "^[A-Z]{2}$" },
+    "region": { "type": "string", "minLength": 1 },
+    "dnsp": { "type": ["string", "null"] },
+    "retailer": { "type": "string", "minLength": 1 },
+    "plan": { "type": "string", "minLength": 1 },
+    "plan_id": { "type": ["string", "null"] },
+    "customer_type": { "enum": ["residential", "business", null] },
+    "effective_from": { "$ref": "#/$defs/date" },
+    "effective_to": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+    "source": {
+      "type": "object",
+      "required": ["type", "checked"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["EME", "CDR", "retailer_factsheet", "bill", "manual"] },
+        "url": { "type": ["string", "null"] },
+        "checked": { "$ref": "#/$defs/date" }
+      }
+    },
+    "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+    "timezone": { "type": "string", "minLength": 1 },
+    "holidays": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "treat_as": { "enum": ["none", "saturday", "sunday"] },
+        "calendar": {
+          "type": "object",
+          "required": ["country"],
+          "additionalProperties": false,
+          "properties": {
+            "country": { "type": "string" },
+            "subdivision": { "type": ["string", "null"] }
+          }
+        }
+      }
+    },
+    "seasons": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "minItems": 1,
+        "uniqueItems": true
+      }
+    },
+    "supply_charge": { "$ref": "#/$defs/supply_charge" },
+    "import": { "$ref": "#/$defs/stream" },
+    "export": { "$ref": "#/$defs/stream" },
+    "demand": { "type": "array", "items": { "$ref": "#/$defs/demand" } },
+    "controlled_load": { "type": "array", "items": { "$ref": "#/$defs/controlled_load" } },
+    "needs_review": { "type": "boolean" },
+    "notes": { "type": ["string", "null"] }
+  },
+  "$defs": {
+    "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "hhmm": { "type": "string", "pattern": "^(([01]\\d|2[0-3]):[0-5]\\d|24:00)$" },
+    "id": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+    "supply_charge": {
+      "type": "object",
+      "required": ["rate", "unit"],
+      "additionalProperties": false,
+      "properties": {
+        "rate": { "type": "number", "minimum": 0 },
+        "unit": { "const": "per_day" }
+      }
+    },
+    "days": {
+      "oneOf": [
+        { "enum": ["all", "weekdays", "weekends"] },
+        {
+          "type": "array",
+          "items": { "enum": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      ]
+    },
+    "window": {
+      "type": "object",
+      "required": ["days"],
+      "additionalProperties": false,
+      "properties": {
+        "days": { "$ref": "#/$defs/days" },
+        "start": { "$ref": "#/$defs/hhmm" },
+        "end": { "$ref": "#/$defs/hhmm" },
+        "all_day": { "const": true },
+        "seasons": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      },
+      "oneOf": [
+        { "required": ["all_day"], "not": { "anyOf": [{ "required": ["start"] }, { "required": ["end"] }] } },
+        { "required": ["start", "end"], "not": { "required": ["all_day"] } }
+      ]
+    },
+    "tier": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "up_to_kwh": { "type": "number", "exclusiveMinimum": 0 },
+        "rate": { "type": "number" },
+        "use_period": { "$ref": "#/$defs/id" }
+      },
+      "oneOf": [{ "required": ["rate"] }, { "required": ["use_period"] }]
+    },
+    "period": {
+      "type": "object",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "rate": { "type": "number" },
+        "tiers": { "type": "array", "items": { "$ref": "#/$defs/tier" }, "minItems": 2 },
+        "tier_reset": { "enum": ["day", "month", "bill"] },
+        "windows": { "type": "array", "items": { "$ref": "#/$defs/window" } },
+        "default": { "type": "boolean" }
+      },
+      "oneOf": [
+        { "required": ["rate"], "not": { "required": ["tiers"] } },
+        { "required": ["tiers"], "not": { "required": ["rate"] } }
+      ]
+    },
+    "stream": {
+      "type": "object",
+      "required": ["periods"],
+      "additionalProperties": false,
+      "properties": {
+        "periods": { "type": "array", "items": { "$ref": "#/$defs/period" }, "minItems": 1 }
+      }
+    },
+    "demand": {
+      "type": "object",
+      "required": ["id", "name", "rate", "unit", "windows"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string" },
+        "rate": { "type": "number", "minimum": 0 },
+        "unit": { "enum": ["per_kw_per_day", "per_kw_per_month"] },
+        "windows": { "type": "array", "items": { "$ref": "#/$defs/window" }, "minItems": 1 },
+        "measure": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "interval_minutes": { "enum": [5, 15, 30, 60] },
+            "method": { "enum": ["max", "mean_of_top_n"] },
+            "n": { "type": "integer", "minimum": 1 },
+            "over": { "enum": ["month", "bill", "rolling_12_months"] },
+            "minimum_kw": { "type": "number", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "controlled_load": {
+      "type": "object",
+      "required": ["id", "name", "supply_charge", "periods"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string" },
+        "supply_charge": { "$ref": "#/$defs/supply_charge" },
+        "periods": { "type": "array", "items": { "$ref": "#/$defs/period" }, "minItems": 1 }
+      }
+    }
+  }
+}

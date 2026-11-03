@@ -1,0 +1,19 @@
+{
+  "format": "ha_tariff_index",
+  "version": 1,
+  "updated_at": "2026-11-03T15:15:12Z",
+  "plans": [
+    {
+      "file": "plans/AU/NSW/Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json",
+      "country": "AU",
+      "region": "NSW",
+      "dnsp": "Essential Energy",
+      "retailer": "Covau",
+      "plan": "SolarMax Residential TOU",
+      "plan_id": "COV1117612MRE3",
+      "effective_from": "2026-07-01",
+      "effective_to": null,
+      "source_checked": "2026-08-25"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+name: Plans
+
+on:
+  push:
+    branches: [main]
+    paths: ["plans/**", "custom_components/energy_tariff_assistant/engine/**", "custom_components/energy_tariff_assistant/schema/**", "scripts/**"]
+  pull_request:
+    paths: ["plans/**", "custom_components/energy_tariff_assistant/engine/**", "custom_components/energy_tariff_assistant/schema/**", "scripts/**"]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements_test.txt
+      - name: Validate plan files
+        run: python scripts/validate_plans.py
+      - name: Check plans/index.json is current
+        run: python scripts/build_index.py --check
