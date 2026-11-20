@@ -6,8 +6,15 @@ plans (residential first, then business), fetches each plan's detail (Get Generi
 Plan Detail, x-v 3), converts it with engine/importers/cdr.py and validates the
 result. Writes to --out:
 
-- report.json: totals, outcomes counted by reason, and one line per plan
+- report.json: totals, outcomes counted by reason, converter notes counted, one line
+  per plan, and the library check
 - samples/<path>/<planId>.json: the raw plan detail, to build tests from
+
+Library check: a library plan (plans/) whose plan_id is in a retailer's Energy
+Made Easy listing is always converted too, and priced against the library copy
+(weekday and Sunday, summer and winter, before and after any caps). Differences
+are printed: the library plans were checked by hand, so this is a real-world test
+of the converter.
 
 Nothing is committed: the workflow uploads --out as a run artifact (plan data is
 for checking the converter, not for the repo).
@@ -19,7 +26,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
-from datetime import date
+from datetime import date, datetime, timedelta
 import json
 from pathlib import Path
 import re
@@ -27,10 +34,12 @@ import sys
 import time
 from typing import Any
 from urllib.parse import quote
+from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import fetch_eme_retailers as eme  # noqa: E402  (http_json, brand list; also puts the engine on sys.path)
-from engine import validate_plan  # noqa: E402
+from _common import plan_files  # noqa: E402
+from engine import Resolver, load_plan, validate_plan  # noqa: E402
 from engine.importers.cdr import CdrImportError, convert  # noqa: E402
 
 
@@ -38,6 +47,55 @@ def reason_key(text: str) -> str:
     """A skip reason without the plan label, so the same reason counts together."""
     reason = text.split("): ", 1)[-1] if "): " in text else text
     return re.sub(r"'[^']*'|\d+(\.\d+)?", "…", reason)
+
+
+def base_id(plan_id: str) -> str:
+    """'COV1117612MRE3@EME' -> 'COV1117612MRE3' (library plans keep the id without the suffix)."""
+    return (plan_id or "").split("@", 1)[0]
+
+
+def library_plans() -> dict[str, dict[str, Any]]:
+    """Library plans by plan_id."""
+    out: dict[str, dict[str, Any]] = {}
+    for path in plan_files():
+        plan = json.loads(path.read_text(encoding="utf-8"))
+        if plan.get("plan_id"):
+            out[base_id(plan["plan_id"])] = plan
+    return out
+
+
+def compare_plans(library: dict[str, Any], converted: dict[str, Any], today: date) -> list[str]:
+    """Where the converted plan prices differently from the library plan (empty: they agree).
+
+    Every half hour of a Wednesday and a Sunday, in January and July, import and export,
+    with nothing used and with every cap used up. Times are in the library plan's zone.
+    """
+    diffs: list[str] = []
+    if abs(library["supply_charge"]["rate"] - converted["supply_charge"]["rate"]) > 0.0005:
+        diffs.append(f"supply charge {library['supply_charge']['rate']} vs {converted['supply_charge']['rate']}")
+    lib, conv = Resolver(load_plan(library)), Resolver(load_plan(converted))
+    zone = ZoneInfo(library["timezone"])
+    days = []
+    for month in (1, 7):
+        first = date(today.year + 1, month, 1)
+        days.append(first + timedelta(days=(2 - first.weekday()) % 7))  # Wednesday
+        days.append(first + timedelta(days=(6 - first.weekday()) % 7))  # Sunday
+    for stream in ("import", "export"):
+        for day in days:
+            for half_hour in range(48):
+                moment = datetime(day.year, day.month, day.day, tzinfo=zone) + timedelta(minutes=30 * half_hour + 15)
+                for label, used in (("", None), (" (caps used)", "all")):
+                    lib_used = dict.fromkeys(_period_ids(library, stream), 1e9) if used else None
+                    conv_used = dict.fromkeys(_period_ids(converted, stream), 1e9) if used else None
+                    a = lib.rate_at(stream, moment, lib_used).rate
+                    b = conv.rate_at(stream, moment, conv_used).rate
+                    if abs(a - b) > 0.0005:
+                        diffs.append(f"{stream} {moment:%a %d %b %H:%M}{label}: library {a} vs converted {b}")
+    return diffs
+
+
+def _period_ids(plan: dict[str, Any], stream: str) -> list[str]:
+    return [p["id"] for p in plan[stream]["periods"]]
 
 
 def pick_plans(plans: list[dict[str, Any]], per_path: int) -> list[dict[str, Any]]:
@@ -54,8 +112,13 @@ def pick_plans(plans: list[dict[str, Any]], per_path: int) -> list[dict[str, Any
     return picked
 
 
-def check(fetch, out: Path, per_path: int, today: date, pause: float = eme.PAUSE_SECONDS, log=print) -> dict:
+def check(
+    fetch, out: Path, per_path: int, today: date, pause: float = eme.PAUSE_SECONDS, log=print,
+    library: dict[str, dict[str, Any]] | None = None,
+) -> dict:
+    library = library_plans() if library is None else library
     results: list[dict[str, Any]] = []
+    library_checks: list[dict[str, Any]] = []
     for uri in eme.unique_paths(eme.fallback_brands()):
         path = uri.rsplit("/", 1)[-1]
         try:
@@ -64,7 +127,11 @@ def check(fetch, out: Path, per_path: int, today: date, pause: float = eme.PAUSE
         except Exception as err:  # noqa: BLE001
             results.append({"path": path, "outcome": "list_failed", "detail": str(err)})
             continue
-        for summary in pick_plans((listing.get("data") or {}).get("plans") or [], per_path):
+        listed = (listing.get("data") or {}).get("plans") or []
+        picked = pick_plans(listed, per_path)
+        # Library plans listed here are always checked, and compared below
+        picked += [p for p in listed if base_id(p.get("planId", "")) in library and p not in picked]
+        for summary in picked:
             plan_id = summary.get("planId", "")
             entry: dict[str, Any] = {"path": path, "plan_id": plan_id, "name": summary.get("displayName"),
                                      "customer": summary.get("customerType")}
@@ -87,10 +154,23 @@ def check(fetch, out: Path, per_path: int, today: date, pause: float = eme.PAUSE
                 continue
             if not conversion.plans:
                 results.append({**entry, "outcome": "skipped", "detail": "; ".join(conversion.skipped)})
+                log(f"  skipped {plan_id}: {'; '.join(conversion.skipped)}")
                 continue
+            lib_plan = library.get(base_id(plan_id))
+            if lib_plan is not None:
+                match = next((p for p in conversion.plans if p.get("dnsp") == lib_plan.get("dnsp")), None)
+                diffs = (compare_plans(lib_plan, match, today) if match
+                         else [f"no converted plan for {lib_plan.get('dnsp')}"])
+                library_checks.append({"plan_id": plan_id, "library": lib_plan.get("plan"),
+                                       "agrees": not diffs, "differences": diffs[:40]})
+                log(f"LIBRARY CHECK {plan_id}: {'agrees' if not diffs else f'{len(diffs)} differences'}")
+                for diff in diffs[:40]:
+                    log(f"    {diff}")
             errors = []
             for plan in conversion.plans:
                 errors += validate_plan(plan).errors
+            if errors:
+                log(f"  invalid {plan_id}: {'; '.join(errors[:5])}")
             results.append({
                 **entry,
                 "outcome": "invalid" if errors else "converted",
@@ -108,6 +188,7 @@ def check(fetch, out: Path, per_path: int, today: date, pause: float = eme.PAUSE
         for r in results if r["outcome"] in ("skipped", "error", "invalid")
         for part in (r.get("detail") or "").split("; ") if part
     )
+    notes = Counter(reason_key(n) for r in results for n in r.get("notes") or [])
     report = {
         "checked": today.isoformat(),
         "plans_tried": len(results),
@@ -115,6 +196,8 @@ def check(fetch, out: Path, per_path: int, today: date, pause: float = eme.PAUSE
         "pricing_models": dict(Counter(str(r.get("pricing_model")) for r in results).most_common()),
         "time_zones": dict(Counter(str(r.get("time_zone")) for r in results).most_common()),
         "reasons": dict(reasons.most_common()),
+        "notes": dict(notes.most_common()),
+        "library_checks": library_checks,
         "results": results,
     }
     out.mkdir(parents=True, exist_ok=True)
@@ -132,6 +215,11 @@ def main() -> int:
     print("Top reasons:")
     for reason, count in list(report["reasons"].items())[:15]:
         print(f"  {count:4d}  {reason}")
+    print("Converter notes:")
+    for note, count in list(report["notes"].items())[:20]:
+        print(f"  {count:4d}  {note}")
+    checks = report["library_checks"]
+    print(f"Library check: {sum(c['agrees'] for c in checks)} of {len(checks)} library plans agree")
     return 0
 
 

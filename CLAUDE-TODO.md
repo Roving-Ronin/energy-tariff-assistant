@@ -61,6 +61,11 @@ reported as `register_brands_not_in_list` (a warning in the workflow).
   - **Use 2, live in Home Assistant**: state → DNSP → retailer → plan from Energy Made Easy, converted on the spot
     (`async_add_executor_job` for the conversion if it gets heavy), with the library as fallback.
   - ~17,600 electricity plans: fetch on demand or per DNSP, not all weekly.
+  - **First real run (2026-11-20):** 111 plans (3 per path), 108 converted and valid, 3 skipped (2 stepped
+    rates on an unsupported reset period, 1 season off month boundaries); pricing models TOU 33, TOU+CL 29,
+    single 28, single+CL 21; time zones LOCAL 82, AEST 15, absent 14. Artifacts can't be downloaded from this
+    workspace (Azure blob host not allowed), so the check now logs full reasons, converter-note counts and a
+    **library check** (library plans found in the listing are converted and priced against the library copy).
   - **Real samples:** Actions → **CDR conversion check** (`scripts/check_cdr_conversion.py`) converts a few plans per
     path and uploads `report.json` + raw details as an artifact (not committed). Use it to find what real data
     does that the hand-written samples don't, and add trimmed cases to `tests/test_importer_cdr.py`.
