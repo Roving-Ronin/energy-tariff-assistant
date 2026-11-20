@@ -1,4 +1,4 @@
-# Energy Tariff Assistant
+<p align="center"><img src="images/banner.png" alt="Energy Tariff Assistant: Community Tariff Plans &amp; Utility Metering by Roving-Ronin" width="700"></p>
 
 [![Marketplace][marketplace-badge]][marketplace-url]
 [![release][release-badge]][release-url]
