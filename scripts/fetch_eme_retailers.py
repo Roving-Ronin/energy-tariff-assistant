@@ -98,12 +98,33 @@ def http_json(url: str, headers: dict[str, str]) -> Any:
     raise RuntimeError("unreachable")
 
 
-def register_brands(fetch: Fetcher) -> list[dict[str, str]]:
-    """Energy brands from the CDR Register whose product data is on Energy Made Easy."""
+def register_brands(fetch: Fetcher, diag: dict[str, Any] | None = None) -> list[dict[str, str]]:
+    """Energy brands from the CDR Register whose product data is on Energy Made Easy.
+
+    `diag` (if given) collects what the Register returned, to explain an empty result.
+    """
     brands: list[dict[str, str]] = []
     page = 1
     while True:
         body = fetch(f"{REGISTER_URL}?page={page}&page-size=1000", {"x-v": "1"})
+        if diag is not None and page == 1:
+            items = body.get("data") if isinstance(body, dict) else None
+            items = items if isinstance(items, list) else []
+            hosts: dict[str, int] = {}
+            for item in items:
+                uri = (item.get("productBaseUri") or "") if isinstance(item, dict) else ""
+                host = uri.split("/")[2] if uri.count("/") >= 2 else "(none)"
+                hosts[host] = hosts.get(host, 0) + 1
+            diag.update({
+                "top_keys": sorted(body) if isinstance(body, dict) else type(body).__name__,
+                "items": len(items),
+                "meta": body.get("meta") if isinstance(body, dict) else None,
+                "product_base_uri_hosts": dict(sorted(hosts.items())),
+                "sample": [
+                    {k: item.get(k) for k in ("brandName", "productBaseUri", "industries") if k in item}
+                    for item in items[:3] if isinstance(item, dict)
+                ],
+            })
         for item in body.get("data", []):
             base = (item.get("productBaseUri") or "").rstrip("/")
             if base.startswith(EME_HOST + "/"):
@@ -131,18 +152,34 @@ def known_names(brands: list[dict[str, str]]) -> dict[str, str]:
     return {b["brand"]: b["name"] for b in brands if b.get("brand")}
 
 
-def brand_plans(fetch: Fetcher, uri: str, pause: float = PAUSE_SECONDS) -> list[dict[str, Any]]:
-    """Every current or future electricity (or dual-fuel) plan at one path (all pages)."""
+def brand_plans(
+    fetch: Fetcher, uri: str, pause: float = PAUSE_SECONDS, diag: dict[str, Any] | None = None
+) -> list[dict[str, Any]]:
+    """Every current or future electricity (or dual-fuel) plan at one path (all pages).
+
+    `diag` (if given) gets what the first page looked like, to explain an empty result.
+    """
     plans: list[dict[str, Any]] = []
     page = 1
     while True:
         # fuelType=ALL: dual-fuel plans also sell electricity; gas-only plans are dropped below
         url = f"{uri}/cds-au/v1/energy/plans?fuelType=ALL&effective=ALL&page-size={PAGE_SIZE}&page={page}"
         body = fetch(url, {"x-v": "1"})
-        plans += [
-            p for p in (body.get("data") or {}).get("plans") or []
-            if (p.get("fuelType") or "").upper() != "GAS"
-        ]
+        raw = (body.get("data") or {}).get("plans") or [] if isinstance(body, dict) else []
+        if diag is not None and page == 1:
+            data = body.get("data") if isinstance(body, dict) else None
+            fuels: dict[str, int] = {}
+            for p in raw:
+                fuel = str(p.get("fuelType"))
+                fuels[fuel] = fuels.get(fuel, 0) + 1
+            diag.update({
+                "top_keys": sorted(body) if isinstance(body, dict) else type(body).__name__,
+                "data_keys": sorted(data) if isinstance(data, dict) else type(data).__name__,
+                "meta": body.get("meta") if isinstance(body, dict) else None,
+                "plans_on_page_1": len(raw),
+                "fuel_types": fuels,
+            })
+        plans += [p for p in raw if (p.get("fuelType") or "").upper() != "GAS"]
         total = int((body.get("meta") or {}).get("totalPages") or 1)
         if page >= total:
             return plans
@@ -203,11 +240,13 @@ def merge_by_name(retailers: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def build(fetch: Fetcher, pause: float = PAUSE_SECONDS, log=print) -> dict[str, Any]:
+    register_diag: dict[str, Any] = {}
     try:
-        brands = register_brands(fetch)
+        brands = register_brands(fetch, register_diag)
         brand_source = "ACCC CDR Register"
     except Exception as err:  # noqa: BLE001 - any failure: use the AER list instead
         log(f"CDR Register unavailable ({err}); using {FALLBACK_BRANDS.name}")
+        register_diag["error"] = str(err)
         brands, brand_source = [], ""
     if not brands:
         if brand_source:
@@ -217,17 +256,20 @@ def build(fetch: Fetcher, pause: float = PAUSE_SECONDS, log=print) -> dict[str, 
     names = known_names(brands)
     path_names = {b["uri"]: b["name"] for b in brands}
     retailers, unmapped, failed, empty = [], set(), [], []
+    empty_diag: dict[str, dict[str, Any]] = {}
     for uri in unique_paths(brands):
         cdr_path = uri.rsplit("/", 1)[-1]
+        path_diag: dict[str, Any] = {}
         try:
-            plans = brand_plans(fetch, uri, pause)
+            plans = brand_plans(fetch, uri, pause, path_diag)
         except Exception as err:  # noqa: BLE001 - one bad path mustn't stop the rest
             failed.append(f"{cdr_path}: {err}")
             log(f"! {cdr_path}: {err}")
             continue
         if not plans:
             empty.append(cdr_path)
-            log(f"- {cdr_path}: no electricity plans")
+            empty_diag[cdr_path] = path_diag
+            log(f"- {cdr_path}: no electricity plans ({path_diag})")
         # One path can serve several brands: split by each plan's own brand
         groups: dict[str, list[dict[str, Any]]] = {}
         seen_ids: set[str] = set()
@@ -265,6 +307,8 @@ def build(fetch: Fetcher, pause: float = PAUSE_SECONDS, log=print) -> dict[str, 
         "unmapped_distributors": sorted(unmapped),
         "failed_brands": failed,
         "paths_without_electricity_plans": sorted(empty),
+        # What the APIs returned where they gave nothing, to tell "really empty" from "read wrongly"
+        "diagnostics": {"register": register_diag, "empty_paths": dict(sorted(empty_diag.items()))},
     }
 
 
