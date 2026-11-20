@@ -46,7 +46,7 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
 | `engine/resolver.py` | **Moment → period and rate**, tiers (`used_kwh`), holidays, plan versions, `boundaries`, `next_change`. Pure |
 | `engine/forecast.py` | HAEO/EMHASS-shaped price forecast. Pure |
 | `engine/meter.py` | **`Ledger`: all per-period kWh and cost maths**, day/month/cycle buckets, boundary split, tier split. Pure, unit-tested directly. Never re-implement this elsewhere |
-| `engine/importers/` | Converters from other formats (energy-manager-tariffs). Pure |
+| `engine/importers/` | Converters from other formats: `energy_manager.py` (energy-manager-tariffs), `cdr.py` (Energy Made Easy / CDR plan detail; also the shared CDR distributor → DNSP/state map). Pure |
 | `schema/tariff-plan.schema.json` | JSON Schema for editors and CI; `validate.py` adds the cross-field rules |
 | `plan_source.py` | Library fetch, file read, paste parse; `check_plan` (validate + build resolver + prewarm holidays) |
 | `wizard.py` | Build-a-plan answers → plan dict (`assemble_plan`), file names, review summary; library filtering (country → state → DNSP → retailer → plan, newest first). Pure |
@@ -87,6 +87,16 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   breaks users' dashboards and history**: avoid it, or migrate the registry entry.
 - Meters are `state_class: total` with `last_reset` at the bucket start; the price sensor's `forecast` attribute
   is unrecorded.
+
+### Converting CDR (Energy Made Easy) plans
+- CDR prices are **ex GST**: `cdr.with_gst` adds 10%. Our plans are GST-inclusive.
+- Contract `timeZone` **AEST is the default when absent**: such plans get timezone `Australia/Brisbane` so fixed-AEST
+  windows stay right through daylight saving. LOCAL uses the state's zone.
+- CDR window ends are inclusive (14:59, 23:59): they become 15:00, 24:00.
+- Never guess: anything the plan format can't express exactly (FLEXIBLE/QUOTA pricing, banded supply, seasons not on
+  month boundaries, per-year steps, differing supply charges) is skipped with a reason in `Conversion.skipped`;
+  parts left out of a converted plan go in its `notes`. Converted plans are `needs_review: true`.
+- Period ids come from the plan's own rate names (`free`, `peak`), so meters and entity ids read naturally.
 
 ### Building plans
 - Wizard output goes through `check_plan` like any other plan; the wizard never writes a plan the validator rejects.

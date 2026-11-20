@@ -43,36 +43,12 @@ USER_AGENT = "energy-tariff-assistant (+https://github.com/Roving-Ronin/energy-t
 PAUSE_SECONDS = 0.5  # between requests: be polite to a public service
 RETRIES = 4
 
-# Lower-case keyword found in a distributor name -> (DNSP name as used in plans, state)
-DISTRIBUTORS: list[tuple[str, str, str]] = [
-    ("ausgrid", "Ausgrid", "NSW"),
-    ("endeavour", "Endeavour Energy", "NSW"),
-    ("essential", "Essential Energy", "NSW"),
-    ("evoenergy", "Evoenergy", "ACT"),
-    ("actewagl distribution", "Evoenergy", "ACT"),
-    ("energex", "Energex", "QLD"),
-    ("ergon", "Ergon Energy", "QLD"),
-    ("citipower", "CitiPower", "VIC"),
-    ("powercor", "Powercor", "VIC"),
-    ("jemena", "Jemena", "VIC"),
-    ("united", "United Energy", "VIC"),
-    ("ausnet", "AusNet Services", "VIC"),
-    ("sa power", "SA Power Networks", "SA"),
-    ("sapn", "SA Power Networks", "SA"),
-    ("tasnetworks", "TasNetworks", "TAS"),
-    ("tas networks", "TasNetworks", "TAS"),
-]
+# The distributor map is shared with the plan converter (engine/importers/cdr.py)
+sys.path.insert(0, str(REPO_ROOT / "custom_components" / "energy_tariff_assistant"))
+from engine.importers.cdr import DISTRIBUTORS, map_distributor  # noqa: E402,F401
 
 Fetcher = Callable[[str, dict[str, str]], Any]
 
-
-def map_distributor(name: str) -> tuple[str, str] | None:
-    """(DNSP, state) for a distributor name from the plan data, or None if unknown."""
-    lower = name.lower()
-    for keyword, dnsp, state in DISTRIBUTORS:
-        if keyword in lower:
-            return dnsp, state
-    return None
 
 
 def http_json(url: str, headers: dict[str, str]) -> Any:
