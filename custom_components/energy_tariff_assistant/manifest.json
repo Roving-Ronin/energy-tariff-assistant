@@ -1,0 +1,12 @@
+{
+  "domain": "energy_tariff_assistant",
+  "name": "Energy Tariff Assistant",
+  "codeowners": ["@Roving-Ronin"],
+  "config_flow": true,
+  "documentation": "https://github.com/Roving-Ronin/energy-tariff-assistant",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/Roving-Ronin/energy-tariff-assistant/issues",
+  "requirements": ["holidays>=0.60"],
+  "version": "0.1.0"
+}

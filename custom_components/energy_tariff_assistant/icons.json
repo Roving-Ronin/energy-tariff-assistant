@@ -1,0 +1,6 @@
+{
+  "services": {
+    "calibrate": { "service": "mdi:counter" },
+    "reset_meters": { "service": "mdi:restart" }
+  }
+}

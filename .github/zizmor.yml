@@ -1,0 +1,8 @@
+# zizmor (https://docs.zizmor.sh/): security audit of the GitHub workflows, run by the Security workflow.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        # Actions are pinned by tag (or branch, for hassfest / hacs) and kept current by Dependabot,
+        # rather than by commit hash.
+        "*": ref-pin

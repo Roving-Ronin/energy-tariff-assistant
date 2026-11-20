@@ -1,0 +1,72 @@
+name: Plan submission
+description: Add a tariff plan to the library, or correct one
+title: "[Plan] <Retailer> <Plan> (<State>, <DNSP>)"
+labels: ['plan']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping build the plan library! Rates must **include GST**, per kWh, in dollars (e.g. `0.45331`, not `45.331c`).
+
+        The easiest source is your plan's **Basic Plan Information Document (BPID)** or the plan on [Energy Made Easy](https://www.energymadeeasy.gov.au/). If you can write the plan file yourself, a pull request is even better: see *Adding a plan to the library* in the [README](https://github.com/Roving-Ronin/energy-tariff-assistant/blob/main/README.md).
+  - type: dropdown
+    id: kind
+    attributes:
+      label: New or correction?
+      options:
+        - New plan
+        - Correction to a library plan
+        - New rates for a library plan (price change)
+    validations:
+      required: true
+  - type: input
+    id: retailer-plan
+    attributes:
+      label: Retailer and plan
+      placeholder: Covau SolarMax Residential TOU
+    validations:
+      required: true
+  - type: dropdown
+    id: state
+    attributes:
+      label: State / territory
+      options: [NSW, ACT, VIC, QLD, SA, TAS, WA, NT]
+    validations:
+      required: true
+  - type: input
+    id: dnsp
+    attributes:
+      label: Distributor (DNSP)
+      placeholder: Ausgrid, Endeavour Energy, Essential Energy, Evoenergy, Energex...
+    validations:
+      required: true
+  - type: input
+    id: plan-id
+    attributes:
+      label: Plan ID and effective date
+      description: The EME / BPID plan ID if shown, and the date these rates start.
+      placeholder: COV1117612MRE3, from 2026-07-01
+    validations:
+      required: true
+  - type: textarea
+    id: rates
+    attributes:
+      label: Rates and times
+      description: |
+        Supply charge per day, then each import rate with its days and times, any caps (e.g. "first 50 kWh/day free 11:00-14:00"), feed-in rates, and whether public holidays are treated as weekends.
+      placeholder: |
+        Supply: $2.30/day
+        Peak 15:00-21:00 every day: 45.331c/kWh
+        Off-peak 00:00-06:00: 16.5c/kWh
+        Free 11:00-14:00, first 50 kWh/day, then shoulder
+        Shoulder all other times: 27.478c/kWh
+        FiT: 15c/kWh 18:00-21:00 for the first 30 kWh/day, otherwise 5c
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: Link to the BPID / EME page / retailer fact sheet, or "my bill" (please don't attach bills with your name or address).
+    validations:
+      required: true

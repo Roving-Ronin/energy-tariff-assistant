@@ -1,0 +1,44 @@
+name: Pull Requests
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Integration checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Compile every module
+        run: python -m compileall -q custom_components/energy_tariff_assistant
+
+      - name: translations/en.json matches strings.json
+        run: |
+          if ! diff -q custom_components/energy_tariff_assistant/strings.json custom_components/energy_tariff_assistant/translations/en.json; then
+            echo "::error file=custom_components/energy_tariff_assistant/translations/en.json::translations/en.json differs from strings.json. Copy strings.json over it."
+            exit 1
+          fi
+
+      - name: The rate engine has no Home Assistant imports
+        run: |
+          # engine/ is shared with the plan scripts and CI, which run without Home Assistant.
+          if grep -rnE '^\s*(from|import) homeassistant' custom_components/energy_tariff_assistant/engine; then
+            echo "::error::custom_components/energy_tariff_assistant/engine must not import homeassistant."
+            exit 1
+          fi
+
+      - name: manifest.json is valid
+        run: python -c "import json; m = json.load(open('custom_components/energy_tariff_assistant/manifest.json')); assert m['domain'] == 'energy_tariff_assistant'; print(m['version'])"

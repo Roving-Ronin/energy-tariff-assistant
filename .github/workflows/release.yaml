@@ -1,0 +1,109 @@
+name: Release
+
+# Runs when a GitHub release is published, or is called by Auto Release (a release a workflow creates doesn't
+# trigger other workflows, so Auto Release calls this one with the tag). The release tag is the version:
+#   1. Takes the version from the tag (v0.3.0 -> 0.3.0).
+#   2. Writes it into manifest.json and builds energy_tariff_assistant.zip from the
+#      integration folder, then attaches the zip to the release. HACS / the
+#      Marketplace install from this zip (hacs.json zip_release), which is also
+#      what the download badge counts.
+#   3. Commits the same version bump back to the default branch, so the repo's
+#      manifest.json stays in step. Nobody needs to edit manifest.json by hand.
+on:
+  release:
+    types: [published]
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag, e.g. v0.4.0
+        required: true
+        type: string
+      prerelease:
+        description: A pre-release (doesn't move the default branch's version)
+        required: false
+        type: boolean
+        default: false
+
+permissions: {}
+
+env:
+  MANIFEST: custom_components/energy_tariff_assistant/manifest.json
+
+jobs:
+  release:
+    name: Build and attach energy_tariff_assistant.zip
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # attach the zip to the release
+    steps:
+      - name: Check out the release tag
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag || github.event.release.tag_name }}
+          persist-credentials: false
+
+      - name: Version from the release tag
+        env:
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        run: |
+          VERSION="${TAG#v}"
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([.-]?(a|b|rc|dev)[0-9]*)?$'; then
+            echo "::error::Release tag '$TAG' isn't a version. Use a tag like v0.3.0 (or 0.3.0, v0.3.0b1)."
+            exit 1
+          fi
+          echo "Release version: $VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Write the version into manifest.json
+        run: |
+          jq --indent 2 --arg v "$VERSION" '.version = $v' "$MANIFEST" > manifest.tmp
+          mv manifest.tmp "$MANIFEST"
+          grep '"version"' "$MANIFEST"
+
+      - name: Build energy_tariff_assistant.zip
+        run: |
+          cd custom_components/energy_tariff_assistant
+          zip -r -q "$GITHUB_WORKSPACE/energy_tariff_assistant.zip" . -x "*/__pycache__/*" "*.pyc"
+          cd "$GITHUB_WORKSPACE"
+          unzip -l energy_tariff_assistant.zip
+          unzip -p energy_tariff_assistant.zip manifest.json | grep '"version"'
+
+      - name: Attach the zip to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        run: gh release upload "$TAG" energy_tariff_assistant.zip --clobber
+
+  sync-manifest:
+    permissions:
+      contents: write
+    name: Commit the version to ${{ github.event.repository.default_branch }}
+    needs: release
+    runs-on: ubuntu-latest
+    # Pre-releases (e.g. betas) don't move the default branch's version
+    if: ${{ !(inputs.prerelease || github.event.release.prerelease) }}
+    steps:
+      - name: Check out the default branch
+        # zizmor: ignore[artipacked] this job pushes the version commit back, so it keeps the token
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Commit manifest.json version if it changed
+        env:
+          TAG: ${{ inputs.tag || github.event.release.tag_name }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          VERSION="${TAG#v}"
+          jq --indent 2 --arg v "$VERSION" '.version = $v' "$MANIFEST" > manifest.tmp
+          mv manifest.tmp "$MANIFEST"
+          if git diff --quiet -- "$MANIFEST"; then
+            echo "manifest.json already at $VERSION"
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "Set manifest version to $VERSION (release $TAG)" -- "$MANIFEST"
+          if ! git push -q origin "HEAD:$DEFAULT_BRANCH"; then
+            echo "::warning::Couldn't push the version bump (branch protection?). The release zip is correct; manifest.json on the default branch still shows the old version."
+          fi

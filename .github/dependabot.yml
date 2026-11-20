@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Keep GitHub Actions used by the workflows up to date
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    # Wait a week before taking a new release, so a broken or compromised one is usually caught first
+    cooldown:
+      default-days: 7
+
+  # Keep the test requirements (pytest-homeassistant-custom-component etc.) up to date
+  - package-ecosystem: 'pip'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    # Wait a week before taking a new release, so a broken or compromised one is usually caught first
+    cooldown:
+      default-days: 7

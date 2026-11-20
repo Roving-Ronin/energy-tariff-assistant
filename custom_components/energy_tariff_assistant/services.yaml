@@ -1,0 +1,41 @@
+calibrate:
+  target:
+    entity:
+      integration: energy_tariff_assistant
+      domain: sensor
+      device_class: energy
+  fields:
+    energy:
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          step: 0.001
+          unit_of_measurement: kWh
+          mode: box
+    cost:
+      required: false
+      selector:
+        number:
+          min: -1000000
+          max: 1000000
+          step: 0.01
+          mode: box
+
+reset_meters:
+  fields:
+    config_entry:
+      required: true
+      selector:
+        config_entry:
+          integration: energy_tariff_assistant
+    bucket:
+      required: true
+      default: cycle
+      selector:
+        select:
+          translation_key: bucket
+          options:
+            - day
+            - cycle
