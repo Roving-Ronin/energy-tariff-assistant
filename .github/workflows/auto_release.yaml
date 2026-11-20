@@ -2,7 +2,8 @@ name: Auto Release
 
 # Publishes a release when a PR titled with its version is merged, e.g. "v0.4.0: savings and payback".
 # A PR whose title doesn't start with a version (docs, Dependabot) releases nothing, and neither does one with
-# "[skip release]" anywhere in its title or description (to merge a versioned PR now and release later).
+# "[skip release]" in its title, or on a line of its own in its description (to merge a versioned PR now and
+# release later). Mentioning the marker inside a sentence of the description doesn't count.
 #   1. The version comes from the PR title (or, run by hand, from the version you type).
 #   2. CHANGELOG.md must have a section headed "## v0.4.0 (YYYY-MM-DD)": its text becomes the release notes.
 #      No section, or a tag that already exists, stops here with an error and nothing is released.
@@ -48,7 +49,10 @@ jobs:
           BODY: ${{ github.event.pull_request.body }}
           INPUT: ${{ inputs.version }}
         run: |
-          if [ -z "$INPUT" ] && printf '%s\n%s' "$TITLE" "$BODY" | grep -qiF '[skip release]'; then
+          # Title: anywhere. Description: only a line that is the marker alone (spaces around it allowed),
+          # so a sentence that explains the marker doesn't stop a release.
+          if [ -z "$INPUT" ] && { printf '%s' "$TITLE" | grep -qiF '[skip release]' \
+              || printf '%s\n' "$BODY" | tr -d '\r' | grep -qixE '[[:space:]]*\[skip release\][[:space:]]*'; }; then
             echo "::notice::The PR says [skip release], so nothing is released. Release later with Actions → Auto Release → Run workflow."
             exit 0
           fi

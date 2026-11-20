@@ -114,8 +114,10 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
 
 ## Releases and changelog
 - **A PR titled `vX.Y.Z: …` releases `vX.Y.Z` when it's merged** (Auto Release), with its CHANGELOG section as the
-  notes. Never put a version at the start of a PR that isn't a release. `[skip release]` in a PR's title or
-  description stops it releasing.
+  notes. Never put a version at the start of a PR that isn't a release. `[skip release]` in a PR's title, or on a line of its own in the
+  description, stops it releasing. **Don't write the marker in a release PR's description** at all, not even to
+  explain it (say "the skip marker" instead): v0.1.0b2's merge was skipped that way (2026-11-20) before the
+  own-line rule. To release after a skip: Actions → Auto Release → Run workflow with the version.
 - Release writes the version into `manifest.json`, attaches `energy_tariff_assistant.zip` and commits the version
   back. Don't edit the manifest version by hand.
 - `CHANGELOG.md`: every release opens with a `### TL;DR`, rewritten as a whole when entries are added. Head a

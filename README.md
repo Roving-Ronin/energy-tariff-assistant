@@ -214,8 +214,8 @@ that repository has no licence file; without them those tests are skipped.
 
 Merge a PR titled with its version (e.g. `v0.2.0: demand charges`) and with a `## v0.2.0 (YYYY-MM-DD)` section in
 `CHANGELOG.md`: the Auto Release workflow publishes the release, writes the version into `manifest.json`, attaches
-`energy_tariff_assistant.zip` and commits the version back to `main`. **`[skip release]`** in the PR title or
-description merges without releasing.
+`energy_tariff_assistant.zip` and commits the version back to `main`. **`[skip release]`** in the PR title, or on a line of
+its own in the description, merges without releasing (a sentence that only mentions it doesn't count).
 
 ## Licence
 
