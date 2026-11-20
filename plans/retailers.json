@@ -1,14 +1,12 @@
 {
   "format": "eta_retailers",
   "version": 1,
-  "updated_at": "2026-11-20T10:27:45Z",
+  "updated_at": "2026-11-20T10:46:37Z",
   "source": "AER Energy Product Reference Data (Energy Made Easy, Consumer Data Right), current electricity plans",
   "brand_list": "AER retailer base URI list",
   "retailers": [
     {
       "name": "1st Energy",
-      "cdr_path": "1st-energy",
-      "cdr_brand": "1st-energy",
       "plans": 413,
       "states": [
         "NSW",
@@ -73,12 +71,16 @@
           "residential": 14,
           "business": 14
         }
-      }
+      },
+      "cdr_paths": [
+        "1st-energy"
+      ],
+      "cdr_brands": [
+        "1st-energy"
+      ]
     },
     {
       "name": "ActewAGL",
-      "cdr_path": "actewagl",
-      "cdr_brand": "actewagl",
       "plans": 192,
       "states": [
         "ACT",
@@ -100,12 +102,16 @@
           "residential": 50,
           "business": 18
         }
-      }
+      },
+      "cdr_paths": [
+        "actewagl"
+      ],
+      "cdr_brands": [
+        "actewagl"
+      ]
     },
     {
       "name": "AGL",
-      "cdr_path": "agl",
-      "cdr_brand": "agl",
       "plans": 926,
       "states": [
         "NSW",
@@ -164,12 +170,16 @@
           "residential": 68,
           "business": 20
         }
-      }
+      },
+      "cdr_paths": [
+        "agl"
+      ],
+      "cdr_brands": [
+        "agl"
+      ]
     },
     {
       "name": "Alinta Energy",
-      "cdr_path": "alinta",
-      "cdr_brand": "alinta",
       "plans": 483,
       "states": [
         "NSW",
@@ -228,14 +238,22 @@
           "residential": 26,
           "business": 16
         }
-      }
+      },
+      "cdr_paths": [
+        "alinta"
+      ],
+      "cdr_brands": [
+        "alinta"
+      ]
     },
     {
       "name": "Amber Electric",
-      "cdr_path": "amber",
-      "cdr_brand": "amber",
-      "plans": 85,
+      "plans": 255,
       "states": [
+        "ACT",
+        "NSW",
+        "QLD",
+        "SA",
         "VIC"
       ],
       "distributors": {
@@ -244,43 +262,14 @@
           "residential": 10,
           "business": 7
         },
-        "CitiPower": {
-          "state": "VIC",
-          "residential": 10,
-          "business": 7
-        },
-        "Jemena": {
-          "state": "VIC",
-          "residential": 10,
-          "business": 7
-        },
-        "Powercor": {
-          "state": "VIC",
-          "residential": 10,
-          "business": 7
-        },
-        "United Energy": {
-          "state": "VIC",
-          "residential": 10,
-          "business": 7
-        }
-      }
-    },
-    {
-      "name": "Amber Electric",
-      "cdr_path": "amber",
-      "cdr_brand": "amber ",
-      "plans": 170,
-      "states": [
-        "ACT",
-        "NSW",
-        "QLD",
-        "SA"
-      ],
-      "distributors": {
         "Ausgrid": {
           "state": "NSW",
           "residential": 22,
+          "business": 7
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 10,
           "business": 7
         },
         "Endeavour Energy": {
@@ -303,17 +292,36 @@
           "residential": 21,
           "business": 7
         },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 7
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 7
+        },
         "SA Power Networks": {
           "state": "SA",
           "residential": 22,
           "business": 7
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 7
         }
-      }
+      },
+      "cdr_paths": [
+        "amber"
+      ],
+      "cdr_brands": [
+        "amber"
+      ]
     },
     {
       "name": "Arc Energy Group",
-      "cdr_path": "arc-energy",
-      "cdr_brand": "arc-energy ",
       "plans": 6,
       "states": [
         "NSW"
@@ -334,12 +342,16 @@
           "residential": 3,
           "business": 3
         }
-      }
+      },
+      "cdr_paths": [
+        "arc-energy"
+      ],
+      "cdr_brands": [
+        "arc-energy"
+      ]
     },
     {
       "name": "Aurora Energy",
-      "cdr_path": "aurora",
-      "cdr_brand": "aurora ",
       "plans": 20,
       "states": [
         "TAS"
@@ -350,12 +362,16 @@
           "residential": 9,
           "business": 11
         }
-      }
+      },
+      "cdr_paths": [
+        "aurora"
+      ],
+      "cdr_brands": [
+        "aurora"
+      ]
     },
     {
       "name": "Blue NRG",
-      "cdr_path": "blue-nrg",
-      "cdr_brand": "blue-nrg",
       "plans": 1336,
       "states": [
         "NSW",
@@ -414,12 +430,16 @@
           "residential": 4,
           "business": 56
         }
-      }
+      },
+      "cdr_paths": [
+        "blue-nrg"
+      ],
+      "cdr_brands": [
+        "blue-nrg"
+      ]
     },
     {
       "name": "CovaU",
-      "cdr_path": "covau",
-      "cdr_brand": "covau",
       "plans": 337,
       "states": [
         "ACT",
@@ -490,12 +510,16 @@
           "residential": 12,
           "business": 7
         }
-      }
+      },
+      "cdr_paths": [
+        "covau"
+      ],
+      "cdr_brands": [
+        "covau"
+      ]
     },
     {
       "name": "Diamond Energy",
-      "cdr_path": "diamond",
-      "cdr_brand": "diamond",
       "plans": 221,
       "states": [
         "NSW",
@@ -554,12 +578,16 @@
           "residential": 11,
           "business": 5
         }
-      }
+      },
+      "cdr_paths": [
+        "diamond"
+      ],
+      "cdr_brands": [
+        "diamond"
+      ]
     },
     {
       "name": "Dodo Power & Gas",
-      "cdr_path": "dodo",
-      "cdr_brand": "dodo",
       "plans": 127,
       "states": [
         "NSW",
@@ -618,12 +646,16 @@
           "residential": 10,
           "business": 3
         }
-      }
+      },
+      "cdr_paths": [
+        "dodo"
+      ],
+      "cdr_brands": [
+        "dodo"
+      ]
     },
     {
       "name": "Energy Locals Retail",
-      "cdr_path": "energy-locals",
-      "cdr_brand": "energy-locals",
       "plans": 18,
       "states": [
         "ACT"
@@ -634,12 +666,16 @@
           "residential": 12,
           "business": 6
         }
-      }
+      },
+      "cdr_paths": [
+        "energy-locals"
+      ],
+      "cdr_brands": [
+        "energy-locals"
+      ]
     },
     {
       "name": "Energy Locals Urban",
-      "cdr_path": "energy-locals-urban",
-      "cdr_brand": "energy-locals-urban",
       "plans": 14,
       "states": [
         "ACT",
@@ -683,12 +719,16 @@
           "residential": 1,
           "business": 1
         }
-      }
+      },
+      "cdr_paths": [
+        "energy-locals-urban"
+      ],
+      "cdr_brands": [
+        "energy-locals-urban"
+      ]
     },
     {
       "name": "EnergyAustralia",
-      "cdr_path": "energyaustralia",
-      "cdr_brand": "energyaustralia",
       "plans": 979,
       "states": [
         "ACT",
@@ -753,12 +793,16 @@
           "residential": 50,
           "business": 12
         }
-      }
+      },
+      "cdr_paths": [
+        "energyaustralia"
+      ],
+      "cdr_brands": [
+        "energyaustralia"
+      ]
     },
     {
       "name": "ENGIE",
-      "cdr_path": "engie",
-      "cdr_brand": "engie",
       "plans": 2541,
       "states": [
         "NSW",
@@ -817,12 +861,16 @@
           "residential": 84,
           "business": 36
         }
-      }
+      },
+      "cdr_paths": [
+        "engie"
+      ],
+      "cdr_brands": [
+        "engie"
+      ]
     },
     {
       "name": "ERC Energy",
-      "cdr_path": "erc-energy",
-      "cdr_brand": "erc-energy",
       "plans": 40,
       "states": [
         "ACT",
@@ -855,12 +903,16 @@
           "residential": 8,
           "business": 0
         }
-      }
+      },
+      "cdr_paths": [
+        "erc-energy"
+      ],
+      "cdr_brands": [
+        "erc-energy"
+      ]
     },
     {
       "name": "Ergon Energy",
-      "cdr_path": "ergon",
-      "cdr_brand": "ergon",
       "plans": 36,
       "states": [
         "QLD"
@@ -871,12 +923,16 @@
           "residential": 20,
           "business": 16
         }
-      }
+      },
+      "cdr_paths": [
+        "ergon"
+      ],
+      "cdr_brands": [
+        "ergon"
+      ]
     },
     {
       "name": "Flipped Energy",
-      "cdr_path": "flipped",
-      "cdr_brand": "flipped",
       "plans": 202,
       "states": [
         "NSW",
@@ -935,12 +991,16 @@
           "residential": 10,
           "business": 8
         }
-      }
+      },
+      "cdr_paths": [
+        "flipped"
+      ],
+      "cdr_brands": [
+        "flipped"
+      ]
     },
     {
       "name": "Flow Power",
-      "cdr_path": "flow-power",
-      "cdr_brand": "flow-power",
       "plans": 444,
       "states": [
         "NSW",
@@ -999,12 +1059,16 @@
           "residential": 54,
           "business": 4
         }
-      }
+      },
+      "cdr_paths": [
+        "flow-power"
+      ],
+      "cdr_brands": [
+        "flow-power"
+      ]
     },
     {
       "name": "Future X Power",
-      "cdr_path": "future-x",
-      "cdr_brand": "future-x",
       "plans": 85,
       "states": [
         "NSW",
@@ -1037,12 +1101,16 @@
           "residential": 4,
           "business": 2
         }
-      }
+      },
+      "cdr_paths": [
+        "future-x"
+      ],
+      "cdr_brands": [
+        "future-x"
+      ]
     },
     {
       "name": "GEE Energy",
-      "cdr_path": "gee-energy",
-      "cdr_brand": "gee-energy",
       "plans": 108,
       "states": [
         "NSW",
@@ -1074,12 +1142,16 @@
           "residential": 20,
           "business": 8
         }
-      }
+      },
+      "cdr_paths": [
+        "gee-energy"
+      ],
+      "cdr_brands": [
+        "gee-energy"
+      ]
     },
     {
       "name": "GloBird Energy",
-      "cdr_path": "globird",
-      "cdr_brand": "globird",
       "plans": 462,
       "states": [
         "NSW",
@@ -1138,14 +1210,19 @@
           "residential": 36,
           "business": 15
         }
-      }
+      },
+      "cdr_paths": [
+        "globird"
+      ],
+      "cdr_brands": [
+        "globird"
+      ]
     },
     {
       "name": "Indigo Power",
-      "cdr_path": "energy-locals",
-      "cdr_brand": "indigo",
-      "plans": 149,
+      "plans": 285,
       "states": [
+        "NSW",
         "VIC"
       ],
       "distributors": {
@@ -1154,10 +1231,25 @@
           "residential": 17,
           "business": 12
         },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 32,
+          "business": 16
+        },
         "CitiPower": {
           "state": "VIC",
           "residential": 16,
           "business": 12
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 22,
+          "business": 11
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 102,
+          "business": 63
         },
         "Jemena": {
           "state": "VIC",
@@ -1174,38 +1266,17 @@
           "residential": 20,
           "business": 12
         }
-      }
-    },
-    {
-      "name": "Indigo Power",
-      "cdr_path": "next-business",
-      "cdr_brand": "indigo",
-      "plans": 136,
-      "states": [
-        "NSW"
+      },
+      "cdr_paths": [
+        "energy-locals",
+        "next-business"
       ],
-      "distributors": {
-        "Ausgrid": {
-          "state": "NSW",
-          "residential": 32,
-          "business": 16
-        },
-        "Endeavour Energy": {
-          "state": "NSW",
-          "residential": 22,
-          "business": 11
-        },
-        "Essential Energy": {
-          "state": "NSW",
-          "residential": 102,
-          "business": 63
-        }
-      }
+      "cdr_brands": [
+        "indigo"
+      ]
     },
     {
       "name": "iO Energy",
-      "cdr_path": "radian",
-      "cdr_brand": "io-energy",
       "plans": 15,
       "states": [
         "SA"
@@ -1216,12 +1287,16 @@
           "residential": 8,
           "business": 7
         }
-      }
+      },
+      "cdr_paths": [
+        "radian"
+      ],
+      "cdr_brands": [
+        "io-energy"
+      ]
     },
     {
       "name": "Kogan Energy",
-      "cdr_path": "kogan",
-      "cdr_brand": "kogan",
       "plans": 253,
       "states": [
         "NSW",
@@ -1280,12 +1355,16 @@
           "residential": 14,
           "business": 0
         }
-      }
+      },
+      "cdr_paths": [
+        "kogan"
+      ],
+      "cdr_brands": [
+        "kogan"
+      ]
     },
     {
       "name": "Lumo Energy",
-      "cdr_path": "lumo",
-      "cdr_brand": "lumo",
       "plans": 183,
       "states": [
         "SA",
@@ -1322,12 +1401,16 @@
           "residential": 14,
           "business": 15
         }
-      }
+      },
+      "cdr_paths": [
+        "lumo"
+      ],
+      "cdr_brands": [
+        "lumo"
+      ]
     },
     {
       "name": "Momentum Energy",
-      "cdr_path": "momentum",
-      "cdr_brand": "momentum",
       "plans": 973,
       "states": [
         "NSW",
@@ -1386,12 +1469,16 @@
           "residential": 30,
           "business": 29
         }
-      }
+      },
+      "cdr_paths": [
+        "momentum"
+      ],
+      "cdr_brands": [
+        "momentum"
+      ]
     },
     {
       "name": "Nectr",
-      "cdr_path": "nectr",
-      "cdr_brand": "nectr",
       "plans": 286,
       "states": [
         "ACT",
@@ -1456,12 +1543,16 @@
           "residential": 6,
           "business": 8
         }
-      }
+      },
+      "cdr_paths": [
+        "nectr"
+      ],
+      "cdr_brands": [
+        "nectr"
+      ]
     },
     {
       "name": "Next Business Energy",
-      "cdr_path": "next-business",
-      "cdr_brand": "next-business",
       "plans": 276,
       "states": [
         "ACT",
@@ -1531,13 +1622,17 @@
           "residential": 4,
           "business": 23
         }
-      }
+      },
+      "cdr_paths": [
+        "next-business"
+      ],
+      "cdr_brands": [
+        "next-business"
+      ]
     },
     {
       "name": "Origin Energy",
-      "cdr_path": "origin",
-      "cdr_brand": "origin",
-      "plans": 3187,
+      "plans": 3185,
       "states": [
         "ACT",
         "NSW",
@@ -1548,7 +1643,7 @@
       "distributors": {
         "AusNet Services": {
           "state": "VIC",
-          "residential": 105,
+          "residential": 106,
           "business": 120
         },
         "Ausgrid": {
@@ -1559,7 +1654,7 @@
         "CitiPower": {
           "state": "VIC",
           "residential": 119,
-          "business": 146
+          "business": 145
         },
         "Endeavour Energy": {
           "state": "NSW",
@@ -1594,7 +1689,7 @@
         "Powercor": {
           "state": "VIC",
           "residential": 119,
-          "business": 150
+          "business": 149
         },
         "SA Power Networks": {
           "state": "SA",
@@ -1603,15 +1698,19 @@
         },
         "United Energy": {
           "state": "VIC",
-          "residential": 120,
+          "residential": 119,
           "business": 120
         }
-      }
+      },
+      "cdr_paths": [
+        "origin"
+      ],
+      "cdr_brands": [
+        "origin"
+      ]
     },
     {
       "name": "OVO Energy",
-      "cdr_path": "ovo-energy",
-      "cdr_brand": "ovo-energy",
       "plans": 244,
       "states": [
         "NSW",
@@ -1670,12 +1769,16 @@
           "residential": 14,
           "business": 3
         }
-      }
+      },
+      "cdr_paths": [
+        "ovo-energy"
+      ],
+      "cdr_brands": [
+        "ovo-energy"
+      ]
     },
     {
       "name": "Powershop",
-      "cdr_path": "powershop",
-      "cdr_brand": "powershop",
       "plans": 436,
       "states": [
         "NSW",
@@ -1734,12 +1837,16 @@
           "residential": 16,
           "business": 8
         }
-      }
+      },
+      "cdr_paths": [
+        "powershop"
+      ],
+      "cdr_brands": [
+        "powershop"
+      ]
     },
     {
       "name": "Real Utilities",
-      "cdr_path": "real-utilities",
-      "cdr_brand": "real-utilities",
       "plans": 4,
       "states": [
         "VIC"
@@ -1760,12 +1867,16 @@
           "residential": 1,
           "business": 1
         }
-      }
+      },
+      "cdr_paths": [
+        "real-utilities"
+      ],
+      "cdr_brands": [
+        "real-utilities"
+      ]
     },
     {
       "name": "Red Energy",
-      "cdr_path": "red-energy",
-      "cdr_brand": "red-energy",
       "plans": 1517,
       "states": [
         "ACT",
@@ -1830,12 +1941,16 @@
           "residential": 32,
           "business": 21
         }
-      }
+      },
+      "cdr_paths": [
+        "red-energy"
+      ],
+      "cdr_brands": [
+        "red-energy"
+      ]
     },
     {
       "name": "Silver Asset Energy",
-      "cdr_path": "silver-asset",
-      "cdr_brand": "silver-asset",
       "plans": 20,
       "states": [
         "NSW",
@@ -1868,12 +1983,16 @@
           "residential": 2,
           "business": 2
         }
-      }
+      },
+      "cdr_paths": [
+        "silver-asset"
+      ],
+      "cdr_brands": [
+        "silver-asset"
+      ]
     },
     {
       "name": "Solstice Energy",
-      "cdr_path": "solstice",
-      "cdr_brand": "solstice",
       "plans": 66,
       "states": [
         "TAS"
@@ -1884,12 +2003,16 @@
           "residential": 33,
           "business": 33
         }
-      }
+      },
+      "cdr_paths": [
+        "solstice"
+      ],
+      "cdr_brands": [
+        "solstice"
+      ]
     },
     {
       "name": "Sumo",
-      "cdr_path": "sumo-power",
-      "cdr_brand": "sumo-power",
       "plans": 473,
       "states": [
         "NSW",
@@ -1948,12 +2071,16 @@
           "residential": 14,
           "business": 20
         }
-      }
+      },
+      "cdr_paths": [
+        "sumo-power"
+      ],
+      "cdr_brands": [
+        "sumo-power"
+      ]
     },
     {
       "name": "Tango Energy",
-      "cdr_path": "tango",
-      "cdr_brand": "tango",
       "plans": 172,
       "states": [
         "NSW",
@@ -2012,7 +2139,13 @@
           "residential": 14,
           "business": 4
         }
-      }
+      },
+      "cdr_paths": [
+        "tango"
+      ],
+      "cdr_brands": [
+        "tango"
+      ]
     }
   ],
   "distributors": {
@@ -2379,5 +2512,46 @@
     }
   },
   "unmapped_distributors": [],
-  "failed_brands": []
+  "failed_brands": [],
+  "paths_without_electricity_plans": [
+    "active-utilities",
+    "altogether",
+    "ampol",
+    "arcstream",
+    "aseno",
+    "besy",
+    "brighte",
+    "cleanco",
+    "cleanpeak",
+    "coles",
+    "commander",
+    "cpe-mascot",
+    "discover",
+    "ea-connect",
+    "evergy",
+    "glow-power",
+    "humenergy",
+    "igeno",
+    "locality-planning",
+    "localvolts",
+    "macarthur",
+    "macquarie",
+    "metered-energy",
+    "microgrid",
+    "pacific-blue",
+    "perpetual",
+    "powerhub",
+    "powow",
+    "savant",
+    "seene",
+    "shell-energy",
+    "smart-energy",
+    "stanwell",
+    "telstra-energy",
+    "tesla",
+    "veolia",
+    "winconnect",
+    "yes-energy",
+    "zen-energy"
+  ]
 }
