@@ -131,7 +131,11 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   `ovo-energy`: OVO, MYOB, OVO for CTM; `radian`: Radian, iO; `future-x`: Future X, Sunswitch), so plans are split
   by each plan's `brand`. Brands come from the ACCC CDR Register, with `scripts/eme_brands.json` (the AER's
   January 2026 list) as fallback. Store derived facts only (retailer, DNSP, state, counts), never plan text or
-  prices. Unknown distributor names show as `unmapped_distributors`: add them to `DISTRIBUTORS`.
+  prices. Unknown distributor names show as `unmapped_distributors`: add them to `DISTRIBUTORS` (in
+  `engine/importers/cdr.py`, shared with the converter). The Register's brand summary has no `productBaseUri`, so
+  paths come from `scripts/eme_brands.json`; Register brands missing from it show as `register_brands_not_in_list`.
+- **CDR conversion check** (manual workflow, `scripts/check_cdr_conversion.py`): real plan details are an uploaded
+  artifact only, never committed. Tests use hand-written or trimmed samples.
 
 ## Releases and changelog
 - **A PR titled `vX.Y.Z: …` releases `vX.Y.Z` when it's merged** (Auto Release), with its CHANGELOG section as the

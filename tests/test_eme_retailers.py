@@ -146,3 +146,16 @@ def test_fallback_list_matches_the_aer_pdf():
         "sunswitch": "future-x", "io-energy": "radian", "myob": "ovo-energy", "ovo-energy-ctm": "ovo-energy",
     }
     assert len(eme.unique_paths(brands)) == 76
+
+
+def test_brands_not_in_list():
+    listed = [{"name": "ARCLINE by RACV", "brand": "arcline"}, {"name": "Sumo", "brand": "sumo-power"}]
+    assert eme.brands_not_in_list(["Arcline by RACV", "SUMO", "New Retail Co", "sumo-power"], listed) == ["New Retail Co"]
+
+
+def test_build_reports_new_register_brands():
+    data = eme.build(fake_fetch([]), pause=0, log=lambda *_: None)
+    # The fake Register's names that aren't in scripts/eme_brands.json
+    assert "Own Host" in data["register_brands_not_in_list"]
+    assert "AGL" not in data["register_brands_not_in_list"]
+    assert "names" not in data["diagnostics"]["register"]
