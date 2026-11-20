@@ -132,13 +132,17 @@ def known_names(brands: list[dict[str, str]]) -> dict[str, str]:
 
 
 def brand_plans(fetch: Fetcher, uri: str, pause: float = PAUSE_SECONDS) -> list[dict[str, Any]]:
-    """Every current electricity plan of one brand (all pages)."""
+    """Every current or future electricity (or dual-fuel) plan at one path (all pages)."""
     plans: list[dict[str, Any]] = []
     page = 1
     while True:
-        url = f"{uri}/cds-au/v1/energy/plans?fuelType=ELECTRICITY&effective=CURRENT&page-size={PAGE_SIZE}&page={page}"
+        # fuelType=ALL: dual-fuel plans also sell electricity; gas-only plans are dropped below
+        url = f"{uri}/cds-au/v1/energy/plans?fuelType=ALL&effective=ALL&page-size={PAGE_SIZE}&page={page}"
         body = fetch(url, {"x-v": "1"})
-        plans += (body.get("data") or {}).get("plans") or []
+        plans += [
+            p for p in (body.get("data") or {}).get("plans") or []
+            if (p.get("fuelType") or "").upper() != "GAS"
+        ]
         total = int((body.get("meta") or {}).get("totalPages") or 1)
         if page >= total:
             return plans
@@ -174,19 +178,45 @@ def summarise(
     }
 
 
+def merge_by_name(retailers: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """One entry per retailer name, even when its plans sit under several paths or brands."""
+    merged: dict[str, dict[str, Any]] = {}
+    for r in retailers:
+        m = merged.get(r["name"])
+        if m is None:
+            merged[r["name"]] = {**r, "cdr_paths": [r["cdr_path"]], "cdr_brands": [r["cdr_brand"]],
+                                 "distributors": {k: dict(v) for k, v in r["distributors"].items()}}
+            continue
+        m["plans"] += r["plans"]
+        m["cdr_paths"] = sorted(set(m["cdr_paths"]) | {r["cdr_path"]})
+        m["cdr_brands"] = sorted(set(m["cdr_brands"]) | {r["cdr_brand"]})
+        m["states"] = sorted(set(m["states"]) | set(r["states"]))
+        for dnsp, cov in r["distributors"].items():
+            slot = m["distributors"].setdefault(dnsp, {"state": cov["state"], "residential": 0, "business": 0})
+            slot["residential"] += cov["residential"]
+            slot["business"] += cov["business"]
+        m["distributors"] = dict(sorted(m["distributors"].items()))
+    for m in merged.values():
+        m.pop("cdr_path", None)
+        m.pop("cdr_brand", None)
+    return list(merged.values())
+
+
 def build(fetch: Fetcher, pause: float = PAUSE_SECONDS, log=print) -> dict[str, Any]:
     try:
         brands = register_brands(fetch)
         brand_source = "ACCC CDR Register"
     except Exception as err:  # noqa: BLE001 - any failure: use the AER list instead
         log(f"CDR Register unavailable ({err}); using {FALLBACK_BRANDS.name}")
-        brands, brand_source = fallback_brands(), "AER retailer base URI list"
+        brands, brand_source = [], ""
     if not brands:
+        if brand_source:
+            log(f"CDR Register listed no Energy Made Easy brands; using {FALLBACK_BRANDS.name}")
         brands, brand_source = fallback_brands(), "AER retailer base URI list"
 
     names = known_names(brands)
     path_names = {b["uri"]: b["name"] for b in brands}
-    retailers, unmapped, failed = [], set(), []
+    retailers, unmapped, failed, empty = [], set(), [], []
     for uri in unique_paths(brands):
         cdr_path = uri.rsplit("/", 1)[-1]
         try:
@@ -195,10 +225,18 @@ def build(fetch: Fetcher, pause: float = PAUSE_SECONDS, log=print) -> dict[str, 
             failed.append(f"{cdr_path}: {err}")
             log(f"! {cdr_path}: {err}")
             continue
+        if not plans:
+            empty.append(cdr_path)
+            log(f"- {cdr_path}: no electricity plans")
         # One path can serve several brands: split by each plan's own brand
         groups: dict[str, list[dict[str, Any]]] = {}
+        seen_ids: set[str] = set()
         for plan in plans:
-            groups.setdefault(plan.get("brand") or cdr_path, []).append(plan)
+            if (pid := plan.get("planId")) and pid in seen_ids:
+                continue
+            if pid:
+                seen_ids.add(pid)
+            groups.setdefault((plan.get("brand") or cdr_path).strip(), []).append(plan)
         for cdr_brand, group in sorted(groups.items()):
             brand_names = sorted({p["brandName"] for p in group if p.get("brandName")})
             name = names.get(cdr_brand) or (brand_names[0] if brand_names else path_names.get(uri, cdr_brand))
@@ -208,6 +246,7 @@ def build(fetch: Fetcher, pause: float = PAUSE_SECONDS, log=print) -> dict[str, 
                 retailers.append(summary)
         time.sleep(pause)
 
+    retailers = merge_by_name(retailers)
     by_dnsp: dict[str, dict[str, Any]] = {}
     for retailer in retailers:
         for dnsp, cov in retailer["distributors"].items():
@@ -225,6 +264,7 @@ def build(fetch: Fetcher, pause: float = PAUSE_SECONDS, log=print) -> dict[str, 
         "distributors": dict(sorted(by_dnsp.items())),
         "unmapped_distributors": sorted(unmapped),
         "failed_brands": failed,
+        "paths_without_electricity_plans": sorted(empty),
     }
 
 
