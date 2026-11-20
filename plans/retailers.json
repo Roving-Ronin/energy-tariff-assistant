@@ -1,0 +1,2383 @@
+{
+  "format": "eta_retailers",
+  "version": 1,
+  "updated_at": "2026-11-20T10:27:45Z",
+  "source": "AER Energy Product Reference Data (Energy Made Easy, Consumer Data Right), current electricity plans",
+  "brand_list": "AER retailer base URI list",
+  "retailers": [
+    {
+      "name": "1st Energy",
+      "cdr_path": "1st-energy",
+      "cdr_brand": "1st-energy",
+      "plans": 413,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "TAS",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 14
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 32,
+          "business": 30
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 14
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 32,
+          "business": 21
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 25,
+          "business": 19
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 32,
+          "business": 21
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 14
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 14
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 14,
+          "business": 12
+        },
+        "TasNetworks": {
+          "state": "TAS",
+          "residential": 21,
+          "business": 14
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 14
+        }
+      }
+    },
+    {
+      "name": "ActewAGL",
+      "cdr_path": "actewagl",
+      "cdr_brand": "actewagl",
+      "plans": 192,
+      "states": [
+        "ACT",
+        "NSW"
+      ],
+      "distributors": {
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 48,
+          "business": 16
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 36,
+          "business": 24
+        },
+        "Evoenergy": {
+          "state": "ACT",
+          "residential": 50,
+          "business": 18
+        }
+      }
+    },
+    {
+      "name": "AGL",
+      "cdr_path": "agl",
+      "cdr_brand": "agl",
+      "plans": 926,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 68,
+          "business": 24
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 60,
+          "business": 31
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 68,
+          "business": 24
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 60,
+          "business": 24
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 60,
+          "business": 24
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 256,
+          "business": 48
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 68,
+          "business": 24
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 68,
+          "business": 24
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 76,
+          "business": 31
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 68,
+          "business": 20
+        }
+      }
+    },
+    {
+      "name": "Alinta Energy",
+      "cdr_path": "alinta",
+      "cdr_brand": "alinta",
+      "plans": 483,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 36,
+          "business": 20
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 43,
+          "business": 25
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 27,
+          "business": 20
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 27,
+          "business": 13
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 26,
+          "business": 24
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 65,
+          "business": 25
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 26,
+          "business": 24
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 26,
+          "business": 20
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 26,
+          "business": 16
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 26,
+          "business": 16
+        }
+      }
+    },
+    {
+      "name": "Amber Electric",
+      "cdr_path": "amber",
+      "cdr_brand": "amber",
+      "plans": 85,
+      "states": [
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 7
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 7
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 7
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 7
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 7
+        }
+      }
+    },
+    {
+      "name": "Amber Electric",
+      "cdr_path": "amber",
+      "cdr_brand": "amber ",
+      "plans": 170,
+      "states": [
+        "ACT",
+        "NSW",
+        "QLD",
+        "SA"
+      ],
+      "distributors": {
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 22,
+          "business": 7
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 21,
+          "business": 7
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 21,
+          "business": 7
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 21,
+          "business": 7
+        },
+        "Evoenergy": {
+          "state": "ACT",
+          "residential": 21,
+          "business": 7
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 22,
+          "business": 7
+        }
+      }
+    },
+    {
+      "name": "Arc Energy Group",
+      "cdr_path": "arc-energy",
+      "cdr_brand": "arc-energy ",
+      "plans": 6,
+      "states": [
+        "NSW"
+      ],
+      "distributors": {
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 1,
+          "business": 1
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 1,
+          "business": 1
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 3,
+          "business": 3
+        }
+      }
+    },
+    {
+      "name": "Aurora Energy",
+      "cdr_path": "aurora",
+      "cdr_brand": "aurora ",
+      "plans": 20,
+      "states": [
+        "TAS"
+      ],
+      "distributors": {
+        "TasNetworks": {
+          "state": "TAS",
+          "residential": 9,
+          "business": 11
+        }
+      }
+    },
+    {
+      "name": "Blue NRG",
+      "cdr_path": "blue-nrg",
+      "cdr_brand": "blue-nrg",
+      "plans": 1336,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 3,
+          "business": 55
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 0,
+          "business": 204
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 4,
+          "business": 56
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 0,
+          "business": 283
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 0,
+          "business": 212
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 0,
+          "business": 781
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 4,
+          "business": 56
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 4,
+          "business": 56
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 0,
+          "business": 78
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 4,
+          "business": 56
+        }
+      }
+    },
+    {
+      "name": "CovaU",
+      "cdr_path": "covau",
+      "cdr_brand": "covau",
+      "plans": 337,
+      "states": [
+        "ACT",
+        "NSW",
+        "QLD",
+        "SA",
+        "TAS",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 12,
+          "business": 6
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 29,
+          "business": 30
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 12,
+          "business": 6
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 25,
+          "business": 16
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 28,
+          "business": 24
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 69,
+          "business": 63
+        },
+        "Evoenergy": {
+          "state": "ACT",
+          "residential": 3,
+          "business": 3
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 6
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 12,
+          "business": 7
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 9,
+          "business": 10
+        },
+        "TasNetworks": {
+          "state": "TAS",
+          "residential": 12,
+          "business": 14
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 12,
+          "business": 7
+        }
+      }
+    },
+    {
+      "name": "Diamond Energy",
+      "cdr_path": "diamond",
+      "cdr_brand": "diamond",
+      "plans": 221,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 11,
+          "business": 5
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 18,
+          "business": 12
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 12,
+          "business": 5
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 18,
+          "business": 12
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 18,
+          "business": 12
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 54,
+          "business": 36
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 11,
+          "business": 5
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 11,
+          "business": 5
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 12,
+          "business": 8
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 11,
+          "business": 5
+        }
+      }
+    },
+    {
+      "name": "Dodo Power & Gas",
+      "cdr_path": "dodo",
+      "cdr_brand": "dodo",
+      "plans": 127,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 3
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 10,
+          "business": 4
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 3
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 10,
+          "business": 4
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 10,
+          "business": 0
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 30,
+          "business": 12
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 3
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 3
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 6,
+          "business": 4
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 3
+        }
+      }
+    },
+    {
+      "name": "Energy Locals Retail",
+      "cdr_path": "energy-locals",
+      "cdr_brand": "energy-locals",
+      "plans": 18,
+      "states": [
+        "ACT"
+      ],
+      "distributors": {
+        "Evoenergy": {
+          "state": "ACT",
+          "residential": 12,
+          "business": 6
+        }
+      }
+    },
+    {
+      "name": "Energy Locals Urban",
+      "cdr_path": "energy-locals-urban",
+      "cdr_brand": "energy-locals-urban",
+      "plans": 14,
+      "states": [
+        "ACT",
+        "NSW",
+        "QLD",
+        "SA"
+      ],
+      "distributors": {
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 1,
+          "business": 1
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 1,
+          "business": 1
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 1,
+          "business": 1
+        },
+        "Ergon Energy": {
+          "state": "QLD",
+          "residential": 1,
+          "business": 1
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 3,
+          "business": 3
+        },
+        "Evoenergy": {
+          "state": "ACT",
+          "residential": 1,
+          "business": 1
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 1,
+          "business": 1
+        }
+      }
+    },
+    {
+      "name": "EnergyAustralia",
+      "cdr_path": "energyaustralia",
+      "cdr_brand": "energyaustralia",
+      "plans": 979,
+      "states": [
+        "ACT",
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 50,
+          "business": 15
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 84,
+          "business": 36
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 50,
+          "business": 12
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 84,
+          "business": 24
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 100,
+          "business": 24
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 372,
+          "business": 117
+        },
+        "Evoenergy": {
+          "state": "ACT",
+          "residential": 72,
+          "business": 27
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 50,
+          "business": 15
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 50,
+          "business": 12
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 34,
+          "business": 15
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 50,
+          "business": 12
+        }
+      }
+    },
+    {
+      "name": "ENGIE",
+      "cdr_path": "engie",
+      "cdr_brand": "engie",
+      "plans": 2541,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 84,
+          "business": 60
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 405,
+          "business": 105
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 84,
+          "business": 48
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 324,
+          "business": 105
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 316,
+          "business": 96
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 972,
+          "business": 252
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 84,
+          "business": 48
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 84,
+          "business": 48
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 92,
+          "business": 30
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 84,
+          "business": 36
+        }
+      }
+    },
+    {
+      "name": "ERC Energy",
+      "cdr_path": "erc-energy",
+      "cdr_brand": "erc-energy",
+      "plans": 40,
+      "states": [
+        "ACT",
+        "NSW",
+        "QLD"
+      ],
+      "distributors": {
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 8,
+          "business": 0
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 8,
+          "business": 0
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 8,
+          "business": 0
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 8,
+          "business": 0
+        },
+        "Evoenergy": {
+          "state": "ACT",
+          "residential": 8,
+          "business": 0
+        }
+      }
+    },
+    {
+      "name": "Ergon Energy",
+      "cdr_path": "ergon",
+      "cdr_brand": "ergon",
+      "plans": 36,
+      "states": [
+        "QLD"
+      ],
+      "distributors": {
+        "Ergon Energy": {
+          "state": "QLD",
+          "residential": 20,
+          "business": 16
+        }
+      }
+    },
+    {
+      "name": "Flipped Energy",
+      "cdr_path": "flipped",
+      "cdr_brand": "flipped",
+      "plans": 202,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 8
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 8,
+          "business": 8
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 8
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 8,
+          "business": 8
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 8,
+          "business": 8
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 24,
+          "business": 24
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 8
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 8
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 8,
+          "business": 8
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 10,
+          "business": 8
+        }
+      }
+    },
+    {
+      "name": "Flow Power",
+      "cdr_path": "flow-power",
+      "cdr_brand": "flow-power",
+      "plans": 444,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 54,
+          "business": 4
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 22,
+          "business": 0
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 54,
+          "business": 4
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 22,
+          "business": 0
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 22,
+          "business": 0
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 66,
+          "business": 0
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 54,
+          "business": 4
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 54,
+          "business": 4
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 22,
+          "business": 0
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 54,
+          "business": 4
+        }
+      }
+    },
+    {
+      "name": "Future X Power",
+      "cdr_path": "future-x",
+      "cdr_brand": "future-x",
+      "plans": 85,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA"
+      ],
+      "distributors": {
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 4,
+          "business": 35
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 4,
+          "business": 24
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 4,
+          "business": 2
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 12,
+          "business": 6
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 4,
+          "business": 2
+        }
+      }
+    },
+    {
+      "name": "GEE Energy",
+      "cdr_path": "gee-energy",
+      "cdr_brand": "gee-energy",
+      "plans": 108,
+      "states": [
+        "NSW",
+        "QLD"
+      ],
+      "distributors": {
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 16,
+          "business": 8
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 12,
+          "business": 12
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 10,
+          "business": 6
+        },
+        "Ergon Energy": {
+          "state": "QLD",
+          "residential": 10,
+          "business": 6
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 20,
+          "business": 8
+        }
+      }
+    },
+    {
+      "name": "GloBird Energy",
+      "cdr_path": "globird",
+      "cdr_brand": "globird",
+      "plans": 462,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 36,
+          "business": 15
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 36,
+          "business": 2
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 36,
+          "business": 15
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 44,
+          "business": 3
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 38,
+          "business": 2
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 44,
+          "business": 2
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 36,
+          "business": 15
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 36,
+          "business": 15
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 34,
+          "business": 2
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 36,
+          "business": 15
+        }
+      }
+    },
+    {
+      "name": "Indigo Power",
+      "cdr_path": "energy-locals",
+      "cdr_brand": "indigo",
+      "plans": 149,
+      "states": [
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 17,
+          "business": 12
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 16,
+          "business": 12
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 12,
+          "business": 12
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 16,
+          "business": 20
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 20,
+          "business": 12
+        }
+      }
+    },
+    {
+      "name": "Indigo Power",
+      "cdr_path": "next-business",
+      "cdr_brand": "indigo",
+      "plans": 136,
+      "states": [
+        "NSW"
+      ],
+      "distributors": {
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 32,
+          "business": 16
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 22,
+          "business": 11
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 102,
+          "business": 63
+        }
+      }
+    },
+    {
+      "name": "iO Energy",
+      "cdr_path": "radian",
+      "cdr_brand": "io-energy",
+      "plans": 15,
+      "states": [
+        "SA"
+      ],
+      "distributors": {
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 8,
+          "business": 7
+        }
+      }
+    },
+    {
+      "name": "Kogan Energy",
+      "cdr_path": "kogan",
+      "cdr_brand": "kogan",
+      "plans": 253,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 0
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 52,
+          "business": 0
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 0
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 36,
+          "business": 0
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 36,
+          "business": 0
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 144,
+          "business": 0
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 0
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 0
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 11,
+          "business": 0
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 0
+        }
+      }
+    },
+    {
+      "name": "Lumo Energy",
+      "cdr_path": "lumo",
+      "cdr_brand": "lumo",
+      "plans": 183,
+      "states": [
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 19
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 16
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 15
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 16
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 16,
+          "business": 16
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 15
+        }
+      }
+    },
+    {
+      "name": "Momentum Energy",
+      "cdr_path": "momentum",
+      "cdr_brand": "momentum",
+      "plans": 973,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 30,
+          "business": 24
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 100,
+          "business": 72
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 30,
+          "business": 29
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 100,
+          "business": 72
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 61,
+          "business": 28
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 363,
+          "business": 270
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 30,
+          "business": 18
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 30,
+          "business": 30
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 22,
+          "business": 27
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 30,
+          "business": 29
+        }
+      }
+    },
+    {
+      "name": "Nectr",
+      "cdr_path": "nectr",
+      "cdr_brand": "nectr",
+      "plans": 286,
+      "states": [
+        "ACT",
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 6,
+          "business": 6
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 21,
+          "business": 24
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 6,
+          "business": 10
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 21,
+          "business": 24
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 24,
+          "business": 24
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 99,
+          "business": 54
+        },
+        "Evoenergy": {
+          "state": "ACT",
+          "residential": 6,
+          "business": 9
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 6,
+          "business": 10
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 6,
+          "business": 12
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 6,
+          "business": 0
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 6,
+          "business": 8
+        }
+      }
+    },
+    {
+      "name": "Next Business Energy",
+      "cdr_path": "next-business",
+      "cdr_brand": "next-business",
+      "plans": 276,
+      "states": [
+        "ACT",
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 5,
+          "business": 17
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 7,
+          "business": 23
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 7,
+          "business": 34
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 7,
+          "business": 15
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 2,
+          "business": 17
+        },
+        "Ergon Energy": {
+          "state": "QLD",
+          "residential": 1,
+          "business": 30
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 9,
+          "business": 57
+        },
+        "Evoenergy": {
+          "state": "ACT",
+          "residential": 0,
+          "business": 4
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 5,
+          "business": 10
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 6,
+          "business": 21
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 1,
+          "business": 15
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 4,
+          "business": 23
+        }
+      }
+    },
+    {
+      "name": "Origin Energy",
+      "cdr_path": "origin",
+      "cdr_brand": "origin",
+      "plans": 3187,
+      "states": [
+        "ACT",
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 105,
+          "business": 120
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 192,
+          "business": 187
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 119,
+          "business": 146
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 181,
+          "business": 124
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 182,
+          "business": 172
+        },
+        "Ergon Energy": {
+          "state": "QLD",
+          "residential": 64,
+          "business": 12
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 573,
+          "business": 369
+        },
+        "Evoenergy": {
+          "state": "ACT",
+          "residential": 272,
+          "business": 96
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 119,
+          "business": 96
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 119,
+          "business": 150
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 91,
+          "business": 86
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 120,
+          "business": 120
+        }
+      }
+    },
+    {
+      "name": "OVO Energy",
+      "cdr_path": "ovo-energy",
+      "cdr_brand": "ovo-energy",
+      "plans": 244,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 18,
+          "business": 3
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 21,
+          "business": 6
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 18,
+          "business": 4
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 27,
+          "business": 6
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 27,
+          "business": 6
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 21,
+          "business": 6
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 18,
+          "business": 4
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 18,
+          "business": 4
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 18,
+          "business": 2
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 3
+        }
+      }
+    },
+    {
+      "name": "Powershop",
+      "cdr_path": "powershop",
+      "cdr_brand": "powershop",
+      "plans": 436,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 16,
+          "business": 10
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 56,
+          "business": 24
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 16,
+          "business": 10
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 44,
+          "business": 20
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 40,
+          "business": 20
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 156,
+          "business": 84
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 16,
+          "business": 10
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 16,
+          "business": 12
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 12,
+          "business": 10
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 16,
+          "business": 8
+        }
+      }
+    },
+    {
+      "name": "Real Utilities",
+      "cdr_path": "real-utilities",
+      "cdr_brand": "real-utilities",
+      "plans": 4,
+      "states": [
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 0,
+          "business": 1
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 0,
+          "business": 1
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 1,
+          "business": 1
+        }
+      }
+    },
+    {
+      "name": "Red Energy",
+      "cdr_path": "red-energy",
+      "cdr_brand": "red-energy",
+      "plans": 1517,
+      "states": [
+        "ACT",
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 32,
+          "business": 27
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 121,
+          "business": 72
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 32,
+          "business": 22
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 152,
+          "business": 76
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 229,
+          "business": 123
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 468,
+          "business": 288
+        },
+        "Evoenergy": {
+          "state": "ACT",
+          "residential": 114,
+          "business": 36
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 32,
+          "business": 21
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 32,
+          "business": 22
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 41,
+          "business": 28
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 32,
+          "business": 21
+        }
+      }
+    },
+    {
+      "name": "Silver Asset Energy",
+      "cdr_path": "silver-asset",
+      "cdr_brand": "silver-asset",
+      "plans": 20,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA"
+      ],
+      "distributors": {
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 2,
+          "business": 2
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 2,
+          "business": 2
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 2,
+          "business": 2
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 6,
+          "business": 6
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 2,
+          "business": 2
+        }
+      }
+    },
+    {
+      "name": "Solstice Energy",
+      "cdr_path": "solstice",
+      "cdr_brand": "solstice",
+      "plans": 66,
+      "states": [
+        "TAS"
+      ],
+      "distributors": {
+        "TasNetworks": {
+          "state": "TAS",
+          "residential": 33,
+          "business": 33
+        }
+      }
+    },
+    {
+      "name": "Sumo",
+      "cdr_path": "sumo-power",
+      "cdr_brand": "sumo-power",
+      "plans": 473,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 21
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 35,
+          "business": 41
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 18
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 35,
+          "business": 32
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 47,
+          "business": 32
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 105,
+          "business": 96
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 13,
+          "business": 16
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 22
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 10,
+          "business": 8
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 20
+        }
+      }
+    },
+    {
+      "name": "Tango Energy",
+      "cdr_path": "tango",
+      "cdr_brand": "tango",
+      "plans": 172,
+      "states": [
+        "NSW",
+        "QLD",
+        "SA",
+        "VIC"
+      ],
+      "distributors": {
+        "AusNet Services": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 4
+        },
+        "Ausgrid": {
+          "state": "NSW",
+          "residential": 16,
+          "business": 4
+        },
+        "CitiPower": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 3
+        },
+        "Endeavour Energy": {
+          "state": "NSW",
+          "residential": 15,
+          "business": 4
+        },
+        "Energex": {
+          "state": "QLD",
+          "residential": 7,
+          "business": 3
+        },
+        "Essential Energy": {
+          "state": "NSW",
+          "residential": 54,
+          "business": 24
+        },
+        "Jemena": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 2
+        },
+        "Powercor": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 3
+        },
+        "SA Power Networks": {
+          "state": "SA",
+          "residential": 6,
+          "business": 5
+        },
+        "United Energy": {
+          "state": "VIC",
+          "residential": 14,
+          "business": 4
+        }
+      }
+    }
+  ],
+  "distributors": {
+    "AusNet Services": {
+      "state": "VIC",
+      "retailers": [
+        "1st Energy",
+        "AGL",
+        "Alinta Energy",
+        "Amber Electric",
+        "Blue NRG",
+        "CovaU",
+        "Diamond Energy",
+        "Dodo Power & Gas",
+        "EnergyAustralia",
+        "ENGIE",
+        "Flipped Energy",
+        "Flow Power",
+        "GloBird Energy",
+        "Indigo Power",
+        "Kogan Energy",
+        "Lumo Energy",
+        "Momentum Energy",
+        "Nectr",
+        "Next Business Energy",
+        "Origin Energy",
+        "OVO Energy",
+        "Powershop",
+        "Real Utilities",
+        "Red Energy",
+        "Sumo",
+        "Tango Energy"
+      ]
+    },
+    "Ausgrid": {
+      "state": "NSW",
+      "retailers": [
+        "1st Energy",
+        "AGL",
+        "Alinta Energy",
+        "Amber Electric",
+        "Arc Energy Group",
+        "Blue NRG",
+        "CovaU",
+        "Diamond Energy",
+        "Dodo Power & Gas",
+        "Energy Locals Urban",
+        "EnergyAustralia",
+        "ENGIE",
+        "ERC Energy",
+        "Flipped Energy",
+        "Flow Power",
+        "Future X Power",
+        "GEE Energy",
+        "GloBird Energy",
+        "Indigo Power",
+        "Kogan Energy",
+        "Momentum Energy",
+        "Nectr",
+        "Next Business Energy",
+        "Origin Energy",
+        "OVO Energy",
+        "Powershop",
+        "Red Energy",
+        "Silver Asset Energy",
+        "Sumo",
+        "Tango Energy"
+      ]
+    },
+    "CitiPower": {
+      "state": "VIC",
+      "retailers": [
+        "1st Energy",
+        "AGL",
+        "Alinta Energy",
+        "Amber Electric",
+        "Blue NRG",
+        "CovaU",
+        "Diamond Energy",
+        "Dodo Power & Gas",
+        "EnergyAustralia",
+        "ENGIE",
+        "Flipped Energy",
+        "Flow Power",
+        "GloBird Energy",
+        "Indigo Power",
+        "Kogan Energy",
+        "Lumo Energy",
+        "Momentum Energy",
+        "Nectr",
+        "Next Business Energy",
+        "Origin Energy",
+        "OVO Energy",
+        "Powershop",
+        "Red Energy",
+        "Sumo",
+        "Tango Energy"
+      ]
+    },
+    "Endeavour Energy": {
+      "state": "NSW",
+      "retailers": [
+        "1st Energy",
+        "ActewAGL",
+        "AGL",
+        "Alinta Energy",
+        "Amber Electric",
+        "Arc Energy Group",
+        "Blue NRG",
+        "CovaU",
+        "Diamond Energy",
+        "Dodo Power & Gas",
+        "Energy Locals Urban",
+        "EnergyAustralia",
+        "ENGIE",
+        "ERC Energy",
+        "Flipped Energy",
+        "Flow Power",
+        "Future X Power",
+        "GEE Energy",
+        "GloBird Energy",
+        "Indigo Power",
+        "Kogan Energy",
+        "Momentum Energy",
+        "Nectr",
+        "Next Business Energy",
+        "Origin Energy",
+        "OVO Energy",
+        "Powershop",
+        "Red Energy",
+        "Silver Asset Energy",
+        "Sumo",
+        "Tango Energy"
+      ]
+    },
+    "Energex": {
+      "state": "QLD",
+      "retailers": [
+        "1st Energy",
+        "AGL",
+        "Alinta Energy",
+        "Amber Electric",
+        "Blue NRG",
+        "CovaU",
+        "Diamond Energy",
+        "Dodo Power & Gas",
+        "Energy Locals Urban",
+        "EnergyAustralia",
+        "ENGIE",
+        "ERC Energy",
+        "Flipped Energy",
+        "Flow Power",
+        "Future X Power",
+        "GEE Energy",
+        "GloBird Energy",
+        "Kogan Energy",
+        "Momentum Energy",
+        "Nectr",
+        "Next Business Energy",
+        "Origin Energy",
+        "OVO Energy",
+        "Powershop",
+        "Red Energy",
+        "Silver Asset Energy",
+        "Sumo",
+        "Tango Energy"
+      ]
+    },
+    "Ergon Energy": {
+      "state": "QLD",
+      "retailers": [
+        "Energy Locals Urban",
+        "Ergon Energy",
+        "GEE Energy",
+        "Next Business Energy",
+        "Origin Energy"
+      ]
+    },
+    "Essential Energy": {
+      "state": "NSW",
+      "retailers": [
+        "1st Energy",
+        "ActewAGL",
+        "AGL",
+        "Alinta Energy",
+        "Amber Electric",
+        "Arc Energy Group",
+        "Blue NRG",
+        "CovaU",
+        "Diamond Energy",
+        "Dodo Power & Gas",
+        "Energy Locals Urban",
+        "EnergyAustralia",
+        "ENGIE",
+        "ERC Energy",
+        "Flipped Energy",
+        "Flow Power",
+        "Future X Power",
+        "GEE Energy",
+        "GloBird Energy",
+        "Indigo Power",
+        "Kogan Energy",
+        "Momentum Energy",
+        "Nectr",
+        "Next Business Energy",
+        "Origin Energy",
+        "OVO Energy",
+        "Powershop",
+        "Red Energy",
+        "Silver Asset Energy",
+        "Sumo",
+        "Tango Energy"
+      ]
+    },
+    "Evoenergy": {
+      "state": "ACT",
+      "retailers": [
+        "ActewAGL",
+        "Amber Electric",
+        "CovaU",
+        "Energy Locals Retail",
+        "Energy Locals Urban",
+        "EnergyAustralia",
+        "ERC Energy",
+        "Nectr",
+        "Next Business Energy",
+        "Origin Energy",
+        "Red Energy"
+      ]
+    },
+    "Jemena": {
+      "state": "VIC",
+      "retailers": [
+        "1st Energy",
+        "AGL",
+        "Alinta Energy",
+        "Amber Electric",
+        "Blue NRG",
+        "CovaU",
+        "Diamond Energy",
+        "Dodo Power & Gas",
+        "EnergyAustralia",
+        "ENGIE",
+        "Flipped Energy",
+        "Flow Power",
+        "GloBird Energy",
+        "Indigo Power",
+        "Kogan Energy",
+        "Lumo Energy",
+        "Momentum Energy",
+        "Nectr",
+        "Next Business Energy",
+        "Origin Energy",
+        "OVO Energy",
+        "Powershop",
+        "Red Energy",
+        "Sumo",
+        "Tango Energy"
+      ]
+    },
+    "Powercor": {
+      "state": "VIC",
+      "retailers": [
+        "1st Energy",
+        "AGL",
+        "Alinta Energy",
+        "Amber Electric",
+        "Blue NRG",
+        "CovaU",
+        "Diamond Energy",
+        "Dodo Power & Gas",
+        "EnergyAustralia",
+        "ENGIE",
+        "Flipped Energy",
+        "Flow Power",
+        "GloBird Energy",
+        "Indigo Power",
+        "Kogan Energy",
+        "Lumo Energy",
+        "Momentum Energy",
+        "Nectr",
+        "Next Business Energy",
+        "Origin Energy",
+        "OVO Energy",
+        "Powershop",
+        "Real Utilities",
+        "Red Energy",
+        "Sumo",
+        "Tango Energy"
+      ]
+    },
+    "SA Power Networks": {
+      "state": "SA",
+      "retailers": [
+        "1st Energy",
+        "AGL",
+        "Alinta Energy",
+        "Amber Electric",
+        "Blue NRG",
+        "CovaU",
+        "Diamond Energy",
+        "Dodo Power & Gas",
+        "Energy Locals Urban",
+        "EnergyAustralia",
+        "ENGIE",
+        "Flipped Energy",
+        "Flow Power",
+        "Future X Power",
+        "GloBird Energy",
+        "iO Energy",
+        "Kogan Energy",
+        "Lumo Energy",
+        "Momentum Energy",
+        "Nectr",
+        "Next Business Energy",
+        "Origin Energy",
+        "OVO Energy",
+        "Powershop",
+        "Red Energy",
+        "Silver Asset Energy",
+        "Sumo",
+        "Tango Energy"
+      ]
+    },
+    "TasNetworks": {
+      "state": "TAS",
+      "retailers": [
+        "1st Energy",
+        "Aurora Energy",
+        "CovaU",
+        "Solstice Energy"
+      ]
+    },
+    "United Energy": {
+      "state": "VIC",
+      "retailers": [
+        "1st Energy",
+        "AGL",
+        "Alinta Energy",
+        "Amber Electric",
+        "Blue NRG",
+        "CovaU",
+        "Diamond Energy",
+        "Dodo Power & Gas",
+        "EnergyAustralia",
+        "ENGIE",
+        "Flipped Energy",
+        "Flow Power",
+        "GloBird Energy",
+        "Indigo Power",
+        "Kogan Energy",
+        "Lumo Energy",
+        "Momentum Energy",
+        "Nectr",
+        "Next Business Energy",
+        "Origin Energy",
+        "OVO Energy",
+        "Powershop",
+        "Real Utilities",
+        "Red Energy",
+        "Sumo",
+        "Tango Energy"
+      ]
+    }
+  },
+  "unmapped_distributors": [],
+  "failed_brands": []
+}
