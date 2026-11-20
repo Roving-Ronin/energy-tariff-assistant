@@ -17,23 +17,37 @@ REGISTER = {
         {"brandName": "Own Host", "productBaseUri": "https://public.cdr.example.com.au"},
         {"brandName": "RAA Energy", "productBaseUri": "https://cdr.energymadeeasy.gov.au/energy-locals"},
         {"brandName": "Energy Locals Retail", "productBaseUri": "https://cdr.energymadeeasy.gov.au/energy-locals"},
+        {"brandName": "Amber Electric", "productBaseUri": "https://cdr.energymadeeasy.gov.au/amber"},
+        {"brandName": "Next Business Energy", "productBaseUri": "https://cdr.energymadeeasy.gov.au/next-business"},
+        {"brandName": "Empty", "productBaseUri": "https://cdr.energymadeeasy.gov.au/empty"},
     ],
     "meta": {"totalPages": 1},
 }
 
 
-def plan(distributors, customer="RESIDENTIAL", brand_name=None, brand=None):
-    return {"planId": "x", "customerType": customer, "brandName": brand_name, "brand": brand,
-            "geography": {"distributors": distributors}}
+_ids = iter(range(10**6))
+
+
+def plan(distributors, customer="RESIDENTIAL", brand_name=None, brand=None, fuel="ELECTRICITY", plan_id=None):
+    return {"planId": plan_id or f"p{next(_ids)}", "customerType": customer, "brandName": brand_name,
+            "brand": brand, "fuelType": fuel, "geography": {"distributors": distributors}}
 
 
 PAGES = {
     "covau": [[plan(["Essential Energy"], brand_name="CovaU"), plan(["Ausgrid", "Endeavour"])],
               [plan(["Essential"], customer="BUSINESS")]],
-    "agl": [[plan(["Energex"]), plan(["Mystery Networks"]), plan(["United Energy Distribution"])]],
+    "agl": [[plan(["Energex"]), plan(["Mystery Networks"]), plan(["United Energy Distribution"]),
+             plan(["Jemena"], fuel="GAS"), plan(["Ausgrid"], fuel="DUAL")]],
+    # Trailing space in the brand, and a plan repeated across pages
+    "amber": [[plan(["Ausgrid"], brand="amber", brand_name="Amber Electric", plan_id="A1")],
+              [plan(["Ausgrid"], brand="amber ", brand_name="Amber Electric", plan_id="A1"),
+               plan(["Energex"], brand="amber ", brand_name="Amber Electric")]],
+    "next-business": [[plan(["Ausgrid"], brand="indigo", brand_name="Indigo Power")]],
+    "empty": [[]],
     # Several brands on one path
     "energy-locals": [[plan(["SA Power Networks"], brand="raa", brand_name="RAA Energy"),
-                       plan(["Ausgrid"], brand="energy-locals", brand_name="Energy Locals")]],
+                       plan(["Ausgrid"], brand="energy-locals", brand_name="Energy Locals"),
+                       plan(["Ausgrid"], brand="indigo", brand_name="Indigo Power")]],
 }
 
 
@@ -46,7 +60,7 @@ def fake_fetch(calls):
         path = url.split("cdr.energymadeeasy.gov.au/")[1].split("/")[0]
         page = int(url.rsplit("page=", 1)[1])
         pages = PAGES[path]
-        assert "fuelType=ELECTRICITY" in url and "effective=CURRENT" in url and "page-size=1000" in url
+        assert "fuelType=ALL" in url and "effective=ALL" in url and "page-size=1000" in url
         return {"data": {"plans": pages[page - 1]}, "meta": {"totalPages": len(pages)}}
     return fetch
 
@@ -72,8 +86,16 @@ def test_build():
     assert data["brand_list"] == "ACCC CDR Register"
     by_name = {r["name"]: r for r in data["retailers"]}
     # The brand on its own host is skipped; energy-locals is split into its brands
-    assert sorted(by_name) == ["AGL", "CovaU", "Energy Locals", "RAA Energy"]
-    assert by_name["RAA Energy"]["cdr_path"] == "energy-locals"
+    assert sorted(by_name) == ["AGL", "Amber Electric", "CovaU", "Energy Locals", "Indigo Power", "RAA Energy"]
+    assert by_name["RAA Energy"]["cdr_paths"] == ["energy-locals"]
+    # Same brand with a trailing space, and a repeated plan: one entry, counted once
+    amber = by_name["Amber Electric"]
+    assert amber["plans"] == 2 and amber["cdr_brands"] == ["amber"]
+    # One retailer under two paths: merged
+    indigo = by_name["Indigo Power"]
+    assert indigo["cdr_paths"] == ["energy-locals", "next-business"]
+    assert indigo["distributors"]["Ausgrid"]["residential"] == 2
+    assert data["paths_without_electricity_plans"] == ["empty"]
     assert by_name["RAA Energy"]["states"] == ["SA"]
     covau = by_name["CovaU"]
     assert covau["plans"] == 3
@@ -81,7 +103,9 @@ def test_build():
     assert covau["distributors"]["Essential Energy"] == {"state": "NSW", "residential": 1, "business": 1}
     assert set(covau["distributors"]) == {"Ausgrid", "Endeavour Energy", "Essential Energy"}
     agl = by_name["AGL"]
-    assert agl["states"] == ["QLD", "VIC"]
+    # Gas-only plan dropped; dual-fuel plan kept
+    assert agl["states"] == ["NSW", "QLD", "VIC"]
+    assert agl["plans"] == 4
     assert agl["distributors"]["Mystery Networks"]["state"] is None
     assert data["unmapped_distributors"] == ["Mystery Networks"]
     assert data["distributors"]["Essential Energy"] == {"state": "NSW", "retailers": ["CovaU"]}

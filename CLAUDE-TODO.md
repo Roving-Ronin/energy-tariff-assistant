@@ -32,13 +32,14 @@ charge 2.29999 (probably 2.30), whether the 30 kWh super FiT cap resets daily, p
 - **Entity names in translations:** move `_attr_name` strings to `strings.json` (`translation_key` with
   `translation_placeholders` for the period name), keeping unique IDs.
 
-### Retailer coverage: first run
-**Status (2026-11-20):** script and weekly workflow added; not yet run against the live API (this session's
-workspace can't reach `cdr.energymadeeasy.gov.au`). After the first run (Actions → Retailer coverage → Run
-workflow): check `unmapped_distributors` and `failed_brands` in `plans/retailers.json` and extend `DISTRIBUTORS`
-(the plan data's exact distributor names are unknown until then), and check the plan counts look sane
-(third-party API listings saw ~1,300 AGL and ~3,600 Origin plans in mid-2026, unfiltered; electricity-only
-  counts will be lower).
+### Retailer coverage: first run done (2026-11-20)
+**Status (2026-11-20):** first run committed `plans/retailers.json`: 40 retailers, all 13 NEM distributors
+mapped, none unmapped or failed, 17,635 electricity plans. Fixes since (PR): dual-fuel plans counted, brand names
+trimmed (`amber `), a retailer under two paths merged (Indigo Power: `energy-locals` and `next-business`), and
+the paths with no plans listed in `paths_without_electricity_plans` (39 in the first run, e.g. shell-energy,
+telstra-energy, tesla, localvolts: check after the re-run whether they're really empty). The CDR Register listed
+no Energy Made Easy brands, so the AER fallback list was used; now logged. Worth a look at what the Register's
+brand summary actually returns.
 
 ## Next (after retailer coverage has data)
 - **Wizard and library: suggest retailers by DNSP** from `plans/retailers.json` (fetched like `index.json`):
