@@ -45,7 +45,8 @@ brand summary actually returns.
 - **Wizard and library: suggest retailers by DNSP** from `plans/retailers.json` (fetched like `index.json`):
   in Build a plan, ask the DNSP before the retailer and offer the retailers selling there; in the library, show
   "retailers with no library plans here yet" as a prompt to share one.
-- **Importer from Energy Made Easy** (design agreed 2026-11-20; converter being started):
+- **Importer from Energy Made Easy** (design agreed 2026-11-20; converter in PR #11, `engine/importers/cdr.py`;
+  next: a script/workflow fetching real plan detail to convert and add as test samples):
   - **Source:** CDR Get Generic Plan Detail (`/energy/plans/{planId}`, `x-v: 3`, no auth) for one plan at a time;
     plan ids from Get Generic Plans. Current plans only (no history or future), NEM states incl. VIC (DEECA).
   - **Converter** (`engine/importers/cdr.py`, pure, tested on real plan-detail samples): `electricityContract`
