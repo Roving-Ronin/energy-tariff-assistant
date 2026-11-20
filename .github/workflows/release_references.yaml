@@ -1,0 +1,61 @@
+name: Notify Issues Referenced In Release
+
+# Adapted from 3dg1luk43/ha_washdata. When a release is published, comment on every
+# open issue its notes mention (#123 or a link) so the reporter can test the fix.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to scan (defaults to the latest published release)"
+        required: false
+  workflow_call:  # from Auto Release, whose release doesn't trigger this workflow by itself
+    inputs:
+      tag:
+        description: Release tag to scan
+        required: true
+        type: string
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment on issues referenced in the release notes
+        uses: actions/github-script@v9
+        env:
+          TAG_INPUT: ${{ inputs.tag }}
+        with:
+          script: |
+            const MARKER = '<!-- release-reference-bot -->';
+            const { owner, repo } = context.repo;
+            let release;
+            if (context.eventName === 'release') release = context.payload.release;
+            else if (process.env.TAG_INPUT) ({ data: release } = await github.rest.repos.getReleaseByTag({ owner, repo, tag: process.env.TAG_INPUT }));
+            else ({ data: release } = await github.rest.repos.getLatestRelease({ owner, repo }));
+            if (!release || release.draft) return;
+
+            const body = release.body || '';
+            const refs = new Set();
+            for (const m of body.matchAll(/(?:^|[^a-zA-Z0-9/_-])#(\d+)\b/g)) refs.add(Number(m[1]));
+            const urlRe = new RegExp(`https?:\\/\\/github\\.com\\/${owner}\\/${repo}\\/issues\\/(\\d+)`, 'gi');
+            for (const m of body.matchAll(urlRe)) refs.add(Number(m[1]));
+            const published = new Date(release.published_at || release.created_at);
+
+            for (const num of refs) {
+              let issue;
+              try { ({ data: issue } = await github.rest.issues.get({ owner, repo, issue_number: num })); } catch { continue; }
+              if (issue.pull_request || issue.state !== 'open' || new Date(issue.created_at) > published) continue;
+              const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number: num, per_page: 100 });
+              if (comments.some(c => c.body && c.body.includes(MARKER) && c.body.includes(`tag:${release.tag_name}`))) continue;
+              await github.rest.issues.createComment({ owner, repo, issue_number: num,
+                body: `${MARKER} tag:${release.tag_name}\n` +
+                      `🎉 A fix or feature for this issue shipped in [**${release.name || release.tag_name}**](${release.html_url}).\n\n` +
+                      'Please update Energy Tariff Assistant and check it on your setup. If it works, feel free to close this issue; ' +
+                      `if not, leave a comment here and @${owner} will take another look.` });
+            }

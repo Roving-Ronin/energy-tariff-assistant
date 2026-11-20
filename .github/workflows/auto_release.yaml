@@ -1,0 +1,124 @@
+name: Auto Release
+
+# Publishes a release when a PR titled with its version is merged, e.g. "v0.4.0: savings and payback".
+# A PR whose title doesn't start with a version (docs, Dependabot) releases nothing, and neither does one with
+# "[skip release]" anywhere in its title or description (to merge a versioned PR now and release later).
+#   1. The version comes from the PR title (or, run by hand, from the version you type).
+#   2. CHANGELOG.md must have a section headed "## v0.4.0 (YYYY-MM-DD)": its text becomes the release notes.
+#      No section, or a tag that already exists, stops here with an error and nothing is released.
+#   3. Creates the release on the merge commit (b / rc versions as pre-releases), then calls Release
+#      (manifest version + energy_tariff_assistant.zip) and Notify Issues Referenced In Release, because a release a
+#      workflow creates doesn't trigger other workflows by itself.
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, e.g. v0.4.0. CHANGELOG.md needs a '## v0.4.0 (date)' section."
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  prepare:
+    name: Create the release
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true && startsWith(github.event.pull_request.title, 'v'))
+    permissions:
+      contents: write  # create the release and its tag
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+    steps:
+      - name: Check out the merged commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+          persist-credentials: false
+
+      - name: Version from the PR title or input
+        id: version
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          BODY: ${{ github.event.pull_request.body }}
+          INPUT: ${{ inputs.version }}
+        run: |
+          if [ -z "$INPUT" ] && printf '%s\n%s' "$TITLE" "$BODY" | grep -qiF '[skip release]'; then
+            echo "::notice::The PR says [skip release], so nothing is released. Release later with Actions → Auto Release → Run workflow."
+            exit 0
+          fi
+          RAW="${INPUT:-$TITLE}"
+          # The version is the title's first word, up to a colon or space: "v0.4.0: ..." or "v0.4.0 ..."
+          FIRST="${RAW%%[: ]*}"
+          if ! echo "$FIRST" | grep -Eq '^v?[0-9]+\.[0-9]+\.[0-9]+([.-]?(b|rc)[0-9]+)?$'; then
+            echo "::notice::'$FIRST' isn't a version, so nothing is released. Title a PR 'v0.4.0: ...' to release on merge."
+            exit 0
+          fi
+          TAG="v${FIRST#v}"
+          PRE=false
+          if echo "$TAG" | grep -Eq '(b|rc)[0-9]+$'; then PRE=true; fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$PRE" >> "$GITHUB_OUTPUT"
+          echo "Release $TAG (pre-release: $PRE)"
+
+      - name: Release notes from CHANGELOG.md
+        if: steps.version.outputs.tag != ''
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          # The section from "## <tag> (" up to the next "## " heading
+          awk -v tag="$TAG" '
+            index($0, "## " tag " (") == 1 { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          if ! grep -q '[^[:space:]]' notes.md; then
+            echo "::error::CHANGELOG.md has no '## $TAG (YYYY-MM-DD)' section. Add one, then run Auto Release by hand with $TAG."
+            exit 1
+          fi
+          cat notes.md
+
+      - name: Create the release
+        if: steps.version.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          PRE: ${{ steps.version.outputs.prerelease }}
+          TARGET: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::Release $TAG already exists. Use the next version in the PR title (and CHANGELOG.md)."
+            exit 1
+          fi
+          FLAGS=()
+          if [ "$PRE" = "true" ]; then FLAGS+=(--prerelease); else FLAGS+=(--latest); fi
+          gh release create "$TAG" --target "$TARGET" --title "$TAG" --notes-file notes.md "${FLAGS[@]}"
+
+  build:
+    name: Release
+    needs: prepare
+    if: needs.prepare.outputs.tag != ''
+    permissions:
+      contents: write  # attach the zip, commit the manifest version
+    # The standard local-path form, which actionlint and every runner understand
+    uses: ./.github/workflows/release.yaml  # zizmor: ignore[self-repository]
+    with:
+      tag: ${{ needs.prepare.outputs.tag }}
+      prerelease: ${{ needs.prepare.outputs.prerelease == 'true' }}
+
+  notify:
+    name: Notify issues
+    needs: [prepare, build]
+    if: needs.prepare.outputs.tag != ''
+    permissions:
+      issues: write
+      contents: read
+    # The standard local-path form, which actionlint and every runner understand
+    uses: ./.github/workflows/release_references.yaml  # zizmor: ignore[self-repository]
+    with:
+      tag: ${{ needs.prepare.outputs.tag }}

@@ -4,3 +4,4 @@ __pycache__/
 .venv/
 # Fetched by scripts/fetch_fixtures.sh; source repo has no licence file.
 tests/fixtures/energy_manager/
+.ruff_cache/

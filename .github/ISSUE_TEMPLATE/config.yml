@@ -1,0 +1,12 @@
+---
+blank_issues_enabled: false
+contact_links:
+  - name: Questions, ideas and setup help
+    url: https://github.com/Roving-Ronin/energy-tariff-assistant/discussions
+    about: Ask in Discussions. Use an issue only for a bug, a feature request or a plan submission.
+  - name: Energy Tariff Assistant documentation
+    url: https://github.com/Roving-Ronin/energy-tariff-assistant/blob/main/README.md
+    about: Setup, sensors, the plan format, and what the numbers mean.
+  - name: Browse the plan library
+    url: https://github.com/Roving-Ronin/energy-tariff-assistant/tree/main/plans
+    about: Plans currently in the library, by state.

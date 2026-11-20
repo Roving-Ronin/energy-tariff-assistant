@@ -1,0 +1,187 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Energy Tariff Assistant",
+        "description": "One entry per metering point (e.g. your main meter, or a controlled-load circuit). Choose where the tariff plan comes from.",
+        "data": {
+          "name": "Name",
+          "source": "Plan source"
+        },
+        "data_description": {
+          "name": "Used for the device and entity names.",
+          "source": "The shared library needs internet access during setup only; the plan is stored locally afterwards."
+        }
+      },
+      "library": {
+        "title": "Choose a plan from the library",
+        "description": "{detail}",
+        "data": {
+          "library_file": "Plan"
+        }
+      },
+      "paste": {
+        "title": "Paste a plan",
+        "description": "Paste a plan file in ha_tariff_plan format.\n\n{detail}",
+        "data": {
+          "plan_json": "Plan JSON"
+        }
+      },
+      "file": {
+        "title": "Load a plan file",
+        "description": "Path to a plan file, relative to your Home Assistant config folder (e.g. tariffs/my-plan.json).\n\n{detail}",
+        "data": {
+          "plan_path": "File path"
+        }
+      },
+      "meters": {
+        "title": "Energy meters",
+        "description": "Plan: {plan}\n\nChoose the cumulative energy sensors (kWh) to meter against this plan. Leave a sensor empty to get prices only for that side.",
+        "data": {
+          "import_sensor": "Grid import energy sensor",
+          "export_sensor": "Grid export energy sensor",
+          "billing_day": "Billing cycle start day"
+        },
+        "data_description": {
+          "import_sensor": "A total or total-increasing energy sensor for energy bought from the grid.",
+          "export_sensor": "A total or total-increasing energy sensor for energy fed into the grid.",
+          "billing_day": "Day of the month your bill period starts (1-28)."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the plan library. {detail}",
+      "invalid_json": "That isn't valid JSON.",
+      "invalid_plan": "The plan didn't pass validation.",
+      "file_not_found": "Could not read that file.",
+      "file_outside_config": "The file must be inside your config folder."
+    },
+    "abort": {
+      "cannot_connect": "Could not reach the plan library: {detail}",
+      "library_empty": "The plan library has no plans yet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Energy Tariff Assistant",
+        "menu_options": {
+          "meters": "Change energy meters or billing day",
+          "plan": "Replace the tariff plan"
+        }
+      },
+      "meters": {
+        "title": "Energy meters",
+        "data": {
+          "import_sensor": "Grid import energy sensor",
+          "export_sensor": "Grid export energy sensor",
+          "billing_day": "Billing cycle start day"
+        },
+        "data_description": {
+          "billing_day": "A new day takes effect from the next reading; the current cycle may end early."
+        }
+      },
+      "plan": {
+        "title": "Replace the tariff plan",
+        "description": "Meter history is kept. Periods with the same id carry on; new periods get new entities.",
+        "data": {
+          "source": "Plan source"
+        }
+      },
+      "library": {
+        "title": "Choose a plan from the library",
+        "description": "{detail}",
+        "data": {
+          "library_file": "Plan"
+        }
+      },
+      "paste": {
+        "title": "Paste a plan",
+        "description": "Paste a plan file in ha_tariff_plan format.\n\n{detail}",
+        "data": {
+          "plan_json": "Plan JSON"
+        }
+      },
+      "file": {
+        "title": "Load a plan file",
+        "description": "Path relative to your config folder.\n\n{detail}",
+        "data": {
+          "plan_path": "File path"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the plan library. {detail}",
+      "invalid_json": "That isn't valid JSON.",
+      "invalid_plan": "The plan didn't pass validation.",
+      "file_not_found": "Could not read that file.",
+      "file_outside_config": "The file must be inside your config folder."
+    },
+    "abort": {
+      "cannot_connect": "Could not reach the plan library: {detail}",
+      "library_empty": "The plan library has no plans yet."
+    }
+  },
+  "selector": {
+    "source": {
+      "options": {
+        "library": "Shared plan library",
+        "paste": "Paste plan JSON",
+        "file": "Plan file in my config folder"
+      }
+    },
+    "bucket": {
+      "options": {
+        "day": "Today",
+        "cycle": "Billing cycle"
+      }
+    }
+  },
+  "services": {
+    "calibrate": {
+      "name": "Calibrate",
+      "description": "Set a per-period energy meter to a value, e.g. to match your bill.",
+      "fields": {
+        "energy": {
+          "name": "Energy",
+          "description": "New value in kWh."
+        },
+        "cost": {
+          "name": "Cost",
+          "description": "New cost for this period. Leave empty to keep the same average rate."
+        }
+      }
+    },
+    "reset_meters": {
+      "name": "Reset meters",
+      "description": "Start a new day or billing cycle now for every meter of an entry.",
+      "fields": {
+        "config_entry": {
+          "name": "Entry",
+          "description": "The tariff entry to reset."
+        },
+        "bucket": {
+          "name": "Period",
+          "description": "Which meters to reset."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "invalid_plan": {
+      "message": "The stored tariff plan is invalid: {detail}"
+    },
+    "unknown_entry": {
+      "message": "That isn't an Energy Tariff Assistant entry."
+    },
+    "entry_not_loaded": {
+      "message": "That entry isn't loaded."
+    },
+    "not_calibratable": {
+      "message": "Only per-period energy meters can be calibrated."
+    },
+    "calibrate_total": {
+      "message": "Totals can't be calibrated; calibrate a per-period meter instead."
+    }
+  }
+}

@@ -1,0 +1,108 @@
+name: Bug report
+description: Report a problem with the Energy Tariff Assistant integration
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **NOTE:** Before you start, please check the following.
+
+        - Read the [README](https://github.com/Roving-Ronin/energy-tariff-assistant/blob/main/README.md), in particular *What the numbers mean (and don't)*.
+        - Make sure no [similar issues (including closed ones)](https://github.com/Roving-Ronin/energy-tariff-assistant/issues?q=is%3Aissue+label%3Abug) exist.
+        - Make sure you are on the latest release, and have restarted Home Assistant after updating.
+        - **Wrong rates, times or charges in a library plan?** Please use the [plan submission form](https://github.com/Roving-Ronin/energy-tariff-assistant/issues/new?template=plan_submission.yml) instead.
+
+        Thanks for taking the time to help improve this project!
+  - type: checkboxes
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the bug you encountered.
+      options:
+        - label: I have searched the existing issues
+          required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part?
+      options:
+        - Setup - plan library
+        - Setup - pasted plan / plan file
+        - Setup - energy meters / billing day
+        - Prices / periods / forecast
+        - Metering / cost / supply charge / bill
+        - Calibrate / reset actions
+        - Other / Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Current Behaviour
+      description: A concise description of what you're experiencing. Screenshots are very helpful.
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps To Reproduce
+      description: Steps to reproduce the behaviour.
+      placeholder: |
+        1. Add Energy Tariff Assistant, choose the library plan...
+        2. At 15:00 the import price...
+        3. See error...
+    validations:
+      required: false
+  - type: textarea
+    id: expected-behaviour
+    attributes:
+      label: Expected Behaviour
+      description: A concise description of what you expected to happen, e.g. the rate and period your bill shows for that time.
+      placeholder: Tell us what you should see!
+    validations:
+      required: true
+  - type: input
+    id: integration-version
+    attributes:
+      label: Energy Tariff Assistant Version
+      description: Shown in the Marketplace (or HACS), or Settings → Devices & services → Energy Tariff Assistant.
+    validations:
+      required: true
+  - type: input
+    id: ha-version
+    attributes:
+      label: Home Assistant Version
+      description: The version of Home Assistant you have installed (Settings → About).
+    validations:
+      required: true
+  - type: input
+    id: plan
+    attributes:
+      label: Tariff plan
+      description: Retailer, plan name, state and DNSP, e.g. Covau SolarMax Residential TOU, NSW, Essential Energy. Include the library file name if you picked it from the library.
+    validations:
+      required: true
+  - type: textarea
+    id: sensors
+    attributes:
+      label: Energy sensors
+      description: |
+        The import/export energy sensors you chose, their unit, and the integration that provides them, e.g. `sensor.grid_import_energy` (kWh, total_increasing) from Sigenergy Local Modbus.
+      render: text
+    validations:
+      required: false
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: |
+        Settings → Devices & services → Energy Tariff Assistant → ⋮ → *Download diagnostics*, then attach the file here. It contains your plan and meter totals, no personal details.
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log Output
+      description: Relevant lines from Settings → System → Logs mentioning `energy_tariff_assistant`. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+    validations:
+      required: false

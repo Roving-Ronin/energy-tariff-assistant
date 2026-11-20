@@ -1,0 +1,34 @@
+name: Reopen Own Issue
+
+# Adapted from 3dg1luk43/ha_washdata. GitHub only lets authors reopen issues they
+# closed themselves; commenting `/reopen` on your own closed issue reopens it.
+
+on:
+  # zizmor: ignore[dangerous-triggers] only reads the comment through github-script (never in a
+  # shell command), checks out no code, and needs no secrets beyond the issues token.
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+
+jobs:
+  reopen:
+    runs-on: ubuntu-latest
+    if: >
+      !github.event.issue.pull_request &&
+      github.event.issue.state == 'closed' &&
+      github.event.comment.user.login == github.event.issue.user.login &&
+      startsWith(github.event.comment.body, '/reopen')
+    steps:
+      - name: Reopen the issue for its author
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.issue.number;
+            await github.rest.issues.update({ owner, repo, issue_number, state: 'open' });
+            await github.rest.issues.removeLabel({ owner, repo, issue_number, name: 'question' }).catch(() => {});
+            await github.rest.reactions.createForIssueComment({ owner, repo, comment_id: context.payload.comment.id, content: 'rocket' });
+            await github.rest.issues.createComment({ owner, repo, issue_number,
+              body: `Reopened at @${context.payload.comment.user.login}'s request. @${owner}, over to you.` });
