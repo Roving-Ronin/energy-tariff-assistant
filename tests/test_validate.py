@@ -169,7 +169,8 @@ jsonschema = pytest.importorskip("jsonschema")
 
 
 def library_plans() -> list[Path]:
-    return sorted(p for p in PLANS.rglob("*.json") if p.name != "index.json")
+    # Plans live in plans/<country>/<region>/; files directly in plans/ are generated data
+    return sorted(p for p in PLANS.rglob("*.json") if p.parent != PLANS)
 
 
 def test_schema_is_valid_draft_2020_12():
