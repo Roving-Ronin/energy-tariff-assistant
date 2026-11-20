@@ -9,10 +9,20 @@ credit where there is one.
 Second test build (pre-release).
 
 ### TL;DR
+- Build a plan step by step: flat or time-of-use import and feed-in, with caps; saved to your config folder
+- Plan library: choose country, state, distributor and retailer, then the plan, newest first
 - Share your plan with the plan library from Home Assistant: Configure → Share this plan
 - README says not to install yet, while it's under development
 
 ### Added
+- **Build a plan step by step** (setup, and Configure → Replace the tariff plan): state, distributor (suggested
+  per state, or typed), retailer, plan name and ID, start date and daily supply charge; import and feed-in each
+  flat or time of use. Time of use: the rate for all other times, then any number of timed periods, each with
+  one or more times (every day, weekdays, weekends or chosen days; an end before the start runs past midnight).
+  Any rate can have a cap, followed by another period's rate or a rate of its own, resetting each day, month or
+  billing cycle. A summary is shown before saving. The plan is validated like any other, saved to
+  `energy_tariff_assistant/plans/<Retailer>-<Plan>-<State>-<DNSP>-<YYYYMMDD>.json` in the config folder (an existing
+  file gets a `-2`, `-3`... copy, never overwritten), and used for the entry.
 - Options flow: **Share this plan with the plan library** opens the GitHub plan submission form with the plan
   filled in (rates, times, retailer, region, DNSP and plan ID; never meter totals, sensor names or usage). Nothing
   is sent from Home Assistant: the user checks the form and submits it from their own account. A plan from the
@@ -20,6 +30,8 @@ Second test build (pre-release).
 - Plan submission form: a **Plan JSON** field.
 
 ### Changed
+- Plan library: instead of one long list, choose the country (Australia first), state (NSW first), distributor
+  and retailer, then the plan, newest first. Only choices with plans in the library are offered.
 - README: a warning not to install while the integration is under development.
 
 ## v0.1.0b1 (2026-11-20)

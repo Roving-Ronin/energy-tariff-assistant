@@ -70,8 +70,17 @@ supported.)
 
 1. **Name and plan source.** The name is used for the device and entity names (`Electricity` gives
    `sensor.electricity_import_price`). Then choose where the plan comes from:
-   - **Shared plan library:** pick your plan (listed by state, retailer and plan) from the [`plans/`](plans) folder of this repo.
-     Internet is needed only during setup; the plan is stored with the entry.
+   - **Shared plan library:** narrow it down step by step (country, state, distributor (DNSP), retailer) and
+     pick the plan, newest first. Australia and NSW are picked to start with. Internet is needed only during
+     setup; the plan is stored with the entry.
+   - **Build a plan step by step:** enter it from your bill or the plan's fact sheet (BPID): state, distributor,
+     retailer, plan name, start date and daily supply charge; then import and feed-in, each either one rate all
+     the time or time of use. For time of use you enter the rate for *all other times* first (often Shoulder),
+     then each timed period (e.g. Peak, weekdays 15:00-21:00), with more than one time per period if needed.
+     Any rate can have a cap ("first 50 kWh a day free, then Shoulder"; "first 10 kWh at 12c, then 4c"), resetting
+     each day, month or billing cycle. You check a summary before saving. The plan is saved to
+     `energy_tariff_assistant/plans/` in your config folder (never overwriting a file) and can be shared with the
+     library afterwards.
    - **Paste plan JSON:** paste a plan file (see *Plan format* below).
    - **Plan file in my config folder:** a path relative to your config folder, e.g. `tariffs/my-plan.json`.
 2. **Energy meters.** Choose the cumulative energy sensors for **grid import** and **grid export**

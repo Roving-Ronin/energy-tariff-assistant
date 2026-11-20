@@ -17,7 +17,11 @@ CONF_BILLING_DAY = "billing_day"
 SOURCE_LIBRARY = "library"
 SOURCE_PASTE = "paste"
 SOURCE_FILE = "file"
-SOURCES = [SOURCE_LIBRARY, SOURCE_PASTE, SOURCE_FILE]
+SOURCE_BUILD = "build"
+SOURCES = [SOURCE_LIBRARY, SOURCE_BUILD, SOURCE_PASTE, SOURCE_FILE]
+
+# Where the wizard saves the plans it builds, relative to the config folder
+BUILT_PLANS_DIR = "energy_tariff_assistant/plans"
 
 LIBRARY_BASE_URL = (
     "https://raw.githubusercontent.com/Roving-Ronin/energy-tariff-assistant/main/"

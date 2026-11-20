@@ -16,6 +16,7 @@ from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 from homeassistant.loader import async_get_integration
+from homeassistant.util import dt as dt_util
 
 from .const import (
     CONF_BILLING_DAY,
@@ -28,6 +29,8 @@ from .const import (
     CONF_PLAN_SOURCE,
     CONF_SOURCE,
     DOMAIN,
+    BUILT_PLANS_DIR,
+    SOURCE_BUILD,
     SOURCE_FILE,
     SOURCE_LIBRARY,
     SOURCE_PASTE,
@@ -38,11 +41,24 @@ from .plan_source import (
     async_fetch_index,
     async_fetch_library_plan,
     check_plan,
-    library_label,
     parse_plan_text,
     read_plan_file,
+    write_plan_file,
 )
+from . import wizard
 from .share import build_share_link, plan_title
+from .wizard import (
+    AFTER_CAP_RATE,
+    COUNTRIES,
+    DAY_CHOICES,
+    DEFAULT_COUNTRY,
+    DEFAULT_REGION,
+    DNSPS,
+    REGIONS,
+    TIER_RESETS,
+    Draft,
+    DraftPeriod,
+)
 
 SOURCE_SELECTOR = selector.SelectSelector(
     selector.SelectSelectorConfig(
@@ -81,10 +97,49 @@ def clean_meters(user_input: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+NONE_DNSP = "__none__"
+TOU = "tou"
+FLAT = "flat"
+STREAMS = ("import", "export")
+DEFAULT_NAMES = {"import": ("Anytime", "Shoulder"), "export": ("Feed-in", "Standard FiT")}
+
+RATE = selector.NumberSelector(
+    selector.NumberSelectorConfig(min=-5, max=10, step="any", mode=selector.NumberSelectorMode.BOX, unit_of_measurement="$/kWh")
+)
+KWH = selector.NumberSelector(
+    selector.NumberSelectorConfig(min=0, max=100000, step="any", mode=selector.NumberSelectorMode.BOX, unit_of_measurement="kWh")
+)
+TEXT = selector.TextSelector()
+TIME = selector.TimeSelector()
+
+
+def _select(options: list[str] | list[selector.SelectOptionDict], key: str | None = None, *, custom: bool = False, multiple: bool = False) -> selector.SelectSelector:
+    config = selector.SelectSelectorConfig(
+        options=options,
+        custom_value=custom,
+        multiple=multiple,
+        mode=selector.SelectSelectorMode.DROPDOWN,
+    )
+    if key:
+        config["translation_key"] = key
+    return selector.SelectSelector(config)
+
+
+def _opts(values: list[str]) -> list[selector.SelectOptionDict]:
+    return [selector.SelectOptionDict(value=v, label=v) for v in values]
+
+
 class PlanSteps:
-    """Library / paste / file steps shared by the config and options flows."""
+    """Plan source steps shared by the config and options flows.
+
+    Library (country → state → DNSP → retailer → plan), build step by step,
+    paste, or a file in the config folder.
+    """
 
     _index: list[dict[str, Any]] | None = None
+    _lib: dict[str, str]
+    _draft: Draft
+    _modes: dict[str, str]
 
     async def _async_plan_ready(
         self, plan: dict[str, Any], source: dict[str, Any]
@@ -101,21 +156,24 @@ class PlanSteps:
         return await self._async_plan_ready(plan, source)
 
     def _plan_form(
-        self, step_id: str, schema: vol.Schema, err: PlanError | None = None
+        self, step_id: str, schema: vol.Schema, err: PlanError | None = None, **placeholders: str
     ) -> ConfigFlowResult:
         return self.async_show_form(
             step_id=step_id,
             data_schema=schema,
             errors={"base": err.key} if err else None,
-            description_placeholders={"detail": err.detail if err else ""},
+            description_placeholders={"detail": err.detail if err else "", **placeholders},
         )
 
     def _go_to_source(self, source: str):
         return {
             SOURCE_LIBRARY: self.async_step_library,
+            SOURCE_BUILD: self.async_step_build,
             SOURCE_PASTE: self.async_step_paste,
             SOURCE_FILE: self.async_step_file,
         }[source]()
+
+    # ----- library: country → state → DNSP → retailer → plan -------------------
 
     async def async_step_library(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if self._index is None:
@@ -127,37 +185,90 @@ class PlanSteps:
                 )
         if not self._index:
             return self.async_abort(reason="library_empty")
+        self._lib = {}
+        # Selector option keys must be lowercase: "au" in the form, "AU" in plans
+        values = [c.lower() for c in wizard.countries(self._index)]
+        if user_input is not None:
+            self._lib["country"] = user_input["country"].upper()
+            return await self.async_step_library_region()
+        default = wizard.pick_default(values, DEFAULT_COUNTRY.lower())
+        return self.async_show_form(
+            step_id="library",
+            data_schema=vol.Schema({vol.Required("country", default=default): _select(values, "country")}),
+        )
+
+    async def async_step_library_region(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        country = self._lib["country"]
+        if user_input is not None:
+            self._lib["region"] = user_input["region"]
+            return await self.async_step_library_dnsp()
+        values = wizard.regions(self._index or [], country)
+        default = wizard.pick_default(values, DEFAULT_REGION.get(country))
+        return self.async_show_form(
+            step_id="library_region",
+            data_schema=vol.Schema({vol.Required("region", default=default): _select(_opts(values))}),
+            description_placeholders={"country": country},
+        )
+
+    async def async_step_library_dnsp(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        if user_input is not None:
+            value = user_input["dnsp"]
+            self._lib["dnsp"] = "" if value == NONE_DNSP else value
+            return await self.async_step_library_retailer()
+        values = wizard.dnsps(self._index or [], self._lib["country"], self._lib["region"])
         options = [
-            selector.SelectOptionDict(value=entry["file"], label=library_label(entry))
-            for entry in sorted(self._index, key=library_label)
+            selector.SelectOptionDict(value=v or NONE_DNSP, label=v or "-") for v in values
+        ]
+        return self.async_show_form(
+            step_id="library_dnsp",
+            data_schema=vol.Schema(
+                {vol.Required("dnsp", default=options[0]["value"]): _select(options)}
+            ),
+            description_placeholders={"region": self._lib["region"]},
+        )
+
+    async def async_step_library_retailer(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        if user_input is not None:
+            self._lib["retailer"] = user_input["retailer"]
+            return await self.async_step_library_plan()
+        values = wizard.retailers(
+            self._index or [], self._lib["country"], self._lib["region"], self._lib["dnsp"]
+        )
+        return self.async_show_form(
+            step_id="library_retailer",
+            data_schema=vol.Schema({vol.Required("retailer", default=values[0]): _select(_opts(values))}),
+            description_placeholders={"region": self._lib["region"], "dnsp": self._lib["dnsp"] or "-"},
+        )
+
+    async def async_step_library_plan(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        entries = wizard.plans_newest_first(wizard.filter_entries(self._index or [], **self._lib))
+        options = [
+            selector.SelectOptionDict(value=e["file"], label=wizard.plan_label(e)) for e in entries
         ]
         schema = vol.Schema(
-            {
-                vol.Required(CONF_LIBRARY_FILE): selector.SelectSelector(
-                    selector.SelectSelectorConfig(
-                        options=options, mode=selector.SelectSelectorMode.DROPDOWN
-                    )
-                )
-            }
+            {vol.Required(CONF_LIBRARY_FILE, default=options[0]["value"]): _select(options)}
         )
+        placeholders = {"retailer": self._lib["retailer"]}
         if user_input is None:
-            return self._plan_form("library", schema)
+            return self._plan_form("library_plan", schema, **placeholders)
         file = user_input[CONF_LIBRARY_FILE]
         try:
             plan = await async_fetch_library_plan(self.hass, file)
         except PlanError as err:
-            return self._plan_form("library", schema, err)
-        return await self._async_check(
-            plan, {CONF_SOURCE: SOURCE_LIBRARY, CONF_LIBRARY_FILE: file}, "library", schema
+            return self._plan_form("library_plan", schema, err, **placeholders)
+        try:
+            await self.hass.async_add_executor_job(check_plan, plan)
+        except PlanError as err:
+            return self._plan_form("library_plan", schema, err, **placeholders)
+        return await self._async_plan_ready(
+            plan, {CONF_SOURCE: SOURCE_LIBRARY, CONF_LIBRARY_FILE: file}
         )
+
+    # ----- paste / file ---------------------------------------------------------
 
     async def async_step_paste(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         schema = vol.Schema(
-            {
-                vol.Required(CONF_PLAN_JSON): selector.TextSelector(
-                    selector.TextSelectorConfig(multiline=True)
-                )
-            }
+            {vol.Required(CONF_PLAN_JSON): selector.TextSelector(selector.TextSelectorConfig(multiline=True))}
         )
         if user_input is None:
             return self._plan_form("paste", schema)
@@ -168,7 +279,7 @@ class PlanSteps:
         return await self._async_check(plan, {CONF_SOURCE: SOURCE_PASTE}, "paste", schema)
 
     async def async_step_file(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        schema = vol.Schema({vol.Required(CONF_PLAN_PATH): selector.TextSelector()})
+        schema = vol.Schema({vol.Required(CONF_PLAN_PATH): TEXT})
         if user_input is None:
             return self._plan_form("file", schema)
         path = user_input[CONF_PLAN_PATH]
@@ -181,6 +292,264 @@ class PlanSteps:
         return await self._async_check(
             plan, {CONF_SOURCE: SOURCE_FILE, CONF_PLAN_PATH: path}, "file", schema
         )
+
+    # ----- build step by step ---------------------------------------------------
+
+    async def async_step_build(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Country and state (the next step's DNSP list depends on them)."""
+        if user_input is not None:
+            self._draft = Draft(country=user_input["country"].upper(), region=user_input["region"])
+            return await self.async_step_build_details()
+        country = DEFAULT_COUNTRY
+        return self.async_show_form(
+            step_id="build",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("country", default=country.lower()): _select(
+                        [c.lower() for c in COUNTRIES], "country"
+                    ),
+                    vol.Required("region", default=DEFAULT_REGION[country]): _select(
+                        _opts(list(REGIONS[country]))
+                    ),
+                }
+            ),
+        )
+
+    async def async_step_build_details(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        draft = self._draft
+        if user_input is not None:
+            draft.dnsp = user_input.get("dnsp", "")
+            draft.retailer = user_input["retailer"]
+            draft.plan = user_input["plan_name"]
+            draft.plan_id = user_input.get("plan_id", "")
+            draft.effective_from = user_input["effective_from"]
+            draft.supply_charge = float(user_input["supply_charge"])
+            self._modes = {"import": user_input["import_type"], "export": user_input["export_type"]}
+            return await self._async_build_stream("import")
+        today = dt_util.now().date().isoformat()
+        dnsps = list(DNSPS.get((draft.country, draft.region), ()))
+        return self.async_show_form(
+            step_id="build_details",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional("dnsp", description={"suggested_value": dnsps[0] if dnsps else None}): _select(
+                        _opts(dnsps), custom=True
+                    ),
+                    vol.Required("retailer"): TEXT,
+                    vol.Required("plan_name"): TEXT,
+                    vol.Optional("plan_id"): TEXT,
+                    vol.Required("effective_from", default=today): selector.DateSelector(),
+                    vol.Required("supply_charge"): selector.NumberSelector(
+                        selector.NumberSelectorConfig(
+                            min=0, max=20, step="any", mode=selector.NumberSelectorMode.BOX, unit_of_measurement="$/day"
+                        )
+                    ),
+                    vol.Required("import_type", default=TOU): _select([FLAT, TOU], "rate_type"),
+                    vol.Required("export_type", default=FLAT): _select([FLAT, TOU], "rate_type"),
+                }
+            ),
+            description_placeholders={"region": draft.region},
+        )
+
+    async def _async_build_stream(self, stream: str) -> ConfigFlowResult:
+        step = "flat" if self._modes[stream] == FLAT else "default"
+        return await getattr(self, f"async_step_build_{stream}_{step}")()
+
+    def _cap_fields(self, stream: str, with_periods: bool) -> dict[Any, Any]:
+        fields: dict[Any, Any] = {vol.Optional("cap_kwh"): KWH}
+        if with_periods:
+            choices = [selector.SelectOptionDict(value=AFTER_CAP_RATE, label="$")]
+            choices += [
+                selector.SelectOptionDict(value=pid, label=name)
+                for pid, name in self._draft.streams[stream].choices()
+            ]
+            fields[vol.Optional("after_cap", default=AFTER_CAP_RATE)] = _select(choices)
+        fields[vol.Optional("rate_after_cap")] = RATE
+        fields[vol.Optional("cap_reset", default="day")] = _select(list(TIER_RESETS), "cap_reset")
+        return fields
+
+    @staticmethod
+    def _cap_errors(user_input: dict[str, Any]) -> dict[str, str]:
+        if not user_input.get("cap_kwh"):
+            return {}
+        after = user_input.get("after_cap", AFTER_CAP_RATE)
+        if after == AFTER_CAP_RATE and user_input.get("rate_after_cap") is None:
+            return {"rate_after_cap": "rate_after_cap_required"}
+        return {}
+
+    @staticmethod
+    def _window_errors(user_input: dict[str, Any]) -> dict[str, str]:
+        if user_input["days"] == "custom" and not user_input.get("custom_days"):
+            return {"custom_days": "days_required"}
+        if str(user_input["start"])[:5] == str(user_input["end"])[:5]:
+            return {"end": "times_equal"}
+        return {}
+
+    def _period_from(self, user_input: dict[str, Any], default: bool) -> DraftPeriod:
+        cap = user_input.get("cap_kwh") or None
+        return DraftPeriod(
+            name=user_input["name"].strip(),
+            rate=float(user_input["rate"]),
+            default=default,
+            cap_kwh=float(cap) if cap else None,
+            after_cap=user_input.get("after_cap", AFTER_CAP_RATE) if cap else None,
+            rate_after_cap=user_input.get("rate_after_cap"),
+            cap_reset=user_input.get("cap_reset", "day"),
+        )
+
+    async def _build_default(self, stream: str, flat: bool, user_input: dict[str, Any] | None) -> ConfigFlowResult:
+        """The default period: 'all the time' (flat) or 'all other times' (time of use)."""
+        step_id = f"build_{stream}_{'flat' if flat else 'default'}"
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            errors = self._cap_errors(user_input)
+            if not errors:
+                self._draft.streams[stream] = wizard.DraftStream()
+                self._draft.streams[stream].add(self._period_from(user_input, default=True))
+                if flat:
+                    return await self._async_after_stream(stream)
+                return await getattr(self, f"async_step_build_{stream}_period")()
+        name = DEFAULT_NAMES[stream][0 if flat else 1]
+        schema = vol.Schema(
+            {
+                vol.Required("name", default=name): TEXT,
+                vol.Required("rate"): RATE,
+                **self._cap_fields(stream, with_periods=False),
+            }
+        )
+        return self.async_show_form(
+            step_id=step_id,
+            data_schema=self.add_suggested_values_to_schema(schema, user_input or {}),
+            errors=errors,
+        )
+
+    async def _build_period(self, stream: str, user_input: dict[str, Any] | None) -> ConfigFlowResult:
+        """A period with its first time window."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            errors = self._window_errors(user_input) | self._cap_errors(user_input)
+            if not errors:
+                period = self._period_from(user_input, default=False)
+                period.windows.append(
+                    wizard.window(user_input["days"], user_input.get("custom_days"), user_input["start"], user_input["end"])
+                )
+                self._draft.streams[stream].add(period)
+                return await getattr(self, f"async_step_build_{stream}_more")()
+        schema = vol.Schema(
+            {
+                vol.Required("name"): TEXT,
+                vol.Required("rate"): RATE,
+                **self._window_fields(),
+                **self._cap_fields(stream, with_periods=True),
+            }
+        )
+        return self.async_show_form(
+            step_id=f"build_{stream}_period",
+            data_schema=self.add_suggested_values_to_schema(schema, user_input or {}),
+            errors=errors,
+        )
+
+    @staticmethod
+    def _window_fields() -> dict[Any, Any]:
+        return {
+            vol.Required("days", default="all"): _select(list(DAY_CHOICES), "days"),
+            vol.Optional("custom_days"): _select(list(wizard.DAY_NAMES), "day", multiple=True),
+            vol.Required("start"): TIME,
+            vol.Required("end"): TIME,
+        }
+
+    async def _build_window(self, stream: str, user_input: dict[str, Any] | None) -> ConfigFlowResult:
+        """Another time window for the period entered last."""
+        period = self._draft.streams[stream].periods[-1]
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            errors = self._window_errors(user_input)
+            if not errors:
+                period.windows.append(
+                    wizard.window(user_input["days"], user_input.get("custom_days"), user_input["start"], user_input["end"])
+                )
+                return await getattr(self, f"async_step_build_{stream}_more")()
+        return self.async_show_form(
+            step_id=f"build_{stream}_window",
+            data_schema=self.add_suggested_values_to_schema(vol.Schema(self._window_fields()), user_input or {}),
+            errors=errors,
+            description_placeholders={"period": period.name},
+        )
+
+    def _build_more(self, stream: str) -> ConfigFlowResult:
+        stream_draft = self._draft.streams[stream]
+        last = stream_draft.periods[-1]
+        return self.async_show_menu(
+            step_id=f"build_{stream}_more",
+            menu_options=[f"build_{stream}_window", f"build_{stream}_period", f"build_{stream}_done"],
+            description_placeholders={
+                "period": last.name,
+                "periods": ", ".join(p.name for p in stream_draft.periods),
+            },
+        )
+
+    async def _async_after_stream(self, stream: str) -> ConfigFlowResult:
+        if stream == "import":
+            return await self._async_build_stream("export")
+        return await self.async_step_build_review()
+
+    # Thin per-stream wrappers: each step id needs its own method and strings.
+    async def async_step_build_import_flat(self, user_input=None):
+        return await self._build_default("import", True, user_input)
+
+    async def async_step_build_import_default(self, user_input=None):
+        return await self._build_default("import", False, user_input)
+
+    async def async_step_build_import_period(self, user_input=None):
+        return await self._build_period("import", user_input)
+
+    async def async_step_build_import_window(self, user_input=None):
+        return await self._build_window("import", user_input)
+
+    async def async_step_build_import_more(self, user_input=None):
+        return self._build_more("import")
+
+    async def async_step_build_import_done(self, user_input=None):
+        return await self._async_after_stream("import")
+
+    async def async_step_build_export_flat(self, user_input=None):
+        return await self._build_default("export", True, user_input)
+
+    async def async_step_build_export_default(self, user_input=None):
+        return await self._build_default("export", False, user_input)
+
+    async def async_step_build_export_period(self, user_input=None):
+        return await self._build_period("export", user_input)
+
+    async def async_step_build_export_window(self, user_input=None):
+        return await self._build_window("export", user_input)
+
+    async def async_step_build_export_more(self, user_input=None):
+        return self._build_more("export")
+
+    async def async_step_build_export_done(self, user_input=None):
+        return await self._async_after_stream("export")
+
+    async def async_step_build_review(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Show the plan; save it to a file and use it, or start again."""
+        plan = wizard.assemble_plan(self._draft, dt_util.now().date())
+        filename = wizard.plan_filename(plan)
+        schema = vol.Schema(
+            {vol.Required("action", default="save"): _select(["save", "start_over"], "review_action")}
+        )
+        placeholders = {"summary": wizard.summary(plan), "file": f"{BUILT_PLANS_DIR}/{filename}"}
+        if user_input is None:
+            return self._plan_form("build_review", schema, **placeholders)
+        if user_input["action"] == "start_over":
+            return await self.async_step_build()
+        try:
+            await self.hass.async_add_executor_job(check_plan, plan)
+            path = await self.hass.async_add_executor_job(
+                write_plan_file, self.hass.config.config_dir, filename, plan
+            )
+        except PlanError as err:
+            return self._plan_form("build_review", schema, err, **placeholders)
+        return await self._async_plan_ready(plan, {CONF_SOURCE: SOURCE_BUILD, CONF_PLAN_PATH: path})
 
 
 class EnergyTariffConfigFlow(PlanSteps, ConfigFlow, domain=DOMAIN):
