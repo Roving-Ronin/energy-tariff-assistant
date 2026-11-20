@@ -96,6 +96,14 @@ def test_build():
     assert indigo["cdr_paths"] == ["energy-locals", "next-business"]
     assert indigo["distributors"]["Ausgrid"]["residential"] == 2
     assert data["paths_without_electricity_plans"] == ["empty"]
+    # Diagnostics: what the empty path and the Register returned
+    empty = data["diagnostics"]["empty_paths"]["empty"]
+    assert empty["plans_on_page_1"] == 0 and empty["top_keys"] == ["data", "meta"]
+    assert empty["data_keys"] == ["plans"] and empty["meta"] == {"totalPages": 1}
+    register = data["diagnostics"]["register"]
+    assert register["items"] == len(REGISTER["data"])
+    assert register["product_base_uri_hosts"] == {"cdr.energymadeeasy.gov.au": 7, "public.cdr.example.com.au": 1}
+    assert register["sample"][0]["brandName"] == "CovaU"
     assert by_name["RAA Energy"]["states"] == ["SA"]
     covau = by_name["CovaU"]
     assert covau["plans"] == 3
@@ -123,6 +131,7 @@ def test_register_down_uses_fallback(monkeypatch):
 
     data = eme.build(fetch, pause=0, log=lambda *_: None)
     assert data["brand_list"] == "AER retailer base URI list"
+    assert data["diagnostics"]["register"] == {"error": "down"}
     assert data["retailers"] == []
     assert len(data["failed_brands"]) == len(eme.unique_paths(eme.fallback_brands()))
 

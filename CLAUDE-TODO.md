@@ -32,14 +32,13 @@ charge 2.29999 (probably 2.30), whether the 30 kWh super FiT cap resets daily, p
 - **Entity names in translations:** move `_attr_name` strings to `strings.json` (`translation_key` with
   `translation_placeholders` for the period name), keeping unique IDs.
 
-### Retailer coverage: first run done (2026-11-20)
-**Status (2026-11-20):** first run committed `plans/retailers.json`: 40 retailers, all 13 NEM distributors
-mapped, none unmapped or failed, 17,635 electricity plans. Fixes since (PR): dual-fuel plans counted, brand names
-trimmed (`amber `), a retailer under two paths merged (Indigo Power: `energy-locals` and `next-business`), and
-the paths with no plans listed in `paths_without_electricity_plans` (39 in the first run, e.g. shell-energy,
-telstra-energy, tesla, localvolts: check after the re-run whether they're really empty). The CDR Register listed
-no Energy Made Easy brands, so the AER fallback list was used; now logged. Worth a look at what the Register's
-brand summary actually returns.
+### Retailer coverage: 39 empty paths
+**Status (2026-11-20):** second run (after dual-fuel/merge fixes): 38 retailers, 17,633 plans, all 13 NEM
+distributors mapped; the same 39 paths returned no plans (incl. localvolts, tesla, powow, shell-energy,
+telstra-energy) and the CDR Register again matched no Energy Made Easy brands. The script now writes
+`diagnostics` (what each empty path and the Register returned: keys, meta totals, fuel types, base URI hosts,
+samples). Next run: read `plans/retailers.json` → `diagnostics` to tell "really no plans" from "read wrongly"
+(e.g. brands publishing from their own CDR host).
 
 ## Next (after retailer coverage has data)
 - **Wizard and library: suggest retailers by DNSP** from `plans/retailers.json` (fetched like `index.json`):
