@@ -1,4 +1,4 @@
-holidays>=0.60
+holidays>=0.108
 jsonschema>=4.20
 pytest>=8.0
 pytest-homeassistant-custom-component
