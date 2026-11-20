@@ -32,6 +32,21 @@ charge 2.29999 (probably 2.30), whether the 30 kWh super FiT cap resets daily, p
 - **Entity names in translations:** move `_attr_name` strings to `strings.json` (`translation_key` with
   `translation_placeholders` for the period name), keeping unique IDs.
 
+### Retailer coverage: first run
+**Status (2026-11-20):** script and weekly workflow added; not yet run against the live API (this session's
+workspace can't reach `cdr.energymadeeasy.gov.au`). After the first run (Actions → Retailer coverage → Run
+workflow): check `unmapped_distributors` and `failed_brands` in `plans/retailers.json` and extend `DISTRIBUTORS`
+(the plan data's exact distributor names are unknown until then), and check the plan counts look sane
+(third-party API listings saw ~1,300 AGL and ~3,600 Origin plans in mid-2026, unfiltered; electricity-only
+  counts will be lower).
+
+## Next (after retailer coverage has data)
+- **Wizard and library: suggest retailers by DNSP** from `plans/retailers.json` (fetched like `index.json`):
+  in Build a plan, ask the DNSP before the retailer and offer the retailers selling there; in the library, show
+  "retailers with no library plans here yet" as a prompt to share one.
+- **Importer from Energy Made Easy:** Get Generic Plan Detail (`x-v: 3`) → `ha_tariff_plan`, so a user picks
+  retailer + plan and gets the real rates; needs the tariff-period mapping worked out and its own tests.
+
 ## Later (not started)
 - **Wizard: edit the current plan** (pre-fill the steps from the entry's plan, e.g. after a price change) rather
   than building from scratch.
@@ -39,8 +54,7 @@ charge 2.29999 (probably 2.30), whether the 30 kWh super FiT cap resets daily, p
 - **Check shared plans automatically:** a workflow on `plan`-labelled issues that runs `validate_plans.py` on the
   pasted Plan JSON and comments the errors/warnings (read the body only via `github-script` or `env:`).
 - **Plan library growth:** more AU plans (Ausgrid, Endeavour, Evoenergy, Energex/Ergon, CitiPower/Powercor,
-  SA Power Networks...). An importer from Energy Made Easy / CDR (Consumer Data Right, product reference data)
-  would beat hand entry: check the CDR energy plan API's licence and shape first.
+  SA Power Networks...), ideally through the Energy Made Easy importer above.
 - **Library update notice:** a Repairs issue when the library has a newer version of the entry's plan
   (`plan_source.library_file` is stored for this), showing the changed rates; never update silently.
 - **Statistics import:** backfill per-period kWh/cost from long-term statistics of the source sensors, so a new

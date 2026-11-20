@@ -1,0 +1,422 @@
+{
+  "source": "AER, Consumer Data Right - Energy Retailer Base URIs and CDR Brands, January 2026",
+  "url": "https://www.aer.gov.au/system/files/2026-01/Consumer%20Data%20Right%20-%20Energy%20Retailer%20Base%20URIs%20and%20CDR%20Brands%20-%20January%202026.pdf",
+  "note": "Fallback only: the script reads the ACCC CDR Register first. path is the URL path of the plans endpoint (several brands share one); brand is the CDR brand, matched against each plan's brand.",
+  "brands": [
+    {
+      "name": "1st Energy",
+      "path": "1st-energy",
+      "brand": "1st-energy"
+    },
+    {
+      "name": "ActewAGL",
+      "path": "actewagl",
+      "brand": "actewagl"
+    },
+    {
+      "name": "Active Utilities Retail",
+      "path": "active-utilities",
+      "brand": "active-utilities"
+    },
+    {
+      "name": "AGL",
+      "path": "agl",
+      "brand": "agl"
+    },
+    {
+      "name": "Alinta Energy",
+      "path": "alinta",
+      "brand": "alinta"
+    },
+    {
+      "name": "Altogether",
+      "path": "altogether",
+      "brand": "altogether"
+    },
+    {
+      "name": "Amber Electric",
+      "path": "amber",
+      "brand": "amber"
+    },
+    {
+      "name": "Ampol Energy",
+      "path": "ampol",
+      "brand": "ampol"
+    },
+    {
+      "name": "Arc Energy Group",
+      "path": "arc-energy",
+      "brand": "arc-energy"
+    },
+    {
+      "name": "ARCLINE by RACV",
+      "path": "energy-locals",
+      "brand": "arcline"
+    },
+    {
+      "name": "Arcstream",
+      "path": "arcstream",
+      "brand": "arcstream"
+    },
+    {
+      "name": "ASENO",
+      "path": "aseno",
+      "brand": "aseno"
+    },
+    {
+      "name": "Aurora Energy",
+      "path": "aurora",
+      "brand": "aurora"
+    },
+    {
+      "name": "Besy",
+      "path": "besy",
+      "brand": "besy"
+    },
+    {
+      "name": "Blue NRG",
+      "path": "blue-nrg",
+      "brand": "blue-nrg"
+    },
+    {
+      "name": "Brighte Energy",
+      "path": "brighte",
+      "brand": "brighte"
+    },
+    {
+      "name": "CleanCo Queensland",
+      "path": "cleanco",
+      "brand": "cleanco"
+    },
+    {
+      "name": "CleanPeak Energy Retail",
+      "path": "cleanpeak",
+      "brand": "cleanpeak"
+    },
+    {
+      "name": "Coles Energy",
+      "path": "coles",
+      "brand": "coles"
+    },
+    {
+      "name": "Commander Power & Gas",
+      "path": "commander",
+      "brand": "commander"
+    },
+    {
+      "name": "Cooperative Power",
+      "path": "energy-locals",
+      "brand": "cooperative"
+    },
+    {
+      "name": "CovaU",
+      "path": "covau",
+      "brand": "covau"
+    },
+    {
+      "name": "CPE Mascot",
+      "path": "cpe-mascot",
+      "brand": "cpe-mascot"
+    },
+    {
+      "name": "Diamond Energy",
+      "path": "diamond",
+      "brand": "diamond"
+    },
+    {
+      "name": "Discover Energy",
+      "path": "discover",
+      "brand": "discover"
+    },
+    {
+      "name": "Dodo Power & Gas",
+      "path": "dodo",
+      "brand": "dodo"
+    },
+    {
+      "name": "Ellis Air Connect",
+      "path": "ea-connect",
+      "brand": "ea-connect"
+    },
+    {
+      "name": "Energy Locals Retail",
+      "path": "energy-locals",
+      "brand": "energy-locals"
+    },
+    {
+      "name": "Energy Locals Urban",
+      "path": "energy-locals-urban",
+      "brand": "energy-locals-urban"
+    },
+    {
+      "name": "EnergyAustralia",
+      "path": "energyaustralia",
+      "brand": "energyaustralia"
+    },
+    {
+      "name": "ENGIE",
+      "path": "engie",
+      "brand": "engie"
+    },
+    {
+      "name": "ERC Energy",
+      "path": "erc-energy",
+      "brand": "erc-energy"
+    },
+    {
+      "name": "Ergon Energy",
+      "path": "ergon",
+      "brand": "ergon"
+    },
+    {
+      "name": "Evergy",
+      "path": "evergy",
+      "brand": "evergy"
+    },
+    {
+      "name": "Flipped Energy",
+      "path": "flipped",
+      "brand": "flipped"
+    },
+    {
+      "name": "Flow Power",
+      "path": "flow-power",
+      "brand": "flow-power"
+    },
+    {
+      "name": "Future X Power",
+      "path": "future-x",
+      "brand": "future-x"
+    },
+    {
+      "name": "Future X Power",
+      "path": "future-x",
+      "brand": "sunswitch"
+    },
+    {
+      "name": "GEE Energy",
+      "path": "gee-energy",
+      "brand": "gee-energy"
+    },
+    {
+      "name": "GloBird Energy",
+      "path": "globird",
+      "brand": "globird"
+    },
+    {
+      "name": "Glow Power",
+      "path": "glow-power",
+      "brand": "glow-power"
+    },
+    {
+      "name": "Humenergy Group",
+      "path": "humenergy",
+      "brand": "humenergy"
+    },
+    {
+      "name": "iGENO",
+      "path": "igeno",
+      "brand": "igeno"
+    },
+    {
+      "name": "iO Energy",
+      "path": "radian",
+      "brand": "io-energy"
+    },
+    {
+      "name": "Kogan Energy",
+      "path": "kogan",
+      "brand": "kogan"
+    },
+    {
+      "name": "Locality Planning Energy",
+      "path": "locality-planning",
+      "brand": "locality-planning"
+    },
+    {
+      "name": "Localvolts",
+      "path": "localvolts",
+      "brand": "localvolts"
+    },
+    {
+      "name": "Lumo Energy",
+      "path": "lumo",
+      "brand": "lumo"
+    },
+    {
+      "name": "Macarthur Energy Retail",
+      "path": "macarthur",
+      "brand": "macarthur"
+    },
+    {
+      "name": "Macquarie",
+      "path": "macquarie",
+      "brand": "macquarie"
+    },
+    {
+      "name": "Metered Energy Holdings",
+      "path": "metered-energy",
+      "brand": "metered-energy"
+    },
+    {
+      "name": "Microgrid Power",
+      "path": "microgrid",
+      "brand": "microgrid"
+    },
+    {
+      "name": "Momentum Energy",
+      "path": "momentum",
+      "brand": "momentum"
+    },
+    {
+      "name": "MYOB powered by OVO",
+      "path": "ovo-energy",
+      "brand": "myob"
+    },
+    {
+      "name": "Nectr",
+      "path": "nectr",
+      "brand": "nectr"
+    },
+    {
+      "name": "Next Business Energy",
+      "path": "next-business",
+      "brand": "next-business"
+    },
+    {
+      "name": "Origin Energy",
+      "path": "origin",
+      "brand": "origin"
+    },
+    {
+      "name": "OVO Energy",
+      "path": "ovo-energy",
+      "brand": "ovo-energy"
+    },
+    {
+      "name": "OVO Energy for CTM",
+      "path": "ovo-energy",
+      "brand": "ovo-energy-ctm"
+    },
+    {
+      "name": "Pacific Blue Retail",
+      "path": "pacific-blue",
+      "brand": "pacific-blue"
+    },
+    {
+      "name": "Perpetual Energy",
+      "path": "perpetual",
+      "brand": "perpetual"
+    },
+    {
+      "name": "PowerHub",
+      "path": "powerhub",
+      "brand": "powerhub"
+    },
+    {
+      "name": "Powershop",
+      "path": "powershop",
+      "brand": "powershop"
+    },
+    {
+      "name": "Powow Power",
+      "path": "powow",
+      "brand": "powow"
+    },
+    {
+      "name": "RAA Energy",
+      "path": "energy-locals",
+      "brand": "raa"
+    },
+    {
+      "name": "Radian Energy",
+      "path": "radian",
+      "brand": "radian"
+    },
+    {
+      "name": "Real Utilities",
+      "path": "real-utilities",
+      "brand": "real-utilities"
+    },
+    {
+      "name": "Red Energy",
+      "path": "red-energy",
+      "brand": "red-energy"
+    },
+    {
+      "name": "Savant Energy",
+      "path": "savant",
+      "brand": "savant"
+    },
+    {
+      "name": "Seene",
+      "path": "seene",
+      "brand": "seene"
+    },
+    {
+      "name": "Shell Energy",
+      "path": "shell-energy",
+      "brand": "shell-energy"
+    },
+    {
+      "name": "Silver Asset Energy",
+      "path": "silver-asset",
+      "brand": "silver-asset"
+    },
+    {
+      "name": "Smart Energy",
+      "path": "smart-energy",
+      "brand": "smart-energy"
+    },
+    {
+      "name": "Solstice Energy",
+      "path": "solstice",
+      "brand": "solstice"
+    },
+    {
+      "name": "Stanwell Energy",
+      "path": "stanwell",
+      "brand": "stanwell"
+    },
+    {
+      "name": "Sumo",
+      "path": "sumo-power",
+      "brand": "sumo-power"
+    },
+    {
+      "name": "Tango Energy",
+      "path": "tango",
+      "brand": "tango"
+    },
+    {
+      "name": "Telstra Energy",
+      "path": "telstra-energy",
+      "brand": "telstra-energy"
+    },
+    {
+      "name": "Tesla Energy Ventures",
+      "path": "tesla",
+      "brand": "tesla"
+    },
+    {
+      "name": "Veolia Energy",
+      "path": "veolia",
+      "brand": "veolia"
+    },
+    {
+      "name": "WINconnect",
+      "path": "winconnect",
+      "brand": "winconnect"
+    },
+    {
+      "name": "YES Energy",
+      "path": "yes-energy",
+      "brand": "yes-energy"
+    },
+    {
+      "name": "ZEN Energy",
+      "path": "zen-energy",
+      "brand": "zen-energy"
+    }
+  ]
+}

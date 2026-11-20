@@ -73,4 +73,6 @@ def dump_json(data: Any) -> str:
 
 
 def plan_files() -> list[Path]:
-    return sorted(p for p in PLANS_DIR.rglob("*.json") if p != INDEX_PATH)
+    # Plans live in plans/<country>/<region>/; files directly in plans/ (index.json,
+    # retailers.json) are generated data, not plans.
+    return sorted(p for p in PLANS_DIR.rglob("*.json") if p.parent != PLANS_DIR)

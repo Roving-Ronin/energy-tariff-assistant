@@ -1,0 +1,64 @@
+name: Retailer coverage
+
+# Weekly: reads every retailer's current electricity plans from the AER's Energy Product Reference
+# Data (Energy Made Easy, Consumer Data Right) and writes plans/retailers.json (retailer -> DNSP -> state,
+# with plan counts). Commits it to the default branch when it changed. Unmapped distributor names are
+# shown as a warning, so scripts/fetch_eme_retailers.py's DISTRIBUTORS map can be extended.
+on:
+  schedule:
+    - cron: "41 16 * * 0"  # Sundays 16:41 UTC (early Monday in Sydney)
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: retailer-coverage
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Update plans/retailers.json
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # commit plans/retailers.json
+    steps:
+      - name: Check out the default branch
+        # zizmor: ignore[artipacked] this job pushes the updated file back, so it keeps the token
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Fetch retailer coverage from Energy Made Easy
+        run: python scripts/fetch_eme_retailers.py | tee fetch.log
+
+      - name: Warn about unmapped distributors and failed brands
+        run: |
+          python - <<'PY'
+          import json
+          data = json.load(open("plans/retailers.json"))
+          if data.get("unmapped_distributors"):
+              print("::warning::Unmapped distributor names: " + ", ".join(data["unmapped_distributors"]))
+          if data.get("failed_brands"):
+              print(f"::warning::{len(data['failed_brands'])} brand(s) couldn't be read; see plans/retailers.json")
+          print(f"{len(data['retailers'])} retailers, {len(data['distributors'])} distributors")
+          PY
+
+      - name: Commit if it changed
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if git diff --quiet -- plans/retailers.json && [ -z "$(git status --porcelain -- plans/retailers.json)" ]; then
+            echo "plans/retailers.json unchanged"
+            exit 0
+          fi
+          git add plans/retailers.json
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "Update retailer coverage from Energy Made Easy"
+          if ! git push -q origin "HEAD:$DEFAULT_BRANCH"; then
+            echo "::warning::Couldn't push plans/retailers.json (branch protection?)."
+          fi
