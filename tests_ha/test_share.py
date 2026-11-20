@@ -37,6 +37,7 @@ def test_link_carries_the_plan(plan_data):
     assert q["title"] == "[Plan] Covau SolarMax Residential TOU (NSW, Essential Energy)"
     assert q["kind"] == KIND_NEW
     assert q["state"] == "NSW"
+    assert q["customer-type"] == "Residential"
     assert q["dnsp"] == "Essential Energy"
     assert q["plan-id"] == "COV1117612MRE3, from 2026-07-01"
     assert json.loads(q["plan-json"]) == plan_data

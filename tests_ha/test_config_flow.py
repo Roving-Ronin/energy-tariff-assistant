@@ -84,6 +84,10 @@ INDEX = {
          "dnsp": "Ausgrid", "retailer": "Other", "plan": "Plan", "effective_from": "2026-07-01"},
         {"file": "plans/AU/VIC/X-Y-VIC-Jemena-20260701.json", "country": "AU", "region": "VIC",
          "dnsp": "Jemena", "retailer": "X", "plan": "Y", "effective_from": "2026-07-01"},
+        # Business only: hidden from a residential search
+        {"file": "plans/AU/SA/B-Biz-SA-SAPowerNetworks-20260701.json", "country": "AU", "region": "SA",
+         "dnsp": "SA Power Networks", "retailer": "B", "plan": "Biz", "customer_type": "business",
+         "effective_from": "2026-07-01"},
     ]
 }
 
@@ -103,7 +107,9 @@ async def test_library_flow(hass, sydney, aioclient_mock):
     result = await _start(hass, SOURCE_LIBRARY)
     assert result["step_id"] == "library"
     assert _options(result, "country") == ["au"]
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"country": "au"})
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"customer_type": "residential", "country": "au"}
+    )
     assert result["step_id"] == "library_region"
     assert _options(result, "region") == ["NSW", "VIC"]
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"region": "NSW"})
@@ -153,3 +159,13 @@ async def test_options_change_meters(hass, sydney, entry):
     assert entry.options[CONF_BILLING_DAY] == 3
     assert entry.options["export_sensor"] is None
     assert entry.options[CONF_PLAN]["retailer"] == "Covau"
+
+
+async def test_library_business_filter(hass, sydney, aioclient_mock):
+    aioclient_mock.get(LIBRARY_BASE_URL + LIBRARY_INDEX, text=json.dumps(INDEX))
+    result = await _start(hass, SOURCE_LIBRARY)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"customer_type": "business", "country": "au"}
+    )
+    # Business plans, plus plans that don't say which customer type they're for
+    assert _options(result, "region") == ["NSW", "SA", "VIC"]

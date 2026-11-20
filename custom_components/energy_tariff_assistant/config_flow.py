@@ -50,6 +50,8 @@ from .share import build_share_link, plan_title
 from .wizard import (
     AFTER_CAP_RATE,
     COUNTRIES,
+    CUSTOMER_TYPES,
+    DEFAULT_CUSTOMER_TYPE,
     DAY_CHOICES,
     DEFAULT_COUNTRY,
     DEFAULT_REGION,
@@ -138,6 +140,7 @@ class PlanSteps:
 
     _index: list[dict[str, Any]] | None = None
     _lib: dict[str, str]
+    _entries: list[dict[str, Any]]
     _draft: Draft
     _modes: dict[str, str]
 
@@ -190,11 +193,20 @@ class PlanSteps:
         values = [c.lower() for c in wizard.countries(self._index)]
         if user_input is not None:
             self._lib["country"] = user_input["country"].upper()
+            # Later steps only offer what matches the customer type
+            self._entries = wizard.for_customer(self._index, user_input["customer_type"])
             return await self.async_step_library_region()
         default = wizard.pick_default(values, DEFAULT_COUNTRY.lower())
         return self.async_show_form(
             step_id="library",
-            data_schema=vol.Schema({vol.Required("country", default=default): _select(values, "country")}),
+            data_schema=vol.Schema(
+                {
+                    vol.Required("customer_type", default=DEFAULT_CUSTOMER_TYPE): _select(
+                        list(CUSTOMER_TYPES), "customer_type"
+                    ),
+                    vol.Required("country", default=default): _select(values, "country"),
+                }
+            ),
         )
 
     async def async_step_library_region(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
@@ -202,7 +214,9 @@ class PlanSteps:
         if user_input is not None:
             self._lib["region"] = user_input["region"]
             return await self.async_step_library_dnsp()
-        values = wizard.regions(self._index or [], country)
+        values = wizard.regions(self._entries, country)
+        if not values:
+            return self.async_abort(reason="library_no_plans")
         default = wizard.pick_default(values, DEFAULT_REGION.get(country))
         return self.async_show_form(
             step_id="library_region",
@@ -215,7 +229,7 @@ class PlanSteps:
             value = user_input["dnsp"]
             self._lib["dnsp"] = "" if value == NONE_DNSP else value
             return await self.async_step_library_retailer()
-        values = wizard.dnsps(self._index or [], self._lib["country"], self._lib["region"])
+        values = wizard.dnsps(self._entries, self._lib["country"], self._lib["region"])
         options = [
             selector.SelectOptionDict(value=v or NONE_DNSP, label=v or "-") for v in values
         ]
@@ -232,7 +246,7 @@ class PlanSteps:
             self._lib["retailer"] = user_input["retailer"]
             return await self.async_step_library_plan()
         values = wizard.retailers(
-            self._index or [], self._lib["country"], self._lib["region"], self._lib["dnsp"]
+            self._entries, self._lib["country"], self._lib["region"], self._lib["dnsp"]
         )
         return self.async_show_form(
             step_id="library_retailer",
@@ -241,7 +255,7 @@ class PlanSteps:
         )
 
     async def async_step_library_plan(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        entries = wizard.plans_newest_first(wizard.filter_entries(self._index or [], **self._lib))
+        entries = wizard.plans_newest_first(wizard.filter_entries(self._entries, **self._lib))
         options = [
             selector.SelectOptionDict(value=e["file"], label=wizard.plan_label(e)) for e in entries
         ]
@@ -324,6 +338,7 @@ class PlanSteps:
             draft.plan_id = user_input.get("plan_id", "")
             draft.effective_from = user_input["effective_from"]
             draft.supply_charge = float(user_input["supply_charge"])
+            draft.customer_type = user_input["customer_type"]
             self._modes = {"import": user_input["import_type"], "export": user_input["export_type"]}
             return await self._async_build_stream("import")
         today = dt_util.now().date().isoformat()
@@ -343,6 +358,9 @@ class PlanSteps:
                         selector.NumberSelectorConfig(
                             min=0, max=20, step="any", mode=selector.NumberSelectorMode.BOX, unit_of_measurement="$/day"
                         )
+                    ),
+                    vol.Required("customer_type", default=DEFAULT_CUSTOMER_TYPE): _select(
+                        list(CUSTOMER_TYPES), "customer_type"
                     ),
                     vol.Required("import_type", default=TOU): _select([FLAT, TOU], "rate_type"),
                     vol.Required("export_type", default=FLAT): _select([FLAT, TOU], "rate_type"),

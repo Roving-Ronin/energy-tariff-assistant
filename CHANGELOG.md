@@ -4,6 +4,20 @@ Every release opens with a **TL;DR**: a handful of short bullets, rewritten as a
 whenever an entry is added. Entries are direct: symptom, cause, fix, with the issue link and
 credit where there is one.
 
+## v0.1.0b3 (2026-11-20)
+
+Third test build (pre-release).
+
+### TL;DR
+- Residential or business: the plan library and Build a plan ask which, Residential by default
+
+### Added
+- Plan library: **Customer type** (Residential by default) on the first step; later steps only offer states,
+  distributors, retailers and plans for that type. Plans that don't say are shown for both.
+- Build a plan: **Customer type** on the details step, saved in the plan (`customer_type`).
+- Share this plan and the plan submission form: **Customer type**.
+- `plans/index.json` lists each plan's `customer_type`.
+
 ## v0.1.0b2 (2026-11-20)
 
 Second test build (pre-release).

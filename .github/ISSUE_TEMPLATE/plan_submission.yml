@@ -27,6 +27,15 @@ body:
     validations:
       required: true
   - type: dropdown
+    id: customer-type
+    attributes:
+      label: Customer type
+      options:
+        - Residential
+        - Business
+    validations:
+      required: true
+  - type: dropdown
     id: state
     attributes:
       label: State / territory
