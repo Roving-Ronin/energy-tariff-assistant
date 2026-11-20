@@ -203,12 +203,20 @@ python -m pytest
 | `custom_components/energy_tariff_assistant/engine/` | Rate engine and metering: plan model, resolver, forecast, validator, ledger. No Home Assistant imports, so the plan scripts and CI use it directly. |
 | `custom_components/energy_tariff_assistant/` | The integration: config flow, runtime (state tracking, timers, storage), sensors. |
 | `plans/` | Shared plan library, plus a generated `index.json`. |
-| `scripts/` | `validate_plans.py`, `build_index.py`, `import_energy_manager.py`. |
+| `scripts/` | `validate_plans.py`, `build_index.py`, `import_energy_manager.py`, `fetch_eme_retailers.py` (see *Retailer coverage*). |
 | `tests/` | Engine tests (run with just `holidays`, `jsonschema`, `pytest`). |
 | `tests_ha/` | Integration tests with `pytest-homeassistant-custom-component`. |
 
 The importer tests use plan files from energy-manager-tariffs. They are fetched rather than committed because
 that repository has no licence file; without them those tests are skipped.
+
+### Retailer coverage
+
+`plans/retailers.json` lists which retailers sell electricity in which distributor (DNSP) areas and states, with
+plan counts. The **Retailer coverage** workflow rebuilds it weekly with `scripts/fetch_eme_retailers.py` from the
+AER's [Energy Product Reference Data](https://www.aer.gov.au/energy-product-reference-data) (Energy Made Easy,
+Consumer Data Right; Victorian plans come from DEECA), and commits it when it changes. Only derived facts are
+stored: retailer, distributor, state and counts, no plan text or prices. WA and the NT aren't in that data.
 
 ### Releasing
 

@@ -111,6 +111,15 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   `plans/index.json` with `scripts/build_index.py` in the same commit.
 - Rates include GST, per kWh, in dollars. `needs_review: true` until checked against EME / the BPID.
 - Never commit anything from energy-manager-tariffs (no licence): convert, check, and record the source in `notes`.
+- Files directly in `plans/` (`index.json`, `retailers.json`) are generated data; plans are only read from
+  `plans/<country>/<region>/` (`_common.plan_files`).
+- `plans/retailers.json` is written by the weekly Retailer coverage workflow (`scripts/fetch_eme_retailers.py`) from
+  the AER's Energy Product Reference Data: CDR Get Generic Plans, `x-v: 1`, no auth, page-size up to 1000, one
+  call per **path**. Several brands share a path (`energy-locals`: Energy Locals, ARCLINE, Cooperative, RAA;
+  `ovo-energy`: OVO, MYOB, OVO for CTM; `radian`: Radian, iO; `future-x`: Future X, Sunswitch), so plans are split
+  by each plan's `brand`. Brands come from the ACCC CDR Register, with `scripts/eme_brands.json` (the AER's
+  January 2026 list) as fallback. Store derived facts only (retailer, DNSP, state, counts), never plan text or
+  prices. Unknown distributor names show as `unmapped_distributors`: add them to `DISTRIBUTORS`.
 
 ## Releases and changelog
 - **A PR titled `vX.Y.Z: …` releases `vX.Y.Z` when it's merged** (Auto Release), with its CHANGELOG section as the
