@@ -49,6 +49,7 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
 | `engine/importers/` | Converters from other formats (energy-manager-tariffs). Pure |
 | `schema/tariff-plan.schema.json` | JSON Schema for editors and CI; `validate.py` adds the cross-field rules |
 | `plan_source.py` | Library fetch, file read, paste parse; `check_plan` (validate + build resolver + prewarm holidays) |
+| `share.py` | Pre-filled GitHub plan submission link (plan only, never meter data). Pure apart from `const` |
 | `runtime.py` | Per entry: tracks source sensors, converts units, feeds the ledgers, timers, `.storage`, signals entities |
 | `sensor.py` | Entities only: values come from the runtime / ledgers |
 | `config_flow.py` | Setup (plan source → meters) and options flow (meters, or replace the plan) |
@@ -85,6 +86,12 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   breaks users' dashboards and history**: avoid it, or migrate the registry entry.
 - Meters are `state_class: total` with `last_reset` at the bucket start; the price sensor's `forecast` attribute
   is unrecorded.
+
+### Sharing plans
+- **Share this plan** only builds a link; Home Assistant never sends anything to GitHub and holds no token.
+- Only the plan goes in the link. Never add meter totals, sensor or entity IDs, entry IDs or anything else
+  install-specific. The form's field ids (`plan_submission.yml`) and the link's query keys must match; the issue
+  validator's `TEMPLATES` lists the form's headings.
 
 ### UI text
 - Wording goes in `strings.json`; copy it to `translations/en.json` (the Pull Requests workflow checks they

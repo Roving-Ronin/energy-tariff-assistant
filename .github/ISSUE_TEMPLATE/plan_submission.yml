@@ -63,6 +63,15 @@ body:
         FiT: 15c/kWh 18:00-21:00 for the first 30 kWh/day, otherwise 5c
     validations:
       required: true
+  - type: textarea
+    id: plan-json
+    attributes:
+      label: Plan JSON
+      description: |
+        If you have the plan as a file (`ha_tariff_plan` format), paste it here. **Share this plan** in Energy Tariff Assistant (Settings → Devices & services → Energy Tariff Assistant → Configure) fills this in for you.
+      render: json
+    validations:
+      required: false
   - type: input
     id: source
     attributes:

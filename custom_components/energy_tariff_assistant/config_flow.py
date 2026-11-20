@@ -15,6 +15,7 @@ from homeassistant.config_entries import (
 from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
 from homeassistant.helpers import selector
+from homeassistant.loader import async_get_integration
 
 from .const import (
     CONF_BILLING_DAY,
@@ -41,6 +42,7 @@ from .plan_source import (
     parse_plan_text,
     read_plan_file,
 )
+from .share import build_share_link, plan_title
 
 SOURCE_SELECTOR = selector.SelectSelector(
     selector.SelectSelectorConfig(
@@ -241,7 +243,42 @@ class EnergyTariffOptionsFlow(PlanSteps, OptionsFlowWithReload):
     """Change the meters or replace the plan."""
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        return self.async_show_menu(step_id="init", menu_options=["meters", "plan"])
+        return self.async_show_menu(step_id="init", menu_options=["meters", "plan", "share"])
+
+    async def async_step_share(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Show a pre-filled link to the plan submission form on GitHub.
+
+        Nothing is sent from Home Assistant: the user opens the link, checks
+        the form and submits it from their own GitHub account.
+        """
+        if user_input is not None:
+            return self.async_abort(reason="share_done")
+        options = self.config_entry.options
+        plan = options[CONF_PLAN]
+        integration = await async_get_integration(self.hass, DOMAIN)
+        link = build_share_link(plan, options.get(CONF_PLAN_SOURCE), str(integration.version))
+        placeholders = {"plan": plan_title(plan), "url": link.url}
+        if link.plan_in_link:
+            return self.async_show_form(
+                step_id="share", data_schema=vol.Schema({}), description_placeholders=placeholders
+            )
+        # Too long for a link: show the JSON to copy into the form by hand.
+        return self.async_show_form(
+            step_id="share_paste",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_PLAN_JSON, description={"suggested_value": link.plan_json}
+                    ): selector.TextSelector(selector.TextSelectorConfig(multiline=True))
+                }
+            ),
+            description_placeholders=placeholders,
+        )
+
+    async def async_step_share_paste(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        return self.async_abort(reason="share_done")
 
     async def async_step_meters(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:

@@ -4,6 +4,24 @@ Every release opens with a **TL;DR**: a handful of short bullets, rewritten as a
 whenever an entry is added. Entries are direct: symptom, cause, fix, with the issue link and
 credit where there is one.
 
+## v0.1.0b2 (2026-11-20)
+
+Second test build (pre-release).
+
+### TL;DR
+- Share your plan with the plan library from Home Assistant: Configure → Share this plan
+- README says not to install yet, while it's under development
+
+### Added
+- Options flow: **Share this plan with the plan library** opens the GitHub plan submission form with the plan
+  filled in (rates, times, retailer, region, DNSP and plan ID; never meter totals, sensor names or usage). Nothing
+  is sent from Home Assistant: the user checks the form and submits it from their own account. A plan from the
+  library is marked as a correction. A plan too long for a link (over ~7.5 KB) is shown to copy into the form.
+- Plan submission form: a **Plan JSON** field.
+
+### Changed
+- README: a warning not to install while the integration is under development.
+
 ## v0.1.0b1 (2026-11-20)
 
 First test build (pre-release): please report anything odd with the bug template.

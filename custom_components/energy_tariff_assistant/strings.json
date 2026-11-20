@@ -67,7 +67,8 @@
         "title": "Energy Tariff Assistant",
         "menu_options": {
           "meters": "Change energy meters or billing day",
-          "plan": "Replace the tariff plan"
+          "plan": "Replace the tariff plan",
+          "share": "Share this plan with the plan library"
         }
       },
       "meters": {
@@ -108,6 +109,17 @@
         "data": {
           "plan_path": "File path"
         }
+      },
+      "share": {
+        "title": "Share this plan",
+        "description": "Plan: {plan}\n\nThis opens the plan submission form on GitHub with this plan filled in: rates, times, retailer and region only. Nothing about your home, meters or usage is included, and nothing is sent from Home Assistant: check the form, then submit it from your own GitHub account.\n\n**[Open the plan submission form]({url})**\n\nSubmit here to close this window."
+      },
+      "share_paste": {
+        "title": "Share this plan",
+        "description": "Plan: {plan}\n\nThis plan is too long to fit in a link. Copy the plan JSON below, then open the plan submission form (everything else is filled in) and paste it into **Plan JSON**. Nothing about your home, meters or usage is included, and nothing is sent from Home Assistant.\n\n**[Open the plan submission form]({url})**",
+        "data": {
+          "plan_json": "Plan JSON"
+        }
       }
     },
     "error": {
@@ -119,7 +131,8 @@
     },
     "abort": {
       "cannot_connect": "Could not reach the plan library: {detail}",
-      "library_empty": "The plan library has no plans yet."
+      "library_empty": "The plan library has no plans yet.",
+      "share_done": "Thanks for sharing! The plan will be checked before it's added to the library."
     }
   },
   "selector": {
