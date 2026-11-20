@@ -43,6 +43,9 @@ DNSPS = {
     ("AU", "NT"): ("Power and Water Corporation",),
 }
 
+CUSTOMER_TYPES = ("residential", "business")
+DEFAULT_CUSTOMER_TYPE = "residential"
+
 DAY_CHOICES = ("all", "weekdays", "weekends", "custom")
 DAY_NAMES = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 TIER_RESETS = ("day", "month", "bill")
@@ -91,6 +94,7 @@ class Draft:
     plan_id: str = ""
     effective_from: str = ""
     supply_charge: float = 0.0
+    customer_type: str = DEFAULT_CUSTOMER_TYPE
     streams: dict[str, DraftStream] = field(
         default_factory=lambda: {"import": DraftStream(), "export": DraftStream()}
     )
@@ -159,6 +163,8 @@ def assemble_plan(draft: Draft, today: date) -> dict[str, Any]:
         plan["dnsp"] = draft.dnsp.strip()
     if draft.plan_id.strip():
         plan["plan_id"] = draft.plan_id.strip()
+    if draft.customer_type in CUSTOMER_TYPES:
+        plan["customer_type"] = draft.customer_type
     for key, stream in draft.streams.items():
         # Default period last, like the library files
         ordered = [p for p in stream.periods if not p.default] + [p for p in stream.periods if p.default]
@@ -211,6 +217,11 @@ def summary(plan: dict[str, Any]) -> str:
 
 def _values(entries: list[dict[str, Any]], key: str) -> list[str]:
     return sorted({str(e.get(key) or "") for e in entries})
+
+
+def for_customer(entries: list[dict[str, Any]], customer_type: str) -> list[dict[str, Any]]:
+    """Entries for this customer type. Plans that don't say are offered to both."""
+    return [e for e in entries if e.get("customer_type") in (None, "", customer_type)]
 
 
 def filter_entries(entries: list[dict[str, Any]], **criteria: str) -> list[dict[str, Any]]:

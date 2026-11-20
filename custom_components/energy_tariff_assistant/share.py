@@ -24,6 +24,8 @@ STATES = ("NSW", "ACT", "VIC", "QLD", "SA", "TAS", "WA", "NT")
 # Option labels of the form's "New or correction?" dropdown
 KIND_NEW = "New plan"
 KIND_CORRECTION = "Correction to a library plan"
+# Option labels of the form's "Customer type" dropdown
+CUSTOMER_TYPES = {"residential": "Residential", "business": "Business"}
 
 
 @dataclass(frozen=True)
@@ -63,6 +65,8 @@ def build_share_link(
         "rates": "See the plan JSON below.",
         "source": _source_text(plan, source, integration_version),
     }
+    if plan.get("customer_type") in CUSTOMER_TYPES:
+        fields["customer-type"] = CUSTOMER_TYPES[plan["customer_type"]]
     if plan.get("region") in STATES:
         fields["state"] = plan["region"]
 

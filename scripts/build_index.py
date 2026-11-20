@@ -14,7 +14,7 @@ from datetime import UTC, datetime
 from _common import INDEX_PATH, PLANS_DIR, dump_json, load_json, plan_files
 
 INDEX_FIELDS = (
-    "country", "region", "dnsp", "retailer", "plan", "plan_id",
+    "country", "region", "dnsp", "retailer", "plan", "plan_id", "customer_type",
     "effective_from", "effective_to",
 )
 

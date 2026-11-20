@@ -94,6 +94,8 @@ def test_library_filters():
     assert [e["file"] for e in wizard.plans_newest_first(picked)] == ["b", "a"]
     assert wizard.pick_default(["ACT", "NSW"], "NSW") == "NSW"
     assert wizard.pick_default(["VIC"], "NSW") == "VIC"
+    typed = [{"file": "r", "customer_type": "residential"}, {"file": "b", "customer_type": "business"}, {"file": "n"}]
+    assert [e["file"] for e in wizard.for_customer(typed, "business")] == ["b", "n"]
 
 
 async def _configure(hass, flow_id, data):
@@ -109,7 +111,8 @@ async def test_build_flow(hass, sydney):
     assert result["step_id"] == "build_details"
     result = await _configure(hass, fid, {
         "dnsp": "Essential Energy", "retailer": "Covau", "plan_name": "SolarMax Residential TOU",
-        "effective_from": "2026-07-01", "supply_charge": 2.3, "import_type": "tou", "export_type": "flat",
+        "effective_from": "2026-07-01", "supply_charge": 2.3, "customer_type": "residential",
+        "import_type": "tou", "export_type": "flat",
     })
     assert result["step_id"] == "build_import_default"
     result = await _configure(hass, fid, {"name": "Shoulder", "rate": 0.27478})
@@ -142,6 +145,7 @@ async def test_build_flow(hass, sydney):
 
     options = result["options"]
     plan = options[CONF_PLAN]
+    assert plan["customer_type"] == "residential"
     peak = next(p for p in plan["import"]["periods"] if p["id"] == "peak")
     assert peak["windows"] == [
         {"days": "weekdays", "start": "07:00", "end": "09:00"},
@@ -159,7 +163,8 @@ async def test_build_start_over(hass, sydney):
     fid = (await _configure(hass, result["flow_id"], {"name": "E", CONF_SOURCE: SOURCE_BUILD}))["flow_id"]
     await _configure(hass, fid, {"country": "au", "region": "VIC"})
     await _configure(hass, fid, {"retailer": "R", "plan_name": "P", "effective_from": "2026-07-01",
-                                 "supply_charge": 1, "import_type": "flat", "export_type": "flat"})
+                                 "supply_charge": 1, "customer_type": "business",
+                                 "import_type": "flat", "export_type": "flat"})
     await _configure(hass, fid, {"name": "Anytime", "rate": 0.3})
     result = await _configure(hass, fid, {"name": "Feed-in", "rate": 0.04})
     assert result["step_id"] == "build_review"
@@ -179,7 +184,7 @@ async def test_build_from_options_replaces_plan(hass, sydney, entry):
     await opt.async_configure(fid, {"country": "au", "region": "NSW"})
     await opt.async_configure(fid, {"dnsp": "Ausgrid", "retailer": "R", "plan_name": "Flat",
                                     "effective_from": "2026-07-01", "supply_charge": 1.1,
-                                    "import_type": "flat", "export_type": "flat"})
+                                    "customer_type": "residential", "import_type": "flat", "export_type": "flat"})
     await opt.async_configure(fid, {"name": "Anytime", "rate": 0.31})
     await opt.async_configure(fid, {"name": "Feed-in", "rate": 0.04})
     result = await opt.async_configure(fid, {"action": "save"})

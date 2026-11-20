@@ -15,9 +15,13 @@
       },
       "library": {
         "title": "Plan library: country",
-        "description": "Choose your country. Only countries with plans in the library are listed.",
+        "description": "Choose the customer type and country. Only countries with plans in the library are listed.",
         "data": {
-          "country": "Country"
+          "country": "Country",
+          "customer_type": "Customer type"
+        },
+        "data_description": {
+          "customer_type": "Residential for homes, Business for business connections. Plans that don't say are shown for both."
         }
       },
       "paste": {
@@ -95,328 +99,8 @@
           "effective_from": "Rates start on",
           "supply_charge": "Daily supply charge ($/day)",
           "import_type": "Import rates",
-          "export_type": "Feed-in rates"
-        },
-        "data_description": {
-          "dnsp": "Choose from the list or type a name.",
-          "plan_id": "Optional: the Energy Made Easy / BPID plan ID, e.g. COV1117612MRE3.",
-          "supply_charge": "Including GST, e.g. 1.10 for 110c a day.",
-          "import_type": "One rate all the time, or different rates at different times (time of use).",
-          "export_type": "One feed-in rate, or different rates at different times."
-        }
-      },
-      "build_import_flat": {
-        "title": "Import (buying from the grid)",
-        "description": "One rate at all times.",
-        "data": {
-          "name": "Name",
-          "rate": "Rate ($/kWh)",
-          "cap_kwh": "Cap (kWh)",
-          "after_cap": "After the cap",
-          "rate_after_cap": "Rate after the cap",
-          "cap_reset": "Cap resets every"
-        },
-        "data_description": {
-          "rate": "Per kWh, including GST, e.g. 0.30 for 30c.",
-          "cap_kwh": "Optional. For a rate that only applies to the first so many kWh, e.g. first 50 kWh free.",
-          "after_cap": "Charge a period's rate once the cap is used up, or choose $/kWh to use the rate below.",
-          "rate_after_cap": "Per kWh, including GST.",
-          "cap_reset": "When the cap starts again: each day, each calendar month, or each billing cycle."
-        }
-      },
-      "build_import_default": {
-        "title": "Import (buying from the grid)",
-        "description": "First, the rate for **all other times**: the times none of your periods cover (often Shoulder, or the standard feed-in). You add the timed periods next.",
-        "data": {
-          "name": "Name",
-          "rate": "Rate ($/kWh)",
-          "cap_kwh": "Cap (kWh)",
-          "after_cap": "After the cap",
-          "rate_after_cap": "Rate after the cap",
-          "cap_reset": "Cap resets every"
-        },
-        "data_description": {
-          "rate": "Per kWh, including GST, e.g. 0.30 for 30c.",
-          "cap_kwh": "Optional. For a rate that only applies to the first so many kWh, e.g. first 50 kWh free.",
-          "after_cap": "Charge a period's rate once the cap is used up, or choose $/kWh to use the rate below.",
-          "rate_after_cap": "Per kWh, including GST.",
-          "cap_reset": "When the cap starts again: each day, each calendar month, or each billing cycle."
-        }
-      },
-      "build_import_period": {
-        "title": "Import (buying from the grid)",
-        "description": "A timed period, e.g. Peak 15:00 to 21:00. If it applies at more than one time (e.g. 07:00-09:00 and 17:00-20:00), add the other times next.",
-        "data": {
-          "name": "Name",
-          "rate": "Rate ($/kWh)",
-          "days": "Days",
-          "custom_days": "Which days",
-          "start": "Starts",
-          "end": "Ends",
-          "cap_kwh": "Cap (kWh)",
-          "after_cap": "After the cap",
-          "rate_after_cap": "Rate after the cap",
-          "cap_reset": "Cap resets every"
-        },
-        "data_description": {
-          "rate": "Per kWh, including GST.",
-          "days": "Choose Custom to pick the days yourself.",
-          "custom_days": "Only used with Custom.",
-          "start": "The period starts at this time.",
-          "end": "The period ends just before this time. An end earlier than the start runs past midnight, e.g. 22:00 to 07:00.",
-          "cap_kwh": "Optional. For a rate that only applies to the first so many kWh, e.g. first 50 kWh free.",
-          "after_cap": "Charge a period's rate once the cap is used up, or choose $/kWh to use the rate below.",
-          "rate_after_cap": "Per kWh, including GST.",
-          "cap_reset": "When the cap starts again: each day, each calendar month, or each billing cycle."
-        }
-      },
-      "build_import_window": {
-        "title": "Import (buying from the grid)",
-        "description": "Another time for **{period}**.",
-        "data": {
-          "days": "Days",
-          "custom_days": "Which days",
-          "start": "Starts",
-          "end": "Ends"
-        },
-        "data_description": {
-          "days": "Choose Custom to pick the days yourself.",
-          "custom_days": "Only used with Custom.",
-          "start": "The period starts at this time.",
-          "end": "The period ends just before this time. An end earlier than the start runs past midnight, e.g. 22:00 to 07:00."
-        }
-      },
-      "build_import_more": {
-        "title": "Import (buying from the grid)",
-        "description": "Periods so far: {periods}.",
-        "menu_options": {
-          "build_import_window": "Add another time for {period}",
-          "build_import_period": "Add another period",
-          "build_import_done": "Done"
-        }
-      },
-      "build_export_flat": {
-        "title": "Feed-in (selling to the grid)",
-        "description": "One rate at all times.",
-        "data": {
-          "name": "Name",
-          "rate": "Rate ($/kWh)",
-          "cap_kwh": "Cap (kWh)",
-          "after_cap": "After the cap",
-          "rate_after_cap": "Rate after the cap",
-          "cap_reset": "Cap resets every"
-        },
-        "data_description": {
-          "rate": "Per kWh, including GST, e.g. 0.30 for 30c.",
-          "cap_kwh": "Optional. For a rate that only applies to the first so many kWh, e.g. first 50 kWh free.",
-          "after_cap": "Charge a period's rate once the cap is used up, or choose $/kWh to use the rate below.",
-          "rate_after_cap": "Per kWh, including GST.",
-          "cap_reset": "When the cap starts again: each day, each calendar month, or each billing cycle."
-        }
-      },
-      "build_export_default": {
-        "title": "Feed-in (selling to the grid)",
-        "description": "First, the rate for **all other times**: the times none of your periods cover (often Shoulder, or the standard feed-in). You add the timed periods next.",
-        "data": {
-          "name": "Name",
-          "rate": "Rate ($/kWh)",
-          "cap_kwh": "Cap (kWh)",
-          "after_cap": "After the cap",
-          "rate_after_cap": "Rate after the cap",
-          "cap_reset": "Cap resets every"
-        },
-        "data_description": {
-          "rate": "Per kWh, including GST, e.g. 0.30 for 30c.",
-          "cap_kwh": "Optional. For a rate that only applies to the first so many kWh, e.g. first 50 kWh free.",
-          "after_cap": "Charge a period's rate once the cap is used up, or choose $/kWh to use the rate below.",
-          "rate_after_cap": "Per kWh, including GST.",
-          "cap_reset": "When the cap starts again: each day, each calendar month, or each billing cycle."
-        }
-      },
-      "build_export_period": {
-        "title": "Feed-in (selling to the grid)",
-        "description": "A timed period, e.g. Peak 15:00 to 21:00. If it applies at more than one time (e.g. 07:00-09:00 and 17:00-20:00), add the other times next.",
-        "data": {
-          "name": "Name",
-          "rate": "Rate ($/kWh)",
-          "days": "Days",
-          "custom_days": "Which days",
-          "start": "Starts",
-          "end": "Ends",
-          "cap_kwh": "Cap (kWh)",
-          "after_cap": "After the cap",
-          "rate_after_cap": "Rate after the cap",
-          "cap_reset": "Cap resets every"
-        },
-        "data_description": {
-          "rate": "Per kWh, including GST.",
-          "days": "Choose Custom to pick the days yourself.",
-          "custom_days": "Only used with Custom.",
-          "start": "The period starts at this time.",
-          "end": "The period ends just before this time. An end earlier than the start runs past midnight, e.g. 22:00 to 07:00.",
-          "cap_kwh": "Optional. For a rate that only applies to the first so many kWh, e.g. first 50 kWh free.",
-          "after_cap": "Charge a period's rate once the cap is used up, or choose $/kWh to use the rate below.",
-          "rate_after_cap": "Per kWh, including GST.",
-          "cap_reset": "When the cap starts again: each day, each calendar month, or each billing cycle."
-        }
-      },
-      "build_export_window": {
-        "title": "Feed-in (selling to the grid)",
-        "description": "Another time for **{period}**.",
-        "data": {
-          "days": "Days",
-          "custom_days": "Which days",
-          "start": "Starts",
-          "end": "Ends"
-        },
-        "data_description": {
-          "days": "Choose Custom to pick the days yourself.",
-          "custom_days": "Only used with Custom.",
-          "start": "The period starts at this time.",
-          "end": "The period ends just before this time. An end earlier than the start runs past midnight, e.g. 22:00 to 07:00."
-        }
-      },
-      "build_export_more": {
-        "title": "Feed-in (selling to the grid)",
-        "description": "Periods so far: {periods}.",
-        "menu_options": {
-          "build_export_window": "Add another time for {period}",
-          "build_export_period": "Add another period",
-          "build_export_done": "Done"
-        }
-      },
-      "build_review": {
-        "title": "Build a plan: check",
-        "description": "{summary}\n\nSaving writes the plan to `{file}` in your config folder and uses it for this entry. You can share it with the library afterwards (Configure → Share this plan).\n\n{detail}",
-        "data": {
-          "action": "Next"
-        }
-      }
-    },
-    "error": {
-      "cannot_connect": "Could not reach the plan library. {detail}",
-      "invalid_json": "That isn't valid JSON.",
-      "invalid_plan": "The plan didn't pass validation.",
-      "file_not_found": "Could not read that file.",
-      "file_outside_config": "The file must be inside your config folder.",
-      "rate_after_cap_required": "Enter the rate after the cap, or choose a period.",
-      "days_required": "Choose at least one day.",
-      "times_equal": "Start and end can't be the same time.",
-      "file_write_failed": "Couldn't save the plan file. {detail}"
-    },
-    "abort": {
-      "cannot_connect": "Could not reach the plan library: {detail}",
-      "library_empty": "The plan library has no plans yet."
-    }
-  },
-  "options": {
-    "step": {
-      "init": {
-        "title": "Energy Tariff Assistant",
-        "menu_options": {
-          "meters": "Change energy meters or billing day",
-          "plan": "Replace the tariff plan",
-          "share": "Share this plan with the plan library"
-        }
-      },
-      "meters": {
-        "title": "Energy meters",
-        "data": {
-          "import_sensor": "Grid import energy sensor",
-          "export_sensor": "Grid export energy sensor",
-          "billing_day": "Billing cycle start day"
-        },
-        "data_description": {
-          "billing_day": "A new day takes effect from the next reading; the current cycle may end early."
-        }
-      },
-      "plan": {
-        "title": "Replace the tariff plan",
-        "description": "Meter history is kept. Periods with the same id carry on; new periods get new entities.",
-        "data": {
-          "source": "Plan source"
-        }
-      },
-      "library": {
-        "title": "Plan library: country",
-        "description": "Choose your country. Only countries with plans in the library are listed.",
-        "data": {
-          "country": "Country"
-        }
-      },
-      "paste": {
-        "title": "Paste a plan",
-        "description": "Paste a plan file in ha_tariff_plan format.\n\n{detail}",
-        "data": {
-          "plan_json": "Plan JSON"
-        }
-      },
-      "file": {
-        "title": "Load a plan file",
-        "description": "Path relative to your config folder.\n\n{detail}",
-        "data": {
-          "plan_path": "File path"
-        }
-      },
-      "share": {
-        "title": "Share this plan",
-        "description": "Plan: {plan}\n\nThis opens the plan submission form on GitHub with this plan filled in: rates, times, retailer and region only. Nothing about your home, meters or usage is included, and nothing is sent from Home Assistant: check the form, then submit it from your own GitHub account.\n\n**[Open the plan submission form]({url})**\n\nSubmit here to close this window."
-      },
-      "share_paste": {
-        "title": "Share this plan",
-        "description": "Plan: {plan}\n\nThis plan is too long to fit in a link. Copy the plan JSON below, then open the plan submission form (everything else is filled in) and paste it into **Plan JSON**. Nothing about your home, meters or usage is included, and nothing is sent from Home Assistant.\n\n**[Open the plan submission form]({url})**",
-        "data": {
-          "plan_json": "Plan JSON"
-        }
-      },
-      "library_region": {
-        "title": "Plan library: state",
-        "description": "Country: {country}. Only states with plans in the library are listed.",
-        "data": {
-          "region": "State or territory"
-        }
-      },
-      "library_dnsp": {
-        "title": "Plan library: distributor",
-        "description": "State: {region}. Your distributor (DNSP) owns the poles and wires; it's printed on your bill.",
-        "data": {
-          "dnsp": "Distributor (DNSP)"
-        }
-      },
-      "library_retailer": {
-        "title": "Plan library: retailer",
-        "description": "{region}, {dnsp}.",
-        "data": {
-          "retailer": "Retailer"
-        }
-      },
-      "library_plan": {
-        "title": "Plan library: plan",
-        "description": "{retailer} plans, newest first. Not listed? Build it step by step, and share it with the library afterwards.\n\n{detail}",
-        "data": {
-          "library_file": "Plan"
-        }
-      },
-      "build": {
-        "title": "Build a plan: location",
-        "description": "Build your plan step by step from your bill or the plan's fact sheet (BPID). Rates include GST.",
-        "data": {
-          "country": "Country",
-          "region": "State or territory"
-        }
-      },
-      "build_details": {
-        "title": "Build a plan: details",
-        "description": "State: {region}.",
-        "data": {
-          "dnsp": "Distributor (DNSP)",
-          "retailer": "Retailer",
-          "plan_name": "Plan name",
-          "plan_id": "Plan ID",
-          "effective_from": "Rates start on",
-          "supply_charge": "Daily supply charge ($/day)",
-          "import_type": "Import rates",
-          "export_type": "Feed-in rates"
+          "export_type": "Feed-in rates",
+          "customer_type": "Customer type"
         },
         "data_description": {
           "dnsp": "Choose from the list or type a name.",
@@ -628,7 +312,335 @@
     "abort": {
       "cannot_connect": "Could not reach the plan library: {detail}",
       "library_empty": "The plan library has no plans yet.",
-      "share_done": "Thanks for sharing! The plan will be checked before it's added to the library."
+      "library_no_plans": "The plan library has no plans for this customer type yet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Energy Tariff Assistant",
+        "menu_options": {
+          "meters": "Change energy meters or billing day",
+          "plan": "Replace the tariff plan",
+          "share": "Share this plan with the plan library"
+        }
+      },
+      "meters": {
+        "title": "Energy meters",
+        "data": {
+          "import_sensor": "Grid import energy sensor",
+          "export_sensor": "Grid export energy sensor",
+          "billing_day": "Billing cycle start day"
+        },
+        "data_description": {
+          "billing_day": "A new day takes effect from the next reading; the current cycle may end early."
+        }
+      },
+      "plan": {
+        "title": "Replace the tariff plan",
+        "description": "Meter history is kept. Periods with the same id carry on; new periods get new entities.",
+        "data": {
+          "source": "Plan source"
+        }
+      },
+      "library": {
+        "title": "Plan library: country",
+        "description": "Choose the customer type and country. Only countries with plans in the library are listed.",
+        "data": {
+          "country": "Country",
+          "customer_type": "Customer type"
+        },
+        "data_description": {
+          "customer_type": "Residential for homes, Business for business connections. Plans that don't say are shown for both."
+        }
+      },
+      "paste": {
+        "title": "Paste a plan",
+        "description": "Paste a plan file in ha_tariff_plan format.\n\n{detail}",
+        "data": {
+          "plan_json": "Plan JSON"
+        }
+      },
+      "file": {
+        "title": "Load a plan file",
+        "description": "Path relative to your config folder.\n\n{detail}",
+        "data": {
+          "plan_path": "File path"
+        }
+      },
+      "share": {
+        "title": "Share this plan",
+        "description": "Plan: {plan}\n\nThis opens the plan submission form on GitHub with this plan filled in: rates, times, retailer and region only. Nothing about your home, meters or usage is included, and nothing is sent from Home Assistant: check the form, then submit it from your own GitHub account.\n\n**[Open the plan submission form]({url})**\n\nSubmit here to close this window."
+      },
+      "share_paste": {
+        "title": "Share this plan",
+        "description": "Plan: {plan}\n\nThis plan is too long to fit in a link. Copy the plan JSON below, then open the plan submission form (everything else is filled in) and paste it into **Plan JSON**. Nothing about your home, meters or usage is included, and nothing is sent from Home Assistant.\n\n**[Open the plan submission form]({url})**",
+        "data": {
+          "plan_json": "Plan JSON"
+        }
+      },
+      "library_region": {
+        "title": "Plan library: state",
+        "description": "Country: {country}. Only states with plans in the library are listed.",
+        "data": {
+          "region": "State or territory"
+        }
+      },
+      "library_dnsp": {
+        "title": "Plan library: distributor",
+        "description": "State: {region}. Your distributor (DNSP) owns the poles and wires; it's printed on your bill.",
+        "data": {
+          "dnsp": "Distributor (DNSP)"
+        }
+      },
+      "library_retailer": {
+        "title": "Plan library: retailer",
+        "description": "{region}, {dnsp}.",
+        "data": {
+          "retailer": "Retailer"
+        }
+      },
+      "library_plan": {
+        "title": "Plan library: plan",
+        "description": "{retailer} plans, newest first. Not listed? Build it step by step, and share it with the library afterwards.\n\n{detail}",
+        "data": {
+          "library_file": "Plan"
+        }
+      },
+      "build": {
+        "title": "Build a plan: location",
+        "description": "Build your plan step by step from your bill or the plan's fact sheet (BPID). Rates include GST.",
+        "data": {
+          "country": "Country",
+          "region": "State or territory"
+        }
+      },
+      "build_details": {
+        "title": "Build a plan: details",
+        "description": "State: {region}.",
+        "data": {
+          "dnsp": "Distributor (DNSP)",
+          "retailer": "Retailer",
+          "plan_name": "Plan name",
+          "plan_id": "Plan ID",
+          "effective_from": "Rates start on",
+          "supply_charge": "Daily supply charge ($/day)",
+          "import_type": "Import rates",
+          "export_type": "Feed-in rates",
+          "customer_type": "Customer type"
+        },
+        "data_description": {
+          "dnsp": "Choose from the list or type a name.",
+          "plan_id": "Optional: the Energy Made Easy / BPID plan ID, e.g. COV1117612MRE3.",
+          "supply_charge": "Including GST, e.g. 1.10 for 110c a day.",
+          "import_type": "One rate all the time, or different rates at different times (time of use).",
+          "export_type": "One feed-in rate, or different rates at different times."
+        }
+      },
+      "build_import_flat": {
+        "title": "Import (buying from the grid)",
+        "description": "One rate at all times.",
+        "data": {
+          "name": "Name",
+          "rate": "Rate ($/kWh)",
+          "cap_kwh": "Cap (kWh)",
+          "after_cap": "After the cap",
+          "rate_after_cap": "Rate after the cap",
+          "cap_reset": "Cap resets every"
+        },
+        "data_description": {
+          "rate": "Per kWh, including GST, e.g. 0.30 for 30c.",
+          "cap_kwh": "Optional. For a rate that only applies to the first so many kWh, e.g. first 50 kWh free.",
+          "after_cap": "Charge a period's rate once the cap is used up, or choose $/kWh to use the rate below.",
+          "rate_after_cap": "Per kWh, including GST.",
+          "cap_reset": "When the cap starts again: each day, each calendar month, or each billing cycle."
+        }
+      },
+      "build_import_default": {
+        "title": "Import (buying from the grid)",
+        "description": "First, the rate for **all other times**: the times none of your periods cover (often Shoulder, or the standard feed-in). You add the timed periods next.",
+        "data": {
+          "name": "Name",
+          "rate": "Rate ($/kWh)",
+          "cap_kwh": "Cap (kWh)",
+          "after_cap": "After the cap",
+          "rate_after_cap": "Rate after the cap",
+          "cap_reset": "Cap resets every"
+        },
+        "data_description": {
+          "rate": "Per kWh, including GST, e.g. 0.30 for 30c.",
+          "cap_kwh": "Optional. For a rate that only applies to the first so many kWh, e.g. first 50 kWh free.",
+          "after_cap": "Charge a period's rate once the cap is used up, or choose $/kWh to use the rate below.",
+          "rate_after_cap": "Per kWh, including GST.",
+          "cap_reset": "When the cap starts again: each day, each calendar month, or each billing cycle."
+        }
+      },
+      "build_import_period": {
+        "title": "Import (buying from the grid)",
+        "description": "A timed period, e.g. Peak 15:00 to 21:00. If it applies at more than one time (e.g. 07:00-09:00 and 17:00-20:00), add the other times next.",
+        "data": {
+          "name": "Name",
+          "rate": "Rate ($/kWh)",
+          "days": "Days",
+          "custom_days": "Which days",
+          "start": "Starts",
+          "end": "Ends",
+          "cap_kwh": "Cap (kWh)",
+          "after_cap": "After the cap",
+          "rate_after_cap": "Rate after the cap",
+          "cap_reset": "Cap resets every"
+        },
+        "data_description": {
+          "rate": "Per kWh, including GST.",
+          "days": "Choose Custom to pick the days yourself.",
+          "custom_days": "Only used with Custom.",
+          "start": "The period starts at this time.",
+          "end": "The period ends just before this time. An end earlier than the start runs past midnight, e.g. 22:00 to 07:00.",
+          "cap_kwh": "Optional. For a rate that only applies to the first so many kWh, e.g. first 50 kWh free.",
+          "after_cap": "Charge a period's rate once the cap is used up, or choose $/kWh to use the rate below.",
+          "rate_after_cap": "Per kWh, including GST.",
+          "cap_reset": "When the cap starts again: each day, each calendar month, or each billing cycle."
+        }
+      },
+      "build_import_window": {
+        "title": "Import (buying from the grid)",
+        "description": "Another time for **{period}**.",
+        "data": {
+          "days": "Days",
+          "custom_days": "Which days",
+          "start": "Starts",
+          "end": "Ends"
+        },
+        "data_description": {
+          "days": "Choose Custom to pick the days yourself.",
+          "custom_days": "Only used with Custom.",
+          "start": "The period starts at this time.",
+          "end": "The period ends just before this time. An end earlier than the start runs past midnight, e.g. 22:00 to 07:00."
+        }
+      },
+      "build_import_more": {
+        "title": "Import (buying from the grid)",
+        "description": "Periods so far: {periods}.",
+        "menu_options": {
+          "build_import_window": "Add another time for {period}",
+          "build_import_period": "Add another period",
+          "build_import_done": "Done"
+        }
+      },
+      "build_export_flat": {
+        "title": "Feed-in (selling to the grid)",
+        "description": "One rate at all times.",
+        "data": {
+          "name": "Name",
+          "rate": "Rate ($/kWh)",
+          "cap_kwh": "Cap (kWh)",
+          "after_cap": "After the cap",
+          "rate_after_cap": "Rate after the cap",
+          "cap_reset": "Cap resets every"
+        },
+        "data_description": {
+          "rate": "Per kWh, including GST, e.g. 0.30 for 30c.",
+          "cap_kwh": "Optional. For a rate that only applies to the first so many kWh, e.g. first 50 kWh free.",
+          "after_cap": "Charge a period's rate once the cap is used up, or choose $/kWh to use the rate below.",
+          "rate_after_cap": "Per kWh, including GST.",
+          "cap_reset": "When the cap starts again: each day, each calendar month, or each billing cycle."
+        }
+      },
+      "build_export_default": {
+        "title": "Feed-in (selling to the grid)",
+        "description": "First, the rate for **all other times**: the times none of your periods cover (often Shoulder, or the standard feed-in). You add the timed periods next.",
+        "data": {
+          "name": "Name",
+          "rate": "Rate ($/kWh)",
+          "cap_kwh": "Cap (kWh)",
+          "after_cap": "After the cap",
+          "rate_after_cap": "Rate after the cap",
+          "cap_reset": "Cap resets every"
+        },
+        "data_description": {
+          "rate": "Per kWh, including GST, e.g. 0.30 for 30c.",
+          "cap_kwh": "Optional. For a rate that only applies to the first so many kWh, e.g. first 50 kWh free.",
+          "after_cap": "Charge a period's rate once the cap is used up, or choose $/kWh to use the rate below.",
+          "rate_after_cap": "Per kWh, including GST.",
+          "cap_reset": "When the cap starts again: each day, each calendar month, or each billing cycle."
+        }
+      },
+      "build_export_period": {
+        "title": "Feed-in (selling to the grid)",
+        "description": "A timed period, e.g. Peak 15:00 to 21:00. If it applies at more than one time (e.g. 07:00-09:00 and 17:00-20:00), add the other times next.",
+        "data": {
+          "name": "Name",
+          "rate": "Rate ($/kWh)",
+          "days": "Days",
+          "custom_days": "Which days",
+          "start": "Starts",
+          "end": "Ends",
+          "cap_kwh": "Cap (kWh)",
+          "after_cap": "After the cap",
+          "rate_after_cap": "Rate after the cap",
+          "cap_reset": "Cap resets every"
+        },
+        "data_description": {
+          "rate": "Per kWh, including GST.",
+          "days": "Choose Custom to pick the days yourself.",
+          "custom_days": "Only used with Custom.",
+          "start": "The period starts at this time.",
+          "end": "The period ends just before this time. An end earlier than the start runs past midnight, e.g. 22:00 to 07:00.",
+          "cap_kwh": "Optional. For a rate that only applies to the first so many kWh, e.g. first 50 kWh free.",
+          "after_cap": "Charge a period's rate once the cap is used up, or choose $/kWh to use the rate below.",
+          "rate_after_cap": "Per kWh, including GST.",
+          "cap_reset": "When the cap starts again: each day, each calendar month, or each billing cycle."
+        }
+      },
+      "build_export_window": {
+        "title": "Feed-in (selling to the grid)",
+        "description": "Another time for **{period}**.",
+        "data": {
+          "days": "Days",
+          "custom_days": "Which days",
+          "start": "Starts",
+          "end": "Ends"
+        },
+        "data_description": {
+          "days": "Choose Custom to pick the days yourself.",
+          "custom_days": "Only used with Custom.",
+          "start": "The period starts at this time.",
+          "end": "The period ends just before this time. An end earlier than the start runs past midnight, e.g. 22:00 to 07:00."
+        }
+      },
+      "build_export_more": {
+        "title": "Feed-in (selling to the grid)",
+        "description": "Periods so far: {periods}.",
+        "menu_options": {
+          "build_export_window": "Add another time for {period}",
+          "build_export_period": "Add another period",
+          "build_export_done": "Done"
+        }
+      },
+      "build_review": {
+        "title": "Build a plan: check",
+        "description": "{summary}\n\nSaving writes the plan to `{file}` in your config folder and uses it for this entry. You can share it with the library afterwards (Configure → Share this plan).\n\n{detail}",
+        "data": {
+          "action": "Next"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not reach the plan library. {detail}",
+      "invalid_json": "That isn't valid JSON.",
+      "invalid_plan": "The plan didn't pass validation.",
+      "file_not_found": "Could not read that file.",
+      "file_outside_config": "The file must be inside your config folder.",
+      "rate_after_cap_required": "Enter the rate after the cap, or choose a period.",
+      "days_required": "Choose at least one day.",
+      "times_equal": "Start and end can't be the same time.",
+      "file_write_failed": "Couldn't save the plan file. {detail}"
+    },
+    "abort": {
+      "cannot_connect": "Could not reach the plan library: {detail}",
+      "library_empty": "The plan library has no plans yet.",
+      "share_done": "Thanks for sharing! The plan will be checked before it's added to the library.",
+      "library_no_plans": "The plan library has no plans for this customer type yet."
     }
   },
   "selector": {
@@ -687,6 +699,12 @@
       "options": {
         "save": "Save and use this plan",
         "start_over": "Start again"
+      }
+    },
+    "customer_type": {
+      "options": {
+        "residential": "Residential",
+        "business": "Business"
       }
     }
   },

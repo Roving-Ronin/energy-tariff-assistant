@@ -44,8 +44,24 @@ samples). Next run: read `plans/retailers.json` → `diagnostics` to tell "reall
 - **Wizard and library: suggest retailers by DNSP** from `plans/retailers.json` (fetched like `index.json`):
   in Build a plan, ask the DNSP before the retailer and offer the retailers selling there; in the library, show
   "retailers with no library plans here yet" as a prompt to share one.
-- **Importer from Energy Made Easy:** Get Generic Plan Detail (`x-v: 3`) → `ha_tariff_plan`, so a user picks
-  retailer + plan and gets the real rates; needs the tariff-period mapping worked out and its own tests.
+- **Importer from Energy Made Easy** (design agreed 2026-11-20; converter in PR #11, `engine/importers/cdr.py`;
+  next: a script/workflow fetching real plan detail to convert and add as test samples):
+  - **Source:** CDR Get Generic Plan Detail (`/energy/plans/{planId}`, `x-v: 3`, no auth) for one plan at a time;
+    plan ids from Get Generic Plans. Current plans only (no history or future), NEM states incl. VIC (DEECA).
+  - **Converter** (`engine/importers/cdr.py`, pure, tested on real plan-detail samples): `electricityContract`
+    → `ha_tariff_plan`: `tariffPeriod` dates → `effective_from`/`to` (several periods → seasons or plan versions);
+    `dailySupplyCharge` → `supply_charge`; `singleRate` / `timeOfUseRates` (days, start/end times) → import periods
+    and windows; rate blocks (`unitPrice` + `volume`) → `tiers`; `solarFeedInTariff` single / time-varying (with
+    volume caps) → export periods; `demandCharges` → `demand`; `controlledLoad` → `controlled_load`;
+    `geography.distributors` → `dnsp` (via the retailer-coverage DNSP map), `customerType` → `customer_type`.
+    **Add GST**: check the standard's wording, but CDR prices are understood to be GST-exclusive. Discounts,
+    pay-on-time conditions, incentives and fees go in `notes`, not prices. Plans that can't be represented
+    (wholesale-linked e.g. Amber, `FLEXIBLE` pricing) are skipped with a reason, never guessed.
+  - **Use 1, library importer** (script + workflow): convert chosen retailers/DNSPs, validate, open a PR with new or
+    changed plans (`needs_review: true` until checked against the BPID).
+  - **Use 2, live in Home Assistant**: state → DNSP → retailer → plan from Energy Made Easy, converted on the spot
+    (`async_add_executor_job` for the conversion if it gets heavy), with the library as fallback.
+  - ~17,600 electricity plans: fetch on demand or per DNSP, not all weekly.
 
 ## Later (not started)
 - **Wizard: edit the current plan** (pre-fill the steps from the entry's plan, e.g. after a price change) rather

@@ -70,11 +70,12 @@ supported.)
 
 1. **Name and plan source.** The name is used for the device and entity names (`Electricity` gives
    `sensor.electricity_import_price`). Then choose where the plan comes from:
-   - **Shared plan library:** narrow it down step by step (country, state, distributor (DNSP), retailer) and
-     pick the plan, newest first. Australia and NSW are picked to start with. Internet is needed only during
+   - **Shared plan library:** narrow it down step by step (customer type and country, state, distributor (DNSP),
+     retailer) and pick the plan, newest first. Residential, Australia and NSW are picked to start with; plans
+     that don't say whether they're residential or business are shown for both. Internet is needed only during
      setup; the plan is stored with the entry.
    - **Build a plan step by step:** enter it from your bill or the plan's fact sheet (BPID): state, distributor,
-     retailer, plan name, start date and daily supply charge; then import and feed-in, each either one rate all
+     retailer, plan name, start date, daily supply charge and customer type (residential or business); then import and feed-in, each either one rate all
      the time or time of use. For time of use you enter the rate for *all other times* first (often Shoulder),
      then each timed period (e.g. Peak, weekdays 15:00-21:00), with more than one time per period if needed.
      Any rate can have a cap ("first 50 kWh a day free, then Shoulder"; "first 10 kWh at 12c, then 4c"), resetting
