@@ -42,6 +42,9 @@ jobs:
           data = json.load(open("plans/retailers.json"))
           if data.get("unmapped_distributors"):
               print("::warning::Unmapped distributor names: " + ", ".join(data["unmapped_distributors"]))
+          if data.get("register_brands_not_in_list"):
+              print("::warning::In the CDR Register but not in scripts/eme_brands.json (new retailers?): "
+                    + ", ".join(data["register_brands_not_in_list"]))
           if data.get("failed_brands"):
               print(f"::warning::{len(data['failed_brands'])} brand(s) couldn't be read; see plans/retailers.json")
           print(f"{len(data['retailers'])} retailers, {len(data['distributors'])} distributors")

@@ -26,6 +26,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 import json
 from pathlib import Path
+import re
 import sys
 import time
 from typing import Any
@@ -91,6 +92,7 @@ def register_brands(fetch: Fetcher, diag: dict[str, Any] | None = None) -> list[
                 uri = (item.get("productBaseUri") or "") if isinstance(item, dict) else ""
                 host = uri.split("/")[2] if uri.count("/") >= 2 else "(none)"
                 hosts[host] = hosts.get(host, 0) + 1
+            diag.setdefault("names", [])
             diag.update({
                 "top_keys": sorted(body) if isinstance(body, dict) else type(body).__name__,
                 "items": len(items),
@@ -102,6 +104,8 @@ def register_brands(fetch: Fetcher, diag: dict[str, Any] | None = None) -> list[
                 ],
             })
         for item in body.get("data", []):
+            if diag is not None and isinstance(item, dict) and item.get("brandName"):
+                diag.setdefault("names", []).append(item["brandName"])
             base = (item.get("productBaseUri") or "").rstrip("/")
             if base.startswith(EME_HOST + "/"):
                 brands.append({"name": item.get("brandName") or base.rsplit("/", 1)[-1], "uri": base, "brand": ""})
@@ -191,6 +195,16 @@ def summarise(
     }
 
 
+def _norm(name: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", name.lower())
+
+
+def brands_not_in_list(register_names: list[str], listed: list[dict[str, str]]) -> list[str]:
+    """Register brand names with no match (case and punctuation ignored) in the AER list."""
+    known = {_norm(b["name"]) for b in listed} | {_norm(b.get("brand", "")) for b in listed}
+    return sorted({n for n in register_names if _norm(n) and _norm(n) not in known}, key=str.lower)
+
+
 def merge_by_name(retailers: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """One entry per retailer name, even when its plans sit under several paths or brands."""
     merged: dict[str, dict[str, Any]] = {}
@@ -265,6 +279,10 @@ def build(fetch: Fetcher, pause: float = PAUSE_SECONDS, log=print) -> dict[str, 
         time.sleep(pause)
 
     retailers = merge_by_name(retailers)
+    new_brands = brands_not_in_list(register_diag.get("names") or [], fallback_brands())
+    for name in new_brands:
+        log(f"? {name}: in the CDR Register but not in {FALLBACK_BRANDS.name}")
+    register_diag.pop("names", None)
     by_dnsp: dict[str, dict[str, Any]] = {}
     for retailer in retailers:
         for dnsp, cov in retailer["distributors"].items():
@@ -283,6 +301,9 @@ def build(fetch: Fetcher, pause: float = PAUSE_SECONDS, log=print) -> dict[str, 
         "unmapped_distributors": sorted(unmapped),
         "failed_brands": failed,
         "paths_without_electricity_plans": sorted(empty),
+        # Energy brands the CDR Register lists that the AER list (scripts/eme_brands.json) doesn't:
+        # likely new retailers. Add them to the list once the AER publishes their path.
+        "register_brands_not_in_list": new_brands,
         # What the APIs returned where they gave nothing, to tell "really empty" from "read wrongly"
         "diagnostics": {"register": register_diag, "empty_paths": dict(sorted(empty_diag.items()))},
     }

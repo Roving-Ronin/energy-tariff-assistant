@@ -32,13 +32,12 @@ charge 2.29999 (probably 2.30), whether the 30 kWh super FiT cap resets daily, p
 - **Entity names in translations:** move `_attr_name` strings to `strings.json` (`translation_key` with
   `translation_placeholders` for the period name), keeping unique IDs.
 
-### Retailer coverage: 39 empty paths
-**Status (2026-11-20):** second run (after dual-fuel/merge fixes): 38 retailers, 17,633 plans, all 13 NEM
-distributors mapped; the same 39 paths returned no plans (incl. localvolts, tesla, powow, shell-energy,
-telstra-energy) and the CDR Register again matched no Energy Made Easy brands. The script now writes
-`diagnostics` (what each empty path and the Register returned: keys, meta totals, fuel types, base URI hosts,
-samples). Next run: read `plans/retailers.json` → `diagnostics` to tell "really no plans" from "read wrongly"
-(e.g. brands publishing from their own CDR host).
+### Retailer coverage: settled (2026-11-20)
+**Status (2026-11-20):** diagnostics run: 38 of the 39 empty paths report `totalRecords: 0` on Energy Made Easy
+itself (really no plans listed, e.g. Localvolts, whose prices follow the wholesale market live and so publish no
+fixed plans); `perpetual` has gas plans only. The CDR Register's brand summary has 84 energy brands but no
+`productBaseUri`, so the AER list is the only source of paths; brands in the Register but not the list are now
+reported as `register_brands_not_in_list` (a warning in the workflow).
 
 ## Next (after retailer coverage has data)
 - **Wizard and library: suggest retailers by DNSP** from `plans/retailers.json` (fetched like `index.json`):
@@ -62,8 +61,14 @@ samples). Next run: read `plans/retailers.json` → `diagnostics` to tell "reall
   - **Use 2, live in Home Assistant**: state → DNSP → retailer → plan from Energy Made Easy, converted on the spot
     (`async_add_executor_job` for the conversion if it gets heavy), with the library as fallback.
   - ~17,600 electricity plans: fetch on demand or per DNSP, not all weekly.
+  - **Real samples:** Actions → **CDR conversion check** (`scripts/check_cdr_conversion.py`) converts a few plans per
+    path and uploads `report.json` + raw details as an artifact (not committed). Use it to find what real data
+    does that the hand-written samples don't, and add trimmed cases to `tests/test_importer_cdr.py`.
 
 ## Later (not started)
+- **Wholesale-priced retailers** (Amber, Localvolts: prices follow the market, updated every 5 minutes): no fixed
+  plan exists to convert. Would need a live price source (their APIs, or an existing HA integration's price
+  sensor) as a plan's import/export price, metered by the same ledgers.
 - **Wizard: edit the current plan** (pre-fill the steps from the entry's plan, e.g. after a price change) rather
   than building from scratch.
 - **Wizard: more of the format:** public holidays as Sunday/Saturday, seasons, demand charges, controlled load.

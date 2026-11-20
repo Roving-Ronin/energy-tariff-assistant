@@ -1,0 +1,42 @@
+name: CDR conversion check
+
+# Tries the Energy Made Easy (CDR) plan converter on real plans: a few current electricity plans from every
+# retailer path are fetched (plan detail, x-v 3), converted and validated. The report and the raw plan details
+# are uploaded as a run artifact (kept 30 days), not committed: they are for checking and improving the
+# converter. Run it by hand from Actions.
+on:
+  workflow_dispatch:
+    inputs:
+      per_path:
+        description: "Plans to try per retailer path"
+        required: false
+        default: "3"
+
+permissions: {}
+
+jobs:
+  check:
+    name: Convert sample plans
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Convert sample plans from Energy Made Easy
+        env:
+          PER_PATH: ${{ inputs.per_path }}
+        run: python scripts/check_cdr_conversion.py --out cdr-check --per-path "${PER_PATH:-3}"
+
+      - name: Upload the report and samples
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdr-conversion-check
+          path: cdr-check/
+          retention-days: 30
