@@ -1,7 +1,7 @@
 {
   "format": "eta_retailers",
   "version": 1,
-  "updated_at": "2026-11-20T10:46:37Z",
+  "updated_at": "2026-11-20T11:26:18Z",
   "source": "AER Energy Product Reference Data (Energy Made Easy, Consumer Data Right), current electricity plans",
   "brand_list": "AER retailer base URI list",
   "retailers": [
@@ -1632,7 +1632,7 @@
     },
     {
       "name": "Origin Energy",
-      "plans": 3185,
+      "plans": 3182,
       "states": [
         "ACT",
         "NSW",
@@ -1654,7 +1654,7 @@
         "CitiPower": {
           "state": "VIC",
           "residential": 119,
-          "business": 145
+          "business": 144
         },
         "Endeavour Energy": {
           "state": "NSW",
@@ -1684,7 +1684,7 @@
         "Jemena": {
           "state": "VIC",
           "residential": 119,
-          "business": 96
+          "business": 94
         },
         "Powercor": {
           "state": "VIC",
@@ -2553,5 +2553,667 @@
     "winconnect",
     "yes-energy",
     "zen-energy"
-  ]
+  ],
+  "diagnostics": {
+    "register": {
+      "top_keys": [
+        "data",
+        "links",
+        "meta"
+      ],
+      "items": 84,
+      "meta": {},
+      "product_base_uri_hosts": {
+        "(none)": 84
+      },
+      "sample": [
+        {
+          "brandName": "Arcline by RACV",
+          "industries": [
+            "energy"
+          ]
+        },
+        {
+          "brandName": "Cooperative Power",
+          "industries": [
+            "energy"
+          ]
+        },
+        {
+          "brandName": "RAA Energy",
+          "industries": [
+            "energy"
+          ]
+        }
+      ]
+    },
+    "empty_paths": {
+      "active-utilities": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "altogether": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "ampol": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "arcstream": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "aseno": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "besy": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "brighte": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "cleanco": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "cleanpeak": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "coles": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "commander": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "cpe-mascot": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "discover": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "ea-connect": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "evergy": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "glow-power": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "humenergy": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "igeno": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "locality-planning": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "localvolts": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "macarthur": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "macquarie": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "metered-energy": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "microgrid": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "pacific-blue": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "perpetual": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 24,
+          "totalPages": 1
+        },
+        "plans_on_page_1": 24,
+        "fuel_types": {
+          "GAS": 24
+        }
+      },
+      "powerhub": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "powow": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "savant": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "seene": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "shell-energy": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "smart-energy": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "stanwell": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "telstra-energy": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "tesla": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "veolia": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "winconnect": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "yes-energy": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      },
+      "zen-energy": {
+        "top_keys": [
+          "data",
+          "links",
+          "meta"
+        ],
+        "data_keys": [
+          "plans"
+        ],
+        "meta": {
+          "totalRecords": 0,
+          "totalPages": 0
+        },
+        "plans_on_page_1": 0,
+        "fuel_types": {}
+      }
+    }
+  }
 }
