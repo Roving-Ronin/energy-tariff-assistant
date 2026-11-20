@@ -1,7 +1,7 @@
 {
   "format": "eta_retailers",
   "version": 1,
-  "updated_at": "2026-11-20T11:26:18Z",
+  "updated_at": "2026-11-20T11:36:47Z",
   "source": "AER Energy Product Reference Data (Energy Made Easy, Consumer Data Right), current electricity plans",
   "brand_list": "AER retailer base URI list",
   "retailers": [
@@ -1632,7 +1632,7 @@
     },
     {
       "name": "Origin Energy",
-      "plans": 3182,
+      "plans": 3181,
       "states": [
         "ACT",
         "NSW",
@@ -1689,7 +1689,7 @@
         "Powercor": {
           "state": "VIC",
           "residential": 119,
-          "business": 149
+          "business": 148
         },
         "SA Power Networks": {
           "state": "SA",
