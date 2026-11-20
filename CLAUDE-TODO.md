@@ -7,7 +7,8 @@ they're released. Newest decisions win: date each status line.
 ## Waiting
 
 ### v0.1.0: first release
-**Status (2026-11-20):** Phase 2 merged to main; pre-release **v0.1.0b1** PR opened for the maintainer to test.
+**Status (2026-11-20):** v0.1.0b1 released (pre-release) for the maintainer to test; v0.1.0b2 adds Share this plan, Build a plan step by step and the filtered library.
+README warns not to install while under development: remove that warning for v0.1.0.
 Repo topics are set (HACS Validate passes). Before releasing v0.1.0:
 - Run it on a live Home Assistant 2026.11 (tests only ran on 2026.2.3, the `hacs.json` minimum): setup from the
   library, the maintainer's own Sigenergy import/export sensors, check the Covau plan's prices and a day's meters
@@ -32,13 +33,16 @@ charge 2.29999 (probably 2.30), whether the 30 kWh super FiT cap resets daily, p
   `translation_placeholders` for the period name), keeping unique IDs.
 
 ## Later (not started)
+- **Wizard: edit the current plan** (pre-fill the steps from the entry's plan, e.g. after a price change) rather
+  than building from scratch.
+- **Wizard: more of the format:** public holidays as Sunday/Saturday, seasons, demand charges, controlled load.
+- **Check shared plans automatically:** a workflow on `plan`-labelled issues that runs `validate_plans.py` on the
+  pasted Plan JSON and comments the errors/warnings (read the body only via `github-script` or `env:`).
 - **Plan library growth:** more AU plans (Ausgrid, Endeavour, Evoenergy, Energex/Ergon, CitiPower/Powercor,
   SA Power Networks...). An importer from Energy Made Easy / CDR (Consumer Data Right, product reference data)
   would beat hand entry: check the CDR energy plan API's licence and shape first.
 - **Library update notice:** a Repairs issue when the library has a newer version of the entry's plan
   (`plan_source.library_file` is stored for this), showing the changed rates; never update silently.
-- **Region step in the library flow** once there are more than a handful of plans (today one dropdown, labels
-  start with the state).
 - **Statistics import:** backfill per-period kWh/cost from long-term statistics of the source sensors, so a new
   setup isn't empty.
 - **Discounts / concessions / GST-exclusive plans** in the bill estimate.

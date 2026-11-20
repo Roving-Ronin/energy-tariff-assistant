@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import shutil
 
 import pytest
 
@@ -32,6 +33,15 @@ EXPORT = "sensor.grid_export"
 @pytest.fixture(autouse=True)
 def auto_enable_custom_integrations(enable_custom_integrations):
     yield
+
+
+@pytest.fixture(autouse=True)
+def clean_built_plans(hass):
+    """The wizard saves plans under the shared test config folder: start and end empty."""
+    folder = Path(hass.config.config_dir) / "energy_tariff_assistant"
+    shutil.rmtree(folder, ignore_errors=True)
+    yield
+    shutil.rmtree(folder, ignore_errors=True)
 
 
 @pytest.fixture

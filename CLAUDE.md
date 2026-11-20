@@ -49,9 +49,11 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
 | `engine/importers/` | Converters from other formats (energy-manager-tariffs). Pure |
 | `schema/tariff-plan.schema.json` | JSON Schema for editors and CI; `validate.py` adds the cross-field rules |
 | `plan_source.py` | Library fetch, file read, paste parse; `check_plan` (validate + build resolver + prewarm holidays) |
+| `wizard.py` | Build-a-plan answers → plan dict (`assemble_plan`), file names, review summary; library filtering (country → state → DNSP → retailer → plan, newest first). Pure |
+| `share.py` | Pre-filled GitHub plan submission link (plan only, never meter data). Pure apart from `const` |
 | `runtime.py` | Per entry: tracks source sensors, converts units, feeds the ledgers, timers, `.storage`, signals entities |
 | `sensor.py` | Entities only: values come from the runtime / ledgers |
-| `config_flow.py` | Setup (plan source → meters) and options flow (meters, or replace the plan) |
+| `config_flow.py` | Setup (plan source → meters) and options flow (meters, replace the plan, share). Plan sources: library (filtered steps), build step by step (`build_*` steps, one set per stream), paste, file |
 | `diagnostics.py` | Plan, options and ledger state |
 
 ## Rules
@@ -85,6 +87,19 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   breaks users' dashboards and history**: avoid it, or migrate the registry entry.
 - Meters are `state_class: total` with `last_reset` at the bucket start; the price sensor's `forecast` attribute
   is unrecorded.
+
+### Building plans
+- Wizard output goes through `check_plan` like any other plan; the wizard never writes a plan the validator rejects.
+- Built plans are saved under `energy_tariff_assistant/plans/` in the config folder and **never overwrite** a file
+  (`-2`, `-3`... suffix). Tests clean that folder (`clean_built_plans`): the test config folder is shared.
+- Step ids are per stream (`build_import_period`, `build_export_period`...) so each has its own strings; the
+  methods delegate to shared helpers. Keep both streams' strings in step when wording changes.
+
+### Sharing plans
+- **Share this plan** only builds a link; Home Assistant never sends anything to GitHub and holds no token.
+- Only the plan goes in the link. Never add meter totals, sensor or entity IDs, entry IDs or anything else
+  install-specific. The form's field ids (`plan_submission.yml`) and the link's query keys must match; the issue
+  validator's `TEMPLATES` lists the form's headings.
 
 ### UI text
 - Wording goes in `strings.json`; copy it to `translations/en.json` (the Pull Requests workflow checks they

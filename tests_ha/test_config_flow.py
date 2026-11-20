@@ -72,17 +72,50 @@ async def test_paste_invalid_plan(hass, sydney, plan_data):
     assert result["description_placeholders"]["detail"]
 
 
+INDEX = {
+    "plans": [
+        {"file": "plans/AU/NSW/Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json", "country": "AU",
+         "region": "NSW", "dnsp": "Essential Energy", "retailer": "Covau", "plan": "SolarMax Residential TOU",
+         "plan_id": "COV1117612MRE3", "effective_from": "2026-07-01"},
+        {"file": "plans/AU/NSW/Covau-SolarMaxTOU-NSW-EssentialEnergy-20250701.json", "country": "AU",
+         "region": "NSW", "dnsp": "Essential Energy", "retailer": "Covau", "plan": "SolarMax Residential TOU",
+         "effective_from": "2025-07-01"},
+        {"file": "plans/AU/NSW/Other-Plan-NSW-Ausgrid-20260701.json", "country": "AU", "region": "NSW",
+         "dnsp": "Ausgrid", "retailer": "Other", "plan": "Plan", "effective_from": "2026-07-01"},
+        {"file": "plans/AU/VIC/X-Y-VIC-Jemena-20260701.json", "country": "AU", "region": "VIC",
+         "dnsp": "Jemena", "retailer": "X", "plan": "Y", "effective_from": "2026-07-01"},
+    ]
+}
+
+
+def _options(result, key):
+    """The option values offered by a select field in a form."""
+    for field_key, sel in result["data_schema"].schema.items():
+        if str(field_key) == key:
+            return [o["value"] if isinstance(o, dict) else o for o in sel.config["options"]]
+    raise KeyError(key)
+
+
 async def test_library_flow(hass, sydney, aioclient_mock):
-    file = "plans/AU/NSW/Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json"
-    aioclient_mock.get(
-        LIBRARY_BASE_URL + LIBRARY_INDEX,
-        text=json.dumps(
-            {"plans": [{"file": file, "region": "NSW", "retailer": "Covau", "plan": "SolarMax"}]}
-        ),
-    )
+    file = INDEX["plans"][0]["file"]
+    aioclient_mock.get(LIBRARY_BASE_URL + LIBRARY_INDEX, text=json.dumps(INDEX))
     aioclient_mock.get(LIBRARY_BASE_URL + file, text=PLAN_FILE.read_text(encoding="utf-8"))
     result = await _start(hass, SOURCE_LIBRARY)
     assert result["step_id"] == "library"
+    assert _options(result, "country") == ["au"]
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"country": "au"})
+    assert result["step_id"] == "library_region"
+    assert _options(result, "region") == ["NSW", "VIC"]
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"region": "NSW"})
+    assert result["step_id"] == "library_dnsp"
+    assert _options(result, "dnsp") == ["Ausgrid", "Essential Energy"]
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"dnsp": "Essential Energy"})
+    assert result["step_id"] == "library_retailer"
+    assert _options(result, "retailer") == ["Covau"]
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"retailer": "Covau"})
+    assert result["step_id"] == "library_plan"
+    # Newest first
+    assert _options(result, CONF_LIBRARY_FILE) == [file, INDEX["plans"][1]["file"]]
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"], {CONF_LIBRARY_FILE: file}
     )

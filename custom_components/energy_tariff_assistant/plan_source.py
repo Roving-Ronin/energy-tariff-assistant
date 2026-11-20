@@ -10,7 +10,7 @@ import aiohttp
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import LIBRARY_BASE_URL, LIBRARY_INDEX
+from .const import BUILT_PLANS_DIR, LIBRARY_BASE_URL, LIBRARY_INDEX
 from .engine import Resolver, load_plan, validate_plan
 
 TIMEOUT = aiohttp.ClientTimeout(total=20)
@@ -83,6 +83,27 @@ def read_plan_file(config_dir: str, path: str) -> dict[str, Any]:
     except OSError as err:
         raise PlanError("file_not_found", str(err)) from err
     return parse_plan_text(text)
+
+
+def write_plan_file(config_dir: str, filename: str, plan: dict[str, Any]) -> str:
+    """Save a plan under the config folder; returns its path relative to it. Blocking.
+
+    An existing file of the same name is kept: the new one gets a -2, -3...
+    suffix, so a built plan never overwrites another.
+    """
+    folder = Path(config_dir) / BUILT_PLANS_DIR
+    folder.mkdir(parents=True, exist_ok=True)
+    stem, suffix = filename.rsplit(".", 1) if "." in filename else (filename, "json")
+    target = folder / f"{stem}.{suffix}"
+    n = 2
+    while target.exists():
+        target = folder / f"{stem}-{n}.{suffix}"
+        n += 1
+    try:
+        target.write_text(json.dumps(plan, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    except OSError as err:
+        raise PlanError("file_write_failed", str(err)) from err
+    return str(target.relative_to(Path(config_dir)))
 
 
 def check_plan(data: dict[str, Any]) -> Resolver:

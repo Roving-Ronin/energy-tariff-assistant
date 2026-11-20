@@ -14,6 +14,11 @@
 
 ___
 
+> [!WARNING]
+> **Under development: please don't install this yet.** Energy Tariff Assistant is being built and tested.
+> Entities, settings and stored meter totals may change or be reset between versions without a migration.
+> Watch or star the repository to hear when the first stable release is out.
+
 A Home Assistant custom integration for Australian electricity tariff plans, **with metering built in**.
 Pick your plan once (from the shared library, a file, or pasted JSON), choose your grid import and export
 energy sensors, and get:
@@ -65,8 +70,17 @@ supported.)
 
 1. **Name and plan source.** The name is used for the device and entity names (`Electricity` gives
    `sensor.electricity_import_price`). Then choose where the plan comes from:
-   - **Shared plan library:** pick your plan (listed by state, retailer and plan) from the [`plans/`](plans) folder of this repo.
-     Internet is needed only during setup; the plan is stored with the entry.
+   - **Shared plan library:** narrow it down step by step (country, state, distributor (DNSP), retailer) and
+     pick the plan, newest first. Australia and NSW are picked to start with. Internet is needed only during
+     setup; the plan is stored with the entry.
+   - **Build a plan step by step:** enter it from your bill or the plan's fact sheet (BPID): state, distributor,
+     retailer, plan name, start date and daily supply charge; then import and feed-in, each either one rate all
+     the time or time of use. For time of use you enter the rate for *all other times* first (often Shoulder),
+     then each timed period (e.g. Peak, weekdays 15:00-21:00), with more than one time per period if needed.
+     Any rate can have a cap ("first 50 kWh a day free, then Shoulder"; "first 10 kWh at 12c, then 4c"), resetting
+     each day, month or billing cycle. You check a summary before saving. The plan is saved to
+     `energy_tariff_assistant/plans/` in your config folder (never overwriting a file) and can be shared with the
+     library afterwards.
    - **Paste plan JSON:** paste a plan file (see *Plan format* below).
    - **Plan file in my config folder:** a path relative to your config folder, e.g. `tariffs/my-plan.json`.
 2. **Energy meters.** Choose the cumulative energy sensors for **grid import** and **grid export**
@@ -106,6 +120,8 @@ so long-term statistics work.
   to a value, to line up with your bill. Give `cost` too, or it's scaled to keep the same average rate.
 - **`energy_tariff_assistant.reset_meters`**: start a new day or billing cycle now, for every meter of an entry.
   Useful when your bill period moves.
+
+To share your plan with the library, see *Adding a plan to the library* below.
 
 ## What the numbers mean (and don't)
 
@@ -158,8 +174,16 @@ for a complete example.
 
 ## Adding a plan to the library
 
+**From Home Assistant:** Settings → Devices & services → Energy Tariff Assistant → **Configure** → **Share this
+plan with the plan library**. It opens the [plan submission form][plan-form] on GitHub with the plan filled in
+(rates, times, retailer and region only; nothing about your home, meters or usage). Nothing is sent from Home
+Assistant: you check the form and submit it from your own GitHub account. A plan too long for a link is shown
+for you to copy and paste into the form.
+
 Don't want to write JSON? Use the [plan submission form][plan-form] with your plan's details (the BPID or
 Energy Made Easy page is the easiest source).
+
+Or, as a pull request:
 
 1. Write the plan file (or convert one: `python scripts/import_energy_manager.py --write <file>`).
 2. Put it at `plans/<country>/<region>/<Retailer>-<PlanSlug>-<Region>-<DNSP>-<YYYYMMDD>.json`.
