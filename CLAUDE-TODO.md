@@ -7,18 +7,15 @@ they're released. Newest decisions win: date each status line.
 ## Waiting
 
 ### v0.1.0: first release
-**Status (2026-11-20):** Phase 2 merged to main. Before releasing:
+**Status (2026-11-20):** Phase 2 merged to main; pre-release **v0.1.0b1** PR opened for the maintainer to test.
+Repo topics are set (HACS Validate passes). Before releasing v0.1.0:
 - Run it on a live Home Assistant 2026.11 (tests only ran on 2026.2.3, the `hacs.json` minimum): setup from the
   library, the maintainer's own Sigenergy import/export sensors, check the Covau plan's prices and a day's meters
   against the Energy dashboard.
-- Repo topics and description (HACS Validate fails without topics): the maintainer sets them on GitHub (this
-  session's token can't change repo settings). Suggested topics: `home-assistant`, `hacs`,
-  `home-assistant-custom-component`, `homeassistant-integration`, `energy`, `electricity-tariff`, `utility-meter`,
-  `australia`.
 - Google Drive backup secrets (`GDRIVE_CLIENT_ID`, `GDRIVE_CLIENT_SECRET`, `GDRIVE_REFRESH_TOKEN`), or that
   workflow fails on every push to main.
-- Date the CHANGELOG section (`## v0.1.0 (YYYY-MM-DD)`, currently "(unreleased)") and release with a PR titled
-  `v0.1.0: …`.
+- Feedback from testing v0.1.0b1; then a `## v0.1.0 (YYYY-MM-DD)` CHANGELOG section (TL;DR rewritten) and a PR
+  titled `v0.1.0: …`.
 
 ### Covau SolarMax plan: needs review
 **Status (2026-11-20):** `needs_review: true` (converted from energy-manager-tariffs). Check against EME: supply

@@ -4,7 +4,9 @@ Every release opens with a **TL;DR**: a handful of short bullets, rewritten as a
 whenever an entry is added. Entries are direct: symptom, cause, fix, with the issue link and
 credit where there is one.
 
-## v0.1.0 (unreleased)
+## v0.1.0b1 (2026-11-20)
+
+First test build (pre-release): please report anything odd with the bug template.
 
 ### TL;DR
 - First installable release: pick a plan, choose your import/export energy sensors, get prices and per-rate meters
