@@ -30,6 +30,17 @@ INDEX_FIELDS = (
 )
 
 
+def plan_types(plan: dict) -> list[str]:
+    """What kind of plan, for the plan browser's Plan type filter (a plan can be several: TOU with demand)."""
+    periods = (plan.get("import") or {}).get("periods") or []
+    types = ["Time of use" if len(periods) > 1 else "Single rate"]
+    if plan.get("demand"):
+        types.append("Demand")
+    if plan.get("controlled_load"):
+        types.append("Controlled load")
+    return types
+
+
 def library(results) -> dict:
     plans = []
     for result in results:
@@ -39,6 +50,7 @@ def library(results) -> dict:
             file=result.rel,
             source_checked=(plan.get("source") or {}).get("checked"),
             needs_review=bool(plan.get("needs_review")),
+            plan_types=plan_types(plan) if plan else [],
             confirmations=len(current_confirmations(plan)),
             errors=result.errors,
             warnings=result.warnings,

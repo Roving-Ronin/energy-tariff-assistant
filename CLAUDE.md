@@ -228,7 +228,7 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   re-validates) and `data/coverage.json` (a slim `retailers.json`). Plan files are contributor text: the page
   builds the DOM with text nodes only (`h()`), never `innerHTML`, and links only `http(s)` source URLs. Its
   timeline mirrors `Window.segments`/`covers` and `Resolver._period` (first non-default match wins): change them
-  together. Its **Report a problem** link uses the same form field ids as `share.py`. The list's **Confirmed plans only** box shows plans with `needs_review: false`. Import and Export (selling) share a row, controlled loads the next
+  together. Its **Report a problem** link uses the same form field ids as `share.py`. The list's **Confirmed plans only** box shows plans with `needs_review: false`; its **Plan type** filter (between Retailer and Search) uses `plan_types` that `build_site.plan_types` derives into `data/library.json` (Single rate / Time of use by import periods, plus Demand, Controlled load: a plan can be several). Import and Export (selling) share a row, controlled loads the next
   (two per row). Rates show in dollars under "Rate ($/kWh)"; the period id is a hover title only; seasons show as month ranges ("Nov – Mar") from
   `seasons`. The library's same-plan check (`validate_plans`) treats different plan IDs as different plans
   (EME gives a retailer's variants one name). Only the library goes on

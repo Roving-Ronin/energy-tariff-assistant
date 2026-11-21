@@ -269,6 +269,9 @@ function rateText(period, periods) {
   return [parts.join(", "), h("span", { class: "muted" }, ` (caps ${reset})`)];
 }
 
+// In this order in the Plan type filter; a plan can be several (Time of use with Demand and Controlled load)
+const PLAN_TYPES = ["Single rate", "Time of use", "Demand", "Controlled load"];
+
 const DEMAND_OVER = { month: "each month", bill: "each bill", rolling_12_months: "over the last 12 months" };
 
 // "Highest 30-min kW reading in the peak window each month (at least 1.5 kW)": demand counts only inside the
@@ -312,7 +315,7 @@ function renderList(params) {
   const pick = (key) => params.get(key) || "";
   const customer = params.has("customer") ? pick("customer") : "residential";
   const filters = {
-    customer, region: pick("state"), dnsp: pick("dnsp"), retailer: pick("retailer"),
+    customer, region: pick("state"), dnsp: pick("dnsp"), retailer: pick("retailer"), type: pick("type"),
     q: pick("q").toLowerCase(), confirmed: params.get("confirmed") === "1", all: params.get("all") === "1",
   };
   const sort = pick("sort") || "-effective_from";
@@ -322,6 +325,7 @@ function renderList(params) {
     (skip === "region" || !filters.region || entry.region === filters.region) &&
     (skip === "dnsp" || !filters.dnsp || entry.dnsp === filters.dnsp) &&
     (skip === "retailer" || !filters.retailer || entry.retailer === filters.retailer) &&
+    (skip === "type" || !filters.type || (entry.plan_types || []).includes(filters.type)) &&
     (!filters.q || [entry.retailer, entry.plan, entry.plan_id, entry.dnsp, entry.file].join(" ").toLowerCase().includes(filters.q)) &&
     (!filters.confirmed || !entry.needs_review) &&
     (filters.all || status(entry) !== "expired");
@@ -364,6 +368,7 @@ function renderList(params) {
       select("State", "state", filters.region, stateOptions, "All states"),
       select("Distributor", "dnsp", filters.dnsp, optionsFor("dnsp", "dnsp"), "All distributors"),
       select("Retailer", "retailer", filters.retailer, optionsFor("retailer", "retailer"), "All retailers"),
+      select("Plan type", "type", filters.type, PLAN_TYPES.filter((t) => plans.some((e) => matches(e, "type") && (e.plan_types || []).includes(t))), "All plan types"),
       h("label", {}, "Search",
         h("input", {
           type: "search", value: pick("q"), placeholder: "Plan name, plan ID…",

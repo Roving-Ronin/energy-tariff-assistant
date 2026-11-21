@@ -62,3 +62,11 @@ def test_same_name_different_plan_ids_are_different_plans(tmp_path):
     second.write_text(json.dumps(dict(plan, plan_id="TAN1128299SRE2")), encoding="utf-8")
     results = check_files([first, second], today=date(2026, 11, 21))
     assert not any("overlapping" in w for r in results for w in r.warnings)
+
+
+def test_plan_types_for_the_filter():
+    one = {"import": {"periods": [{"id": "anytime", "rate": 0.3, "default": True}]}}
+    tou = {"import": {"periods": [{"id": "peak"}, {"id": "off_peak", "default": True}]},
+           "demand": [{"id": "demand"}], "controlled_load": [{"id": "cl1"}]}
+    assert build_site.plan_types(one) == ["Single rate"]
+    assert build_site.plan_types(tou) == ["Time of use", "Demand", "Controlled load"]
