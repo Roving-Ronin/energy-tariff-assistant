@@ -208,10 +208,12 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   Labels contain spans and info icons: lines split without `span`, non-ASCII dropped. REBS ignored (closed).
 - **Plan feedback** (`plan-feedback.yaml`, `scripts/plan_feedback.py`): the plan browser's **Confirm this plan**
   opens a fully pre-filled issue (`plan_confirmation.yml`, title `[Confirm] …`); on opening, the workflow adds the
-  author to the plan's `confirmations` (`date`, `by`, `issue`; once per account) and sets `needs_review: false`
-  (badge **Confirmed** / **Confirmed by N**), commits to main, runs the Pages workflow by name (a workflow-token push
+  author to the plan's `confirmations` (`date`, `by`, `issue`; once per account); at **2 people**
+  (`CONFIRMATIONS_NEEDED`, maintainer 2026-11-21) it sets `needs_review: false` (badge **Confirmed** / **Confirmed by N**;
+  before that "1 of 2 confirmations"), commits to main, runs the Pages workflow by name (a workflow-token push
   starts no workflows) and closes the issue. A **Report a problem** correction naming a library file sets
-  `needs_review: true` again (confirmations kept) and notes the issue. Issue text is read only in github-script;
+  `needs_review: true` again, adds it to `problems` and notes it; confirmations are kept, but only those after the latest
+  problem count (`current_confirmations`). Issue text is read only in github-script;
   only a path matching `plans/<CC>/<REGION>/<name>.json` that exists, the login and the issue number go further.
   Confirmed plans count as reviewed, so the importer never changes them.
 - **CDR conversion check** (manual workflow, `scripts/check_cdr_conversion.py`): real plan details are an uploaded

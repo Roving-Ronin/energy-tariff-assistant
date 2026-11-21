@@ -177,7 +177,7 @@ for a complete example.
 
 The [plan browser][plan-browser] shows every library plan with its times on a 24-hour timeline, its rates and
 caps, and anything the validator found. If you're on a plan, check it against your bill: **Confirm this plan**
-opens a filled-in GitHub issue (just press Submit) and the plan then shows as **Confirmed**; **Report a problem**
+opens a filled-in GitHub issue (just press Submit), and once two people on the plan have confirmed it, it shows as **Confirmed**; **Report a problem**
 opens a correction with the plan filled in, and the plan goes back to **Needs review** until it's fixed.
 Its **Coverage** page shows which distributors have no library plans yet.
 

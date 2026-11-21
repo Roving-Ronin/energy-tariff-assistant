@@ -36,10 +36,13 @@ def load(root):
 
 def test_confirm_records_the_person_and_clears_needs_review(root):
     path = fb.plan_file(REL, root)
-    assert fb.confirm(path, "octocat", 42, TODAY) == f"{path.name}: confirmed by octocat (1 confirmation(s))"
+    assert fb.confirm(path, "octocat", 42, TODAY) == f"{path.name}: confirmed by octocat (1 of 2, 1 more needed)"
+    assert load(root)["needs_review"] is True  # one isn't enough
+    assert fb.confirm(path, "hubot", 43, TODAY) == f"{path.name}: confirmed by hubot (2 of 2, Confirmed)"
     plan = load(root)
     assert plan["needs_review"] is False
-    assert plan["confirmations"] == [{"date": "2026-11-21", "by": "octocat", "issue": 42}]
+    assert plan["confirmations"] == [{"date": "2026-11-21", "by": "octocat", "issue": 42},
+                                     {"date": "2026-11-21", "by": "hubot", "issue": 43}]
     assert validate_plan(plan, today=TODAY).ok  # the plan format accepts confirmations
     keys = list(plan)
     assert keys.index("confirmations") == keys.index("needs_review") + 1
@@ -56,13 +59,22 @@ def test_one_confirmation_per_account(root):
 def test_a_reported_problem_puts_it_back_to_needs_review(root):
     path = fb.plan_file(REL, root)
     fb.confirm(path, "octocat", 42, TODAY)
+    fb.confirm(path, "hubot", 43, TODAY)
     fb.problem(path, 50, date(2026, 12, 1))
     plan = load(root)
     assert plan["needs_review"] is True
-    assert len(plan["confirmations"]) == 1  # history kept
+    assert len(plan["confirmations"]) == 2  # history kept
+    assert plan["problems"] == [{"date": "2026-12-01", "issue": 50}]
     assert "Problem reported in #50 (2026-12-01)." in plan["notes"]
+    assert validate_plan(plan, today=TODAY).ok
     fb.problem(path, 50, date(2026, 12, 1))
-    assert load(root)["notes"].count("#50") == 1
+    assert load(root)["notes"].count("#50") == 1 and len(load(root)["problems"]) == 1
+    # Only confirmations after the problem count; earlier confirmers may confirm the fixed plan again
+    assert fb.current_confirmations(load(root)) == []
+    fb.confirm(path, "octocat", 51, TODAY)
+    assert load(root)["needs_review"] is True
+    fb.confirm(path, "mona", 52, TODAY)
+    assert load(root)["needs_review"] is False
 
 
 @pytest.mark.parametrize("relative", [

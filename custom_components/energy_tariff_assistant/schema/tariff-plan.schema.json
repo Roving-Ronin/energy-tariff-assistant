@@ -79,6 +79,19 @@
         }
       }
     },
+    "problems": {
+      "description": "Problems reported on this plan (Report a problem in the plan browser), recorded by the Plan feedback workflow. Only confirmations after the latest one count.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "issue"],
+        "additionalProperties": false,
+        "properties": {
+          "date": { "$ref": "#/$defs/date" },
+          "issue": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
     "notes": { "type": ["string", "null"] }
   },
   "$defs": {
