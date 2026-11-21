@@ -25,6 +25,7 @@ import json
 from pathlib import Path
 import re
 import sys
+import urllib.error
 from typing import Any
 import urllib.request
 
@@ -389,6 +390,12 @@ def main() -> int:
         changes = run(http_get, date.today(), write=not args.dry_run)
     except SynergyError as err:
         print(f"::error::{err}")
+        return 1
+    except urllib.error.HTTPError as err:  # a refused download: say which and why, not a traceback
+        print(f"::error::{err.url} answered HTTP {err.code} {err.reason}: nothing was changed")
+        return 1
+    except OSError as err:
+        print(f"::error::download failed ({err}): nothing was changed")
         return 1
     text = ("Synergy plans updated from Synergy's price tables:\n\n" + "\n".join(f"- {c}" for c in changes) + "\n"
             if changes else "No changes.\n")

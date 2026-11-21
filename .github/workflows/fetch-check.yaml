@@ -1,0 +1,22 @@
+name: Fetch check
+
+# By hand: tries the WA scrapers' addresses with a few header sets and logs only the status codes,
+# to see why synergy.net.au refuses GitHub's runners (HTTP 403).
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: python scripts/check_fetch.py
