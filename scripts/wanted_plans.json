@@ -1,0 +1,22 @@
+{
+  "description": "Plans the Import plans sample always takes (when they're on Energy Made Easy for the DNSPs asked for), whatever --per-retailer and --pricing say: plans people already use. Names only, matched by words to the plan's EME name. Maintainer's list, 2026-11-21.",
+  "plans": [
+    {"retailer": "AGL", "plan": "Battery Rewards", "dnsp": "Endeavour Energy"},
+    {"retailer": "AGL", "plan": "Battery Rewards", "dnsp": "Energex"},
+    {"retailer": "AGL", "plan": "Night Saver EV", "dnsp": "Energex"},
+    {"retailer": "AGL", "plan": "Smart Saver", "dnsp": "Energex"},
+    {"retailer": "AGL", "plan": "Solar Savers", "dnsp": "Energex"},
+    {"retailer": "CovaU", "plan": "Basics", "dnsp": "Energex"},
+    {"retailer": "CovaU", "plan": "Basics TOU", "dnsp": "Essential Energy"},
+    {"retailer": "CovaU", "plan": "SolarMax TOU", "dnsp": "Endeavour Energy"},
+    {"retailer": "CovaU", "plan": "SolarMax TOU", "dnsp": "Essential Energy"},
+    {"retailer": "CovaU", "plan": "Solar Sharer TOU", "dnsp": "Ausgrid"},
+    {"retailer": "CovaU", "plan": "Solar Sharer TOU", "dnsp": "Essential Energy"},
+    {"retailer": "CovaU", "plan": "Solar Sharer TOU", "dnsp": "Energex"},
+    {"retailer": "GloBird", "plan": "FOUR4FREE", "dnsp": "Essential Energy"},
+    {"retailer": "GloBird", "plan": "FOUR4FREE", "dnsp": "Energex"},
+    {"retailer": "GloBird", "plan": "SOLARPLUS Flexible", "dnsp": "Energex"},
+    {"retailer": "OVO", "plan": "Basic EV Plan", "dnsp": "Endeavour Energy"},
+    {"retailer": "Solstice Energy", "plan": "Solstice Circle", "dnsp": "TasNetworks"}
+  ]
+}

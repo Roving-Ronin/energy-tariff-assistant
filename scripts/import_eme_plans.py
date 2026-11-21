@@ -81,6 +81,7 @@ class Report:
     invalid: list[str] = field(default_factory=list)
     failed: list[str] = field(default_factory=list)
     other_pricing: int = 0
+    wanted_missing: list[str] = field(default_factory=list)  # wanted_plans.json entries not found on EME
 
     def summary(self, dnsps: list[str], customer: str, pricing: str) -> str:
         lines = [
@@ -99,6 +100,8 @@ class Report:
         ]
         if self.failed:
             lines.append(f"- {len(self.failed)} couldn't be fetched (nothing was marked withdrawn)")
+        if self.wanted_missing:
+            lines.append(f"- {len(self.wanted_missing)} wanted plans (`scripts/wanted_plans.json`) not found")
         if self.written:
             lines += ["", "| Retailer | Plan | Distributor | From | Plan ID |", "|---|---|---|---|---|"]
             for p in sorted(self.written, key=lambda p: (p["dnsp"], p["retailer"], p["plan"])):
@@ -108,6 +111,8 @@ class Report:
             ("Updated in place", self.updated), ("No longer on Energy Made Easy", self.withdrawn),
             ("Reviewed plans that differ: check these", self.reviewed_differs),
             ("Not converted", self.skipped), ("Failed validation", self.invalid), ("Couldn't be fetched", self.failed),
+            ("Wanted plans not found on Energy Made Easy (check the names in scripts/wanted_plans.json)",
+             self.wanted_missing),
         ):
             if items:
                 lines += ["", f"<details><summary>{title} ({len(items)})</summary>", ""]
@@ -222,6 +227,30 @@ def wanted(summary: dict[str, Any], dnsps: set[str], customer: str) -> list[str]
     return sorted({m[0] for m in mapped if m and m[0] in dnsps})
 
 
+WANTED_FILE = Path(__file__).resolve().parent / "wanted_plans.json"
+WANTED_PER_ENTRY = 3  # newest matches per wanted plan per DNSP (a name like "Smart Saver" has many offers)
+
+
+def _words(text: str) -> set[str]:
+    return set(re.findall(r"[a-z0-9]+", (text or "").lower()))
+
+
+def load_wanted(path: Path = WANTED_FILE) -> list[dict[str, str]]:
+    return json.loads(path.read_text(encoding="utf-8"))["plans"] if path.is_file() else []
+
+
+def wanted_match(summary: dict[str, Any], dnsp: str, entries: list[dict[str, str]]) -> int | None:
+    """Index of the wanted plan a listed plan is (retailer name starts the brand, every word of the plan
+    name is in its EME name, same DNSP), or None."""
+    brand = re.sub(r"[^a-z0-9]", "", (summary.get("brandName") or summary.get("brand") or "").lower())
+    words = _words(summary.get("displayName") or "")
+    for i, entry in enumerate(entries):
+        if (entry["dnsp"] == dnsp and brand.startswith(re.sub(r"[^a-z0-9]", "", entry["retailer"].lower()))
+                and _words(entry["plan"]) <= words):
+            return i
+    return None
+
+
 def target_path(plan: dict[str, Any], taken: set[Path]) -> Path:
     """Where a new plan goes, never over another file."""
     plan_slug = slug(plan["plan"])[:SLUG_LENGTH] or "Plan"
@@ -233,7 +262,7 @@ def target_path(plan: dict[str, Any], taken: set[Path]) -> Path:
 
 def run(
     fetch, dnsps: list[str], customer: str, pricing: str, per_retailer: int, today: date,
-    pause: float = eme.PAUSE_SECONDS, log=print, write: bool = True,
+    pause: float = eme.PAUSE_SECONDS, log=print, write: bool = True, wanted_plans: list[dict[str, str]] | None = None,
 ) -> Report:
     """Convert what's listed for these distributors, reconcile it with the library, then write.
 
@@ -243,6 +272,8 @@ def run(
     """
     report = Report()
     wanted_dnsps = set(dnsps)
+    wanted_plans = load_wanted() if wanted_plans is None else wanted_plans
+    wanted_found: dict[tuple[int, str], int] = {}  # (wanted entry, DNSP) -> plans taken
     library = library_plans(wanted_dnsps, customer, today)
     by_id = {(base_id(lp.plan["plan_id"]), lp.plan["dnsp"]): lp for lp in library}
     by_family = {(family(lp.plan["plan_id"]), lp.plan["dnsp"]): lp for lp in library}
@@ -271,7 +302,15 @@ def run(
             on = wanted(summary, wanted_dnsps, customer)
             listed.update((family(plan_id), d) for d in on)
             known = [d for d in on if (family(plan_id), d) in by_family]
-            new = [d for d in on if d not in known and (not per_retailer or counts.get(d, 0) < per_retailer)]
+            picks = {d: wanted_match(summary, d, wanted_plans) for d in on}
+            picks = {d: i for d, i in picks.items() if i is not None}
+            for d, i in picks.items():
+                if (family(plan_id), d) in by_family:
+                    wanted_found[(i, d)] = wanted_found.get((i, d), 0) + 1
+            asked = {d for d, i in picks.items() if (family(plan_id), d) not in by_family
+                     and (not per_retailer or wanted_found.get((i, d), 0) < WANTED_PER_ENTRY)}
+            new = [d for d in on if d not in known and (
+                d in asked or not per_retailer or counts.get(d, 0) < per_retailer)]
             if not known and not new:
                 continue
             time.sleep(pause)
@@ -281,7 +320,7 @@ def run(
                 report.failed.append(f"{plan_id}: {err}")
                 continue
             contract = (detail.get("data") or {}).get("electricityContract") or {}
-            if (contract.get("pricingModel") or "").upper() not in allowed:
+            if (contract.get("pricingModel") or "").upper() not in allowed and not (asked & set(new)):
                 report.other_pricing += 1
                 continue
             data = detail.get("data") or {}
@@ -308,7 +347,12 @@ def run(
                 incoming.append(plan)
                 if plan["dnsp"] in new:
                     counts[plan["dnsp"]] = counts.get(plan["dnsp"], 0) + 1
+                if plan["dnsp"] in asked:
+                    key = (picks[plan["dnsp"]], plan["dnsp"])
+                    wanted_found[key] = wanted_found.get(key, 0) + 1
         log(f"{path_name}: listed")
+    report.wanted_missing = [f"{e['retailer']} {e['plan']} ({e['dnsp']})" for i, e in enumerate(wanted_plans)
+                             if e["dnsp"] in wanted_dnsps and not wanted_found.get((i, e["dnsp"]))]
 
     writes: dict[Path, dict[str, Any]] = {}
     taken: set[Path] = set()
