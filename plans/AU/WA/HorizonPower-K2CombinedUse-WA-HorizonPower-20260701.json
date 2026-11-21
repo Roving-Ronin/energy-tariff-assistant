@@ -1,0 +1,64 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "WA",
+  "dnsp": "Horizon Power",
+  "retailer": "Horizon Power",
+  "plan": "K2 Combined Use",
+  "plan_id": "K2",
+  "customer_type": "business",
+  "effective_from": "2026-07-01",
+  "effective_to": null,
+  "source": {
+    "type": "retailer_factsheet",
+    "url": "https://www.horizonpower.com.au/utilities/pricing/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Perth",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.1041,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "anytime",
+        "name": "Anytime",
+        "default": true,
+        "tier_reset": "day",
+        "tiers": [
+          {
+            "up_to_kwh": 20,
+            "rate": 0.347481
+          },
+          {
+            "up_to_kwh": 1650,
+            "rate": 0.327455
+          },
+          {
+            "rate": 0.369194
+          }
+        ]
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "From Horizon Power's pricing page (prices include GST). Not eligible for DEBS feed-in: set to 0."
+}

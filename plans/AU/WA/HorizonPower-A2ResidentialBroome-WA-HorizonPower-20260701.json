@@ -1,0 +1,63 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "WA",
+  "dnsp": "Horizon Power",
+  "retailer": "Horizon Power",
+  "plan": "A2 Residential (Broome)",
+  "plan_id": "A2",
+  "customer_type": "residential",
+  "effective_from": "2026-07-01",
+  "effective_to": null,
+  "source": {
+    "type": "retailer_factsheet",
+    "url": "https://www.horizonpower.com.au/utilities/pricing/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Perth",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.1924,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "anytime",
+        "name": "Anytime",
+        "rate": 0.332621,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.1,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "From Horizon Power's pricing page (prices include GST). Feed-in: DEBS for Broome, for systems up to 5 kW (GST-free): peak 3pm-9pm, off-peak 9pm-3pm."
+}
