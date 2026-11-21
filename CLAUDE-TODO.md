@@ -6,6 +6,29 @@ they're released. Newest decisions win: date each status line.
 
 ## Waiting
 
+### Active tariff and price sensors (design agreed 2026-11-22, building)
+Replaces the per-entry meters. Two entry kinds:
+- **Plan entries** (one per imported plan), titled "Retailer - Plan" (customer type, network and state words
+  dropped: "CovaU - SolarMax TOU"; renamable). Entities from the entry, never the plan's content, so library
+  updates keep every name, ID and history: `sensor.eta_<retailer>_<planslug>_import_price` / `_export_price`
+  (planslug from the library file name, e.g. `eta_covau_solarmaxtou`), one `…_<period>_used` sensor per capped
+  period (kWh toward the cap, cap, remaining, reset), `update.eta_<…>_plan`.
+- **Active tariff** (created with the first plan): `select.eta_active_plan`, `sensor.eta_grid_import_price` and
+  `sensor.eta_grid_export_price` (the "CNAME": mirror the active plan, stable for the Energy dashboard, HAEO,
+  EMHASS, Nimbus), action `set_active_plan`, the grid import/export energy sensors (set once; every plan counts
+  the same usage toward its own caps). Removing the active plan: "No active plan" + repair, never auto-switch.
+- **Price sensor attributes** (copy Amber Express): `start_time`/`end_time` of the current period, `period_name`,
+  `interpolation_mode: previous` (HAEO interpolates `forecast` linearly without it), `forecast` `{time, value}`
+  (now, then every :00/:30, plus any off-grid change, 48 h; Nimbus reads this), `forecasts` in Amber core layout
+  `{start_time, end_time, per_kwh}` (HAEO reads it first; EMHASS templates for Amber work unchanged). Export is
+  positive (paid to you). No `detailedForecast` (Nimbus would read it as Amber Express).
+- **Plan updates**: the update entity matches same plan ID with new content, a newer version of its family, or
+  `replaced_by` (new information field the importer sets on withdrawn plans); shows the changes; Install replaces
+  the plan in place. Period ids kept (`keep_ids`); added/removed capped periods add/remove their `_used` sensor.
+- **Energy Manager**: the active plan's JSON at `/config/energy_tariff_assistant/active/active.json` (and per plan).
+  EM writes its own converter later; document our format for other tools (library URLs, index, schema, versioning).
+- Meters, supply charge and estimated bill: removed for now; decide later which come back.
+
 ### v0.1.0: first release
 **Status (2026-11-20):** v0.1.0b1 released (pre-release) for the maintainer to test; v0.1.0b2 adds Share this plan, Build a plan step by step and the filtered library.
 README warns not to install while under development: remove that warning for v0.1.0.
