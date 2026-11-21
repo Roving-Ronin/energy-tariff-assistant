@@ -78,7 +78,26 @@
       }
     ]
   },
-  "demand": [],
+  "demand": [
+    {
+      "id": "peak_demand",
+      "name": "Peak Demand",
+      "rate": 5.71175,
+      "unit": "per_kw_per_month",
+      "windows": [
+        {
+          "days": "weekdays",
+          "start": "17:00",
+          "end": "20:00"
+        }
+      ],
+      "measure": {
+        "interval_minutes": 30,
+        "method": "max",
+        "over": "month"
+      }
+    }
+  ],
   "controlled_load": [
     {
       "id": "controlled_load_1",
@@ -114,5 +133,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan MOM1214315MRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, RECONNECTION, CONNECTION. Feed-in is called 'Single Rate Solar FiT' on Energy Made Easy."
+  "notes": "Converted from Energy Made Easy (CDR) plan MOM1214315MRE1@EME; charges include GST (CDR ex GST x1.1). Demand charge 'Peak Demand': times read from its description. Demand charge 'Peak Demand' is per kVA; counted as kW (power factor 1). Feed-in is called 'Single Rate Solar FiT' on Energy Made Easy. Fees: DISCONNECTION, RECONNECTION, CONNECTION."
 }

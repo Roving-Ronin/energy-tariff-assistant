@@ -1,0 +1,84 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Dodo",
+  "plan": "Residential Standing",
+  "plan_id": "DOD13971SRE13",
+  "customer_type": "residential",
+  "effective_from": "2026-10-14",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=DOD13971SRE13",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.878773,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "single_rate_block",
+        "name": "Single Rate Block",
+        "rate": 0.350054,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.01,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "single_rate_controlled_load_1",
+      "name": "Single Rate Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Single Rate Controlled Load 1",
+          "rate": 0.198887,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "single_rate_controlled_load_2",
+      "name": "Single Rate Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Single Rate Controlled Load 2",
+          "rate": 0.239799,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan DOD13971SRE13@EME; charges include GST (CDR ex GST x1.1). Feed-in is called 'Single Rate Solar FiT' on Energy Made Easy. Fees: DD_DISHONOUR, CONNECTION, DISCONNECTION, RECONNECTION."
+}
