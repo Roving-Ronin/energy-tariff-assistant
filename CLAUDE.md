@@ -105,8 +105,9 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
 - **Feed-in is spread over several entries** (CDS standards-maintenance #520): every retailer (non-PREMIUM)
   entry is read, not just the first. Entries for the same times and months combine: a capped block (one rate with
   `volume`) + one uncapped entry → tiers, reset from the capped entry's period; P1Y with "per day"/"/day" in its
-  text → per day, with a note (1st Energy). Entry dates under a year are seasons (must match usage seasons, or
-  become the plan's if usage has none). Same rate and times in every season → one period. A cap with nothing
+  text → per day, with a note (1st Energy). Entry dates under a year that split the year (Red Energy: Nov-Mar, Apr-Oct)
+  are seasons (must match usage seasons, or become the plan's if usage has none); one date range on every entry
+  (Sumo: Apr-Dec) is when the rates apply, used all year with a note. Same rate and times in every season → one period. A cap with nothing
   after it, or entries that don't pair up, is skipped with a reason. Covau SolarMax combined matches the library.
 - CDR window ends are inclusive (14:59, 23:59): they become 15:00, 24:00.
 - Never guess: anything the plan format can't express exactly (FLEXIBLE/QUOTA pricing, banded supply, seasons not on

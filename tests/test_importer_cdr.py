@@ -489,3 +489,14 @@ def test_feed_in_seasons_unlike_the_usage_seasons_are_skipped(solarmax_cdr):
     ])
     result = convert(solarmax_cdr, TODAY)
     assert "feed-in seasons differ from the usage seasons" in result.skipped[0]
+
+
+def test_one_date_range_on_every_entry_is_not_a_season(solarmax_cdr):
+    # Sumo: a single 0c entry dated April to December: when the rate applies, not a season
+    with_feed_in(solarmax_cdr, [fit_entry("0.00", dates=("2026-04-01", "2026-12-31"), name="Sumo Zero Feed-In")])
+    result = convert(solarmax_cdr, TODAY)
+    plan = result.plans[0]
+    assert "seasons" not in plan
+    assert plan["export"]["periods"] == [{"id": "sumo_zero_feed_in", "name": "Sumo Zero Feed-In", "rate": 0.0,
+                                          "default": True}]
+    assert any("2026-04-01 to 2026-12-31 only; used all year" in note for note in result.notes)

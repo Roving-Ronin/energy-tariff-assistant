@@ -444,6 +444,14 @@ def _export_periods(
             pieces.append(_FeedInPiece(months, windows or None, variation.get("rates") or [],
                                        variation.get("period"), name, text, type_name))
 
+    if len({p.months for p in pieces}) == 1 and pieces[0].months is not None:
+        # Every entry has the same dates: when the rates apply (e.g. until a price review), not seasons
+        for piece in pieces:
+            piece.months = None
+        note = ("Feed-in rates are listed for " + ", ".join(sorted({f"{f.get('startDate')} to {f.get('endDate')}"
+                for f in feed_ins})) + " only; used all year.")
+        if note not in notes:
+            notes.append(note)
     season_of = _feed_in_seasons(pieces, seasons)
     groups: dict[tuple[Any, ...], list[_FeedInPiece]] = {}
     for piece in pieces:
