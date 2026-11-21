@@ -238,6 +238,13 @@ four plan pages (Home Plan A1, Midday Saver, EV Add On, Home Business Plan K1) a
 opens a pull request when prices change (normally each 1 July). Every rate label and stated time is checked against
 what the plan expects; anything unexpected fails the run with the reason and changes nothing.
 
+### Horizon Power plans (regional WA)
+
+The **Horizon Power plans (WA)** workflow runs weekly on Horizon Power's pricing page. Prices are the WA
+Government's uniform tariffs, but feed-in depends on the town, so each of the 37 towns gets an **A2 Residential**
+plan with DEBS (solar up to 5 kW) and one with **Buyback Bonus** (over 5 kW, Community Wave members, summer and
+winter rates), plus one **K2 Combined Use** plan (no feed-in). REBS (closed) and the other tariffs are left out.
+
 ### Plan browser
 
 The [plan browser][plan-browser] is a static page in `site/` (plain HTML, CSS and JavaScript). The **Plan browser**

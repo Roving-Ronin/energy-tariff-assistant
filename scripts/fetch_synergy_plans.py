@@ -113,21 +113,22 @@ PLANS = [
 class _Text(HTMLParser):
     BLOCKS = {"p", "div", "li", "tr", "td", "th", "h1", "h2", "h3", "h4", "h5", "br", "section", "table", "span"}
 
-    def __init__(self) -> None:
+    def __init__(self, blocks: set[str] | None = None) -> None:
         super().__init__()
+        self.blocks = self.BLOCKS if blocks is None else blocks
         self.parts: list[str] = []
         self.skip = 0
 
     def handle_starttag(self, tag: str, attrs: Any) -> None:
         if tag in ("script", "style", "noscript", "svg"):
             self.skip += 1
-        if tag in self.BLOCKS:
+        if tag in self.blocks:
             self.parts.append("\n")
 
     def handle_endtag(self, tag: str) -> None:
         if tag in ("script", "style", "noscript", "svg"):
             self.skip -= 1
-        if tag in self.BLOCKS:
+        if tag in self.blocks:
             self.parts.append("\n")
 
     def handle_data(self, data: str) -> None:
@@ -135,8 +136,9 @@ class _Text(HTMLParser):
             self.parts.append(data)
 
 
-def page_lines(html: str) -> list[str]:
-    parser = _Text()
+def page_lines(html: str, blocks: set[str] | None = None) -> list[str]:
+    """The page's visible text, one line per block element (`blocks`: which tags start a line)."""
+    parser = _Text(blocks)
     parser.feed(html)
     text = "".join(parser.parts).replace("\xa0", " ")
     return [re.sub(r"\s+", " ", line).strip() for line in text.splitlines() if line.strip()]
@@ -299,20 +301,24 @@ def comparable(plan: dict[str, Any]) -> dict[str, Any]:
 
 def place(plan: dict[str, Any], spec: PlanSpec, write: bool) -> str:
     """Write the plan if it's new or changed. Returns what happened."""
-    same = sorted(
-        (p for p in plan_files() if p.parent.name == "WA"),
-        key=lambda p: p.name,
-    )
-    mine = [p for p in same if json.loads(p.read_text(encoding="utf-8")).get("plan") == plan["plan"]
-            and json.loads(p.read_text(encoding="utf-8")).get("retailer") == "Synergy"]
-    target = PLANS_DIR / plan_relpath(plan, spec.slug)
+    return place_plan(plan, spec.slug, write)
+
+
+def place_plan(plan: dict[str, Any], plan_slug: str, write: bool) -> str:
+    """Write a WA plan if it's new or changed (same retailer, plan name and DNSP = the same plan)."""
+    def same(path: Path) -> bool:
+        other = json.loads(path.read_text(encoding="utf-8"))
+        return all(other.get(k) == plan[k] for k in ("retailer", "plan", "dnsp"))
+
+    mine = sorted((p for p in plan_files() if p.parent.name == "WA" and same(p)), key=lambda p: p.name)
+    target = PLANS_DIR / plan_relpath(plan, plan_slug)
     latest = mine[-1] if mine else None
     if latest is not None:
         old = json.loads(latest.read_text(encoding="utf-8"))
         if comparable(old) == comparable(plan):
             return "unchanged"
         if old["effective_from"] > plan["effective_from"]:
-            raise SynergyError(f"{spec.plan}: the page's prices are older ({plan['effective_from']}) than the library's")
+            raise SynergyError(f"{plan['plan']}: the page's prices are older ({plan['effective_from']}) than the library's")
         if old["effective_from"] < plan["effective_from"]:
             old["effective_to"] = (date.fromisoformat(plan["effective_from"]) - timedelta(days=1)).isoformat()
             if write:

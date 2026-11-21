@@ -28,8 +28,8 @@ gets `effective_to`; plans gone from EME dropped or ended), (2) index split per 
 (`index/AU-NSW-residential.json`; HA and the plan browser load only what's picked; plan paths unchanged),
 (3) weekly EME check + badges, (4) full import, scheduled and staggered per state/customer type (~22,000 files:
 NSW 7,032 res / 4,719 bus, VIC 3,430 / 2,466, QLD 1,448 / 953, SA 604 / 430, ACT 559 / 207, TAS 75 / 72).
-Open: approve-and-merge each import PR by hand, or auto-merge after checks pass. WA: Synergy scraper built
-(2026-11-21); Horizon Power and NT later.
+Open: approve-and-merge each import PR by hand, or auto-merge after checks pass. WA: Synergy and Horizon Power scrapers built
+(2026-11-21); NT later.
 
 ### Validating plans (design agreed 2026-11-21, after the importer)
 Statuses, shown as badges in the plan browser (and later in HA's library steps): **not checked** → **matches
