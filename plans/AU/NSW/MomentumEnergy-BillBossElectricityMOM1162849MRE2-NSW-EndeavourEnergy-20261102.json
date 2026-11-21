@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=MOM1162849MRE2",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -49,8 +49,8 @@
   "export": {
     "periods": [
       {
-        "id": "single_rate_solar_fit",
-        "name": "Single Rate Solar FiT",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.03,
         "default": true
       }
@@ -76,5 +76,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan MOM1162849MRE2@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, RECONNECTION, CONNECTION."
+  "notes": "Converted from Energy Made Easy (CDR) plan MOM1162849MRE2@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, RECONNECTION, CONNECTION. Feed-in is called 'Single Rate Solar FiT' on Energy Made Easy."
 }

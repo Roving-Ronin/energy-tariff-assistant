@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=NTR1154731MRE1",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -66,8 +66,8 @@
   "export": {
     "periods": [
       {
-        "id": "fit",
-        "name": "FiT",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.0,
         "default": true
       }
@@ -76,5 +76,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan NTR1154731MRE1@EME; charges include GST (CDR ex GST x1.1). Discount: Refer a Friend Credit (conditional, fixedAmount 150.00). Incentive: 100% GreenPower as standard. Fees: DISCONNECTION, RECONNECTION, OTHER. The plan gives its times in local time, following daylight saving, but Evoenergy's time-of-use periods follow AEST all year (an hour later on the clock in summer). The plan's own time zone was used: check against the plan's fact sheet."
+  "notes": "Converted from Energy Made Easy (CDR) plan NTR1154731MRE1@EME; charges include GST (CDR ex GST x1.1). Discount: Refer a Friend Credit (conditional, fixedAmount 150.00). Incentive: 100% GreenPower as standard. Fees: DISCONNECTION, RECONNECTION, OTHER. The plan gives its times in local time, following daylight saving, but Evoenergy's time-of-use periods follow AEST all year (an hour later on the clock in summer). The plan's own time zone was used: check against the plan's fact sheet. Feed-in is called 'FiT' on Energy Made Easy."
 }

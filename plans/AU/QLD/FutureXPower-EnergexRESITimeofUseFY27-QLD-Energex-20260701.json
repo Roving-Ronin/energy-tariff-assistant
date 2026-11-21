@@ -12,7 +12,7 @@
   "effective_to": "2027-06-30",
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=FXP1125561SRE1",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -61,8 +61,8 @@
   "export": {
     "periods": [
       {
-        "id": "solar_feed_in",
-        "name": "Solar Feed-in",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.03,
         "default": true
       }
@@ -71,5 +71,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan FXP1125561SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, CONNECTION, CHEQUE_DISHONOUR, DD_DISHONOUR, CC_PROCESSING, PAPER_BILL."
+  "notes": "Converted from Energy Made Easy (CDR) plan FXP1125561SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, CONNECTION, CHEQUE_DISHONOUR, DD_DISHONOUR, CC_PROCESSING, PAPER_BILL. Feed-in is called 'Solar Feed-in' on Energy Made Easy."
 }

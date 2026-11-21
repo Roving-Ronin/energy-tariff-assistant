@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=COV1147465MRE2",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -54,8 +54,8 @@
   "export": {
     "periods": [
       {
-        "id": "feed_in_tariff_single_rate_feed_in_tariff",
-        "name": "Feed In Tariff: Single Rate Feed In Tariff",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.03,
         "default": true
       }
@@ -81,5 +81,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan COV1147465MRE2@EME; charges include GST (CDR ex GST x1.1). Discount: Guaranteed Discount on total usages (guaranteed, percentOfUse 0.15). Incentive: Refer a Friend. Fees: CONNECTION, DISCONNECTION, RECONNECTION, DD_DISHONOUR. The plan data gives its times in AEST all year (an hour later on the clock in summer), but CovaU bills on local time, following daylight saving: that was used."
+  "notes": "Converted from Energy Made Easy (CDR) plan COV1147465MRE2@EME; charges include GST (CDR ex GST x1.1). Discount: Guaranteed Discount on total usages (guaranteed, percentOfUse 0.15). Incentive: Refer a Friend. Fees: CONNECTION, DISCONNECTION, RECONNECTION, DD_DISHONOUR. The plan data gives its times in AEST all year (an hour later on the clock in summer), but CovaU bills on local time, following daylight saving: that was used. Feed-in is called 'Feed In Tariff: Single Rate Feed In Tariff' on Energy Made Easy."
 }

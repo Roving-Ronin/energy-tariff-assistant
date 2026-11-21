@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=OVO932467MRE10",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -71,8 +71,8 @@
   "export": {
     "periods": [
       {
-        "id": "fit",
-        "name": "FiT",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.01,
         "default": true
       }
@@ -81,5 +81,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan OVO932467MRE10@EME; charges include GST (CDR ex GST x1.1). Incentive: EV Off-Peak. Fees: CONNECTION, DISCONNECTION, OTHER."
+  "notes": "Converted from Energy Made Easy (CDR) plan OVO932467MRE10@EME; charges include GST (CDR ex GST x1.1). Incentive: EV Off-Peak. Fees: CONNECTION, DISCONNECTION, OTHER. Feed-in is called 'FiT' on Energy Made Easy."
 }

@@ -12,7 +12,7 @@
   "effective_to": "2026-11-26",
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ALI1215515MRE2",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -71,8 +71,8 @@
   "export": {
     "periods": [
       {
-        "id": "solar_bonus_fit",
-        "name": "Solar Bonus FiT",
+        "id": "feed_in",
+        "name": "Feed-in",
         "tiers": [
           {
             "up_to_kwh": 8.0,
@@ -123,5 +123,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan ALI1215515MRE2@EME; charges include GST (CDR ex GST x1.1). Incentive: Stepped FiT. Fees: DISCONNECTION, RECONNECTION, CONNECTION, DISCONNECT_MOVE_OUT, RECONNECTION."
+  "notes": "Converted from Energy Made Easy (CDR) plan ALI1215515MRE2@EME; charges include GST (CDR ex GST x1.1). Incentive: Stepped FiT. Fees: DISCONNECTION, RECONNECTION, CONNECTION, DISCONNECT_MOVE_OUT, RECONNECTION. Feed-in is called 'Solar Bonus FiT' on Energy Made Easy."
 }

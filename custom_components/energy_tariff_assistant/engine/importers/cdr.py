@@ -51,6 +51,27 @@ from ..model import FORMAT, VERSION, Window
 
 GST = 1.1
 SOURCE_URL = "https://www.energymadeeasy.gov.au/"
+EME_PLAN_PAGE = "https://www.energymadeeasy.gov.au/plan?id={}"
+
+
+def plan_page(plan_id: str) -> str:
+    """The plan's own page: Energy Made Easy for @EME plans (Victorian @VEC plans are on Victorian Energy Compare)."""
+    base, _, where = plan_id.partition("@")
+    return EME_PLAN_PAGE.format(base) if where in ("", "EME") else SOURCE_URL
+
+
+def name_feed_in(periods: list[dict[str, Any]]) -> str | None:
+    """One feed-in period for all times is "Feed-in" (id feed_in), whatever the retailer calls it ("Single Rate
+    Solar FIT", "For the first 8kWh"...), so every plan reads the same. Returns the retailer's name for the notes."""
+    if len(periods) != 1 or periods[0].get("id") == "feed_in":
+        return None
+    period, old = periods[0], periods[0]["id"]
+    original = period.get("name")
+    period["id"], period["name"] = "feed_in", "Feed-in"
+    for tier in period.get("tiers") or []:
+        if tier.get("use_period") == old:
+            tier["use_period"] = "feed_in"
+    return original
 
 # Lower-case keyword in a CDR distributor name -> (DNSP name used in plans, state)
 DISTRIBUTORS: list[tuple[str, str, str]] = [
@@ -835,6 +856,9 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
 
     effective_from = (data.get("effectiveFrom") or "")[:10] or today.isoformat()
     effective_to = (data.get("effectiveTo") or "")[:10] or None
+    original = name_feed_in(export_periods)
+    if original and original != "Feed-in":
+        notes.append(f"Feed-in is called '{original}' on Energy Made Easy.")
     plan: dict[str, Any] = {
         "format": FORMAT,
         "version": VERSION,
@@ -844,7 +868,7 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
         "plan_id": data["planId"],
         "effective_from": effective_from,
         "effective_to": effective_to if effective_to and effective_to >= effective_from else None,
-        "source": {"type": "EME", "url": data.get("applicationUri") or SOURCE_URL, "checked": today.isoformat()},
+        "source": {"type": "EME", "url": plan_page(data["planId"]), "checked": today.isoformat()},
         "currency": "AUD",
         "timezone": None,  # set per distributor (_clock)
         "holidays": {"treat_as": "sunday" if holiday_rates else "none"},

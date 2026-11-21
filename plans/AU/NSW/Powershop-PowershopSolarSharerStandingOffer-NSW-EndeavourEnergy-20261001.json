@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=PSH1060191SRE4",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -91,8 +91,8 @@
   "export": {
     "periods": [
       {
-        "id": "voluntary_fit",
-        "name": "Voluntary FIT",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.01,
         "default": true
       }
@@ -118,5 +118,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan PSH1060191SRE4@EME; charges include GST (CDR ex GST x1.1). Fees: OTHER, DISCONNECTION, DISCONNECTION, CONNECTION, CONNECTION, OTHER, OTHER."
+  "notes": "Converted from Energy Made Easy (CDR) plan PSH1060191SRE4@EME; charges include GST (CDR ex GST x1.1). Fees: OTHER, DISCONNECTION, DISCONNECTION, CONNECTION, CONNECTION, OTHER, OTHER. Feed-in is called 'Voluntary FIT' on Energy Made Easy."
 }

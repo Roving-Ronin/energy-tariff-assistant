@@ -99,8 +99,8 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .notice.warn { background: var(--warn-bg); color: var(--warn); }
 .notice.err { background: var(--err-bg); color: var(--err); }
 .notice ul { margin: 4px 0 0; padding-left: 20px; }
-.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(520px, 1fr)); gap: 16px; }
-@media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+.grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 1000px) { .grid-2 { grid-template-columns: 1fr; } }
 
 /* Timeline */
 .timeline { margin: 6px 0 4px; }

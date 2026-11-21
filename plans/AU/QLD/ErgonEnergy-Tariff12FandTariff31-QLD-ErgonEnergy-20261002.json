@@ -12,7 +12,7 @@
   "effective_to": "2027-06-30",
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ERG1201967RRE1",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -82,8 +82,8 @@
   "export": {
     "periods": [
       {
-        "id": "single_rate_solar_fit",
-        "name": "Single Rate Solar FiT",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.06006,
         "default": true
       }
@@ -109,5 +109,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan ERG1201967RRE1@EME; charges include GST (CDR ex GST x1.1). Fees: CHEQUE_DISHONOUR, OTHER, OTHER, OTHER, OTHER."
+  "notes": "Converted from Energy Made Easy (CDR) plan ERG1201967RRE1@EME; charges include GST (CDR ex GST x1.1). Fees: CHEQUE_DISHONOUR, OTHER, OTHER, OTHER, OTHER. Feed-in is called 'Single Rate Solar FiT' on Energy Made Easy."
 }

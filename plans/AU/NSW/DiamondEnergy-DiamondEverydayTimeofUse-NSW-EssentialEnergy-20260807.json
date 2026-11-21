@@ -12,7 +12,7 @@
   "effective_to": "2027-07-01",
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=DIA1123113MRE2",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -54,8 +54,8 @@
   "export": {
     "periods": [
       {
-        "id": "diamond_feed_in_credit",
-        "name": "Diamond Feed in Credit",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.031,
         "default": true
       }
@@ -64,5 +64,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan DIA1123113MRE2@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION."
+  "notes": "Converted from Energy Made Easy (CDR) plan DIA1123113MRE2@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION. Feed-in is called 'Diamond Feed in Credit' on Energy Made Easy."
 }

@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ORI1168866MRE3",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -66,8 +66,8 @@
   "export": {
     "periods": [
       {
-        "id": "solar_fit",
-        "name": "Solar FIT",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.05,
         "default": true
       }
@@ -76,5 +76,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan ORI1168866MRE3@EME; charges include GST (CDR ex GST x1.1). Incentive: Account Credit. Fees: RECONNECTION, DISCONNECTION, DISCONNECT_NON_PAY, LATE_PAYMENT, PAYMENT_PROCESSING, PAPER_BILL. The plan gives its times in local time, following daylight saving, but Evoenergy's time-of-use periods follow AEST all year (an hour later on the clock in summer). The plan's own time zone was used: check against the plan's fact sheet."
+  "notes": "Converted from Energy Made Easy (CDR) plan ORI1168866MRE3@EME; charges include GST (CDR ex GST x1.1). Incentive: Account Credit. Fees: RECONNECTION, DISCONNECTION, DISCONNECT_NON_PAY, LATE_PAYMENT, PAYMENT_PROCESSING, PAPER_BILL. The plan gives its times in local time, following daylight saving, but Evoenergy's time-of-use periods follow AEST all year (an hour later on the clock in summer). The plan's own time zone was used: check against the plan's fact sheet. Feed-in is called 'Solar FIT' on Energy Made Easy."
 }

@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=NTR1217256MRE1",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -91,8 +91,8 @@
   "export": {
     "periods": [
       {
-        "id": "fit",
-        "name": "FiT",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.0,
         "default": true
       }
@@ -118,5 +118,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan NTR1217256MRE1@EME; charges include GST (CDR ex GST x1.1). Discount: Loyalty Credit (conditional, fixedAmount 150.00). Discount: Refer a Friend (conditional, fixedAmount 150.00). Fees: DISCONNECTION, RECONNECTION, OTHER."
+  "notes": "Converted from Energy Made Easy (CDR) plan NTR1217256MRE1@EME; charges include GST (CDR ex GST x1.1). Discount: Loyalty Credit (conditional, fixedAmount 150.00). Discount: Refer a Friend (conditional, fixedAmount 150.00). Fees: DISCONNECTION, RECONNECTION, OTHER. Feed-in is called 'FiT' on Energy Made Easy."
 }

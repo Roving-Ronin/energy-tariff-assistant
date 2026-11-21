@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ENE1206038MRE3",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -61,8 +61,8 @@
   "export": {
     "periods": [
       {
-        "id": "retailer_feed_in_tariff",
-        "name": "Retailer Feed-in-Tariff",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.04,
         "default": true
       }
@@ -88,5 +88,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan ENE1206038MRE3@EME; charges include GST (CDR ex GST x1.1). Discount: Guaranteed discount (guaranteed, percentOfBill 0.06). Incentive: PowerResponse program rebate. Incentive: $250 Credit Offer. Fees: DISCONNECTION, RECONNECTION, CONNECTION, LATE_PAYMENT, PAPER_BILL."
+  "notes": "Converted from Energy Made Easy (CDR) plan ENE1206038MRE3@EME; charges include GST (CDR ex GST x1.1). Discount: Guaranteed discount (guaranteed, percentOfBill 0.06). Incentive: PowerResponse program rebate. Incentive: $250 Credit Offer. Fees: DISCONNECTION, RECONNECTION, CONNECTION, LATE_PAYMENT, PAPER_BILL. Feed-in is called 'Retailer Feed-in-Tariff' on Energy Made Easy."
 }

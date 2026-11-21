@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ENE360415MRE29",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -66,8 +66,8 @@
   "export": {
     "periods": [
       {
-        "id": "solar_max_superior_feed_in_tariff",
-        "name": "Solar Max Superior Feed-in-Tariff",
+        "id": "feed_in",
+        "name": "Feed-in",
         "tiers": [
           {
             "up_to_kwh": 10.0,
@@ -85,5 +85,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan ENE360415MRE29@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Solar Max Superior Feed-in-Tariff': the data gives its 10 kWh limit per P1Y, but its text says per day: per day was used. Incentive: PowerResponse program rebate. Fees: DISCONNECTION, RECONNECTION, CONNECTION, LATE_PAYMENT, PAPER_BILL. The plan gives its times in local time, following daylight saving, but Evoenergy's time-of-use periods follow AEST all year (an hour later on the clock in summer). The plan's own time zone was used: check against the plan's fact sheet."
+  "notes": "Converted from Energy Made Easy (CDR) plan ENE360415MRE29@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Solar Max Superior Feed-in-Tariff': the data gives its 10 kWh limit per P1Y, but its text says per day: per day was used. Incentive: PowerResponse program rebate. Fees: DISCONNECTION, RECONNECTION, CONNECTION, LATE_PAYMENT, PAPER_BILL. The plan gives its times in local time, following daylight saving, but Evoenergy's time-of-use periods follow AEST all year (an hour later on the clock in summer). The plan's own time zone was used: check against the plan's fact sheet. Feed-in is called 'Solar Max Superior Feed-in-Tariff' on Energy Made Easy."
 }

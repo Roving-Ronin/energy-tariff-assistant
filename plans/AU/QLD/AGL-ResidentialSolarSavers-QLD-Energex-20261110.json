@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=AGL1189550MRE2",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -61,8 +61,8 @@
   "export": {
     "periods": [
       {
-        "id": "for_the_first_8kwh",
-        "name": "For the first 8kWh",
+        "id": "feed_in",
+        "name": "Feed-in",
         "tiers": [
           {
             "up_to_kwh": 8.0,
@@ -113,5 +113,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan AGL1189550MRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in 'For the first 8kWh': the data gives its 8 kWh limit per P1Y, but its text says per day: per day was used. Fees: CONNECTION, DISCONNECT_MOVE_OUT, DISCONNECT_NON_PAY, RECONNECTION, LATE_PAYMENT, OTHER, PAPER_BILL."
+  "notes": "Converted from Energy Made Easy (CDR) plan AGL1189550MRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in 'For the first 8kWh': the data gives its 8 kWh limit per P1Y, but its text says per day: per day was used. Fees: CONNECTION, DISCONNECT_MOVE_OUT, DISCONNECT_NON_PAY, RECONNECTION, LATE_PAYMENT, OTHER, PAPER_BILL. Feed-in is called 'For the first 8kWh' on Energy Made Easy."
 }

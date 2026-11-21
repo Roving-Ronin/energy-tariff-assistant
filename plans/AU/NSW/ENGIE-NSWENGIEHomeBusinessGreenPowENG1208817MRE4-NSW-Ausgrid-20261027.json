@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ENG1208817MRE4",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -134,8 +134,8 @@
   "export": {
     "periods": [
       {
-        "id": "single_rate_solar_fit",
-        "name": "Single Rate Solar FiT",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.03,
         "default": true
       }
@@ -161,5 +161,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan ENG1208817MRE4@EME; charges include GST (CDR ex GST x1.1). Discount: 11% Guaranteed Discount (guaranteed, percentOfBill 0.11). Incentive: ENGIE 100% GreenPower. Incentive: Once Off Join and Stay - $220. Fees: DISCONNECTION, LATE_PAYMENT. The plan gives its times in AEST all year (an hour later on the clock in summer), but Ausgrid's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+  "notes": "Converted from Energy Made Easy (CDR) plan ENG1208817MRE4@EME; charges include GST (CDR ex GST x1.1). Discount: 11% Guaranteed Discount (guaranteed, percentOfBill 0.11). Incentive: ENGIE 100% GreenPower. Incentive: Once Off Join and Stay - $220. Fees: DISCONNECTION, LATE_PAYMENT. The plan gives its times in AEST all year (an hour later on the clock in summer), but Ausgrid's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet. Feed-in is called 'Single Rate Solar FiT' on Energy Made Easy."
 }
