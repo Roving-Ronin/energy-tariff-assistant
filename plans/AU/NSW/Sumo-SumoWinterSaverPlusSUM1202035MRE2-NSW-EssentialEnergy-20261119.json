@@ -73,7 +73,26 @@
       }
     ]
   },
-  "demand": [],
+  "demand": [
+    {
+      "id": "peak_demand",
+      "name": "Peak Demand",
+      "rate": 0.23276,
+      "unit": "per_kw_per_day",
+      "windows": [
+        {
+          "days": "weekdays",
+          "start": "17:00",
+          "end": "20:00"
+        }
+      ],
+      "measure": {
+        "interval_minutes": 30,
+        "method": "max",
+        "over": "month"
+      }
+    }
+  ],
   "controlled_load": [
     {
       "id": "general_controlled_load_1_usage",
@@ -93,5 +112,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan SUM1202035MRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in rates are listed for 2026-04-01 to 2026-12-31 only; used all year. Discount: $120 (incl.GST) sign-up credit (conditional, fixedAmount 120.00). Incentive: $120 (incl.GST) sign-up credit. Fees: CONNECTION. Feed-in is called 'Sumo Zero Feed-In: Single Rate Feed In Tariff' on Energy Made Easy."
+  "notes": "Converted from Energy Made Easy (CDR) plan SUM1202035MRE2@EME; charges include GST (CDR ex GST x1.1). Demand charge 'Peak Demand': times read from its description. Demand charge 'Peak Demand': measured over a month (not stated; check the fact sheet). Feed-in rates are listed for 2026-04-01 to 2026-12-31 only; used all year. Feed-in is called 'Sumo Zero Feed-In: Single Rate Feed In Tariff' on Energy Made Easy. Discount: $120 (incl.GST) sign-up credit (conditional, fixedAmount 120.00). Incentive: $120 (incl.GST) sign-up credit. Fees: CONNECTION."
 }
