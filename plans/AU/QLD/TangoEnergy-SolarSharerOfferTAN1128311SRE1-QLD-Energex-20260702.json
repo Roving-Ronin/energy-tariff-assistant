@@ -1,0 +1,113 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "QLD",
+  "dnsp": "Energex",
+  "retailer": "Tango Energy",
+  "plan": "Solar Sharer Offer",
+  "plan_id": "TAN1128311SRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-07-02",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.778531,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.489019,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "solar_sharer",
+        "name": "Solar Sharer",
+        "tiers": [
+          {
+            "up_to_kwh": 24.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.081011
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "14:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.081011,
+        "windows": [
+          {
+            "days": "all",
+            "start": "14:00",
+            "end": "16:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.264119,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "rfit_single_rate_feed_in_tariff",
+        "name": "RFiT: Single Rate Feed In Tariff",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 2",
+          "rate": 0.167451,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan TAN1128311SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: OTHER, RECONNECTION, DISCONNECTION, CONNECTION."
+}

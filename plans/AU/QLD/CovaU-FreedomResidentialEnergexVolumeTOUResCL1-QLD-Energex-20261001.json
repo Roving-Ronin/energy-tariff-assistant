@@ -1,0 +1,92 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "QLD",
+  "dnsp": "Energex",
+  "retailer": "CovaU",
+  "plan": "Freedom Residential Energex Volume TOU Res + CL1",
+  "plan_id": "COV1147506MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.716,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "volume_peak_charge",
+        "name": "Volume Peak Charge",
+        "rate": 0.50468,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "volume_off_peak_charge",
+        "name": "Volume Off-Peak Charge",
+        "rate": 0.15532,
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "16:00"
+          }
+        ]
+      },
+      {
+        "id": "volume_shoulder_charge",
+        "name": "Volume Shoulder Charge",
+        "rate": 0.28468,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in_tariff_single_rate_feed_in_tariff",
+        "name": "Feed In Tariff: Single Rate Feed In Tariff",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.20702,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan COV1147506MRE2@EME; charges include GST (CDR ex GST x1.1). Discount: Guaranteed Discount on total usages (guaranteed, percentOfUse 0.18). Incentive: Refer a Friend. Fees: CONNECTION, DISCONNECTION, RECONNECTION, DD_DISHONOUR."
+}

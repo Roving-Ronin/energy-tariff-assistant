@@ -1,0 +1,80 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "ACT",
+  "dnsp": "Evoenergy",
+  "retailer": "EnergyAustralia",
+  "plan": "Standing Offer (Home)",
+  "plan_id": "ENE19297SRE43",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.364,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "max",
+        "name": "Max",
+        "rate": 0.490369,
+        "windows": [
+          {
+            "days": "all",
+            "start": "07:00",
+            "end": "09:00"
+          },
+          {
+            "days": "all",
+            "start": "17:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "economy",
+        "name": "Economy",
+        "rate": 0.280379,
+        "windows": [
+          {
+            "days": "all",
+            "start": "22:00",
+            "end": "07:00"
+          }
+        ]
+      },
+      {
+        "id": "mid",
+        "name": "Mid",
+        "rate": 0.353078,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "retailer_feed_in_tariff",
+        "name": "Retailer Feed-in-Tariff",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ENE19297SRE43@EME; charges include GST (CDR ex GST x1.1). Incentive: PowerResponse program rebate. Fees: DISCONNECTION, RECONNECTION, CONNECTION, LATE_PAYMENT, PAPER_BILL. The plan gives its times in local time, following daylight saving, but Evoenergy's time-of-use periods follow AEST all year (an hour later on the clock in summer). The plan's own time zone was used: check against the plan's fact sheet."
+}

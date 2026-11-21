@@ -1,0 +1,97 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "ACT",
+  "dnsp": "Evoenergy",
+  "retailer": "Nectr",
+  "plan": "Nectr GreenPower TOU + CL 2 - August 2026",
+  "plan_id": "NTR1154733MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-08-07",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.237612,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.508817,
+        "windows": [
+          {
+            "days": "all",
+            "start": "07:00",
+            "end": "09:00"
+          },
+          {
+            "days": "all",
+            "start": "17:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-peak",
+        "rate": 0.212198,
+        "windows": [
+          {
+            "days": "all",
+            "start": "22:00",
+            "end": "07:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.325141,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "fit",
+        "name": "FiT",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 2",
+          "rate": 0.303901,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan NTR1154733MRE1@EME; charges include GST (CDR ex GST x1.1). Discount: Refer a Friend Credit (conditional, fixedAmount 150.00). Incentive: 100% GreenPower as standard. Fees: DISCONNECTION, RECONNECTION, OTHER. The plan gives its times in local time, following daylight saving, but Evoenergy's time-of-use periods follow AEST all year (an hour later on the clock in summer). The plan's own time zone was used: check against the plan's fact sheet."
+}

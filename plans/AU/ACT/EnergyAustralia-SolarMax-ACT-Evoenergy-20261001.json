@@ -1,0 +1,89 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "ACT",
+  "dnsp": "Evoenergy",
+  "retailer": "EnergyAustralia",
+  "plan": "Solar Max",
+  "plan_id": "ENE360415MRE29",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.364,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "max",
+        "name": "Max",
+        "rate": 0.490369,
+        "windows": [
+          {
+            "days": "all",
+            "start": "07:00",
+            "end": "09:00"
+          },
+          {
+            "days": "all",
+            "start": "17:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "economy",
+        "name": "Economy",
+        "rate": 0.280379,
+        "windows": [
+          {
+            "days": "all",
+            "start": "22:00",
+            "end": "07:00"
+          }
+        ]
+      },
+      {
+        "id": "mid",
+        "name": "Mid",
+        "rate": 0.353078,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "solar_max_superior_feed_in_tariff",
+        "name": "Solar Max Superior Feed-in-Tariff",
+        "tiers": [
+          {
+            "up_to_kwh": 10.0,
+            "rate": 0.08
+          },
+          {
+            "rate": 0.03
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ENE360415MRE29@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Solar Max Superior Feed-in-Tariff': the data gives its 10 kWh limit per P1Y, but its text says per day: per day was used. Incentive: PowerResponse program rebate. Fees: DISCONNECTION, RECONNECTION, CONNECTION, LATE_PAYMENT, PAPER_BILL. The plan gives its times in local time, following daylight saving, but Evoenergy's time-of-use periods follow AEST all year (an hour later on the clock in summer). The plan's own time zone was used: check against the plan's fact sheet."
+}

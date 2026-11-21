@@ -1,0 +1,122 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "QLD",
+  "dnsp": "Energex",
+  "retailer": "Globird Energy",
+  "plan": "FOUR4FREE Residential (Flexible Rate CTL)-Energex",
+  "plan_id": "GLO1215755MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-11-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.595,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_usage",
+        "name": "Peak Usage",
+        "rate": 0.44,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "23:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak_usage",
+        "name": "Off Peak Usage",
+        "tiers": [
+          {
+            "up_to_kwh": 30.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.11
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "15:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder_usage",
+        "name": "Shoulder Usage",
+        "rate": 0.275,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "stepped_rate_solar_fit",
+        "name": "Stepped Rate Solar FiT",
+        "rate": 0.0,
+        "windows": [
+          {
+            "days": "all",
+            "start": "23:00",
+            "end": "24:00"
+          }
+        ]
+      },
+      {
+        "id": "solar_fit",
+        "name": "Solar FiT",
+        "tiers": [
+          {
+            "up_to_kwh": 30.0,
+            "rate": 0.08
+          },
+          {
+            "rate": 0.05
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load",
+      "name": "Controlled Load",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load",
+          "rate": 0.22,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan GLO1215755MRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Solar FiT': the data gives its 30 kWh limit per P1Y, but its text says per day: per day was used. Discount: Direct Debit Discount (conditional, percentOfBill 0.01). Discount: Pay-on-time Discount (conditional, percentOfBill 0.02). Incentive: Four-hour free usage every day. Fees: CONNECTION, DISCONNECTION."
+}
