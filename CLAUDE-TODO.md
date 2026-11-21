@@ -7,7 +7,7 @@ they're released. Newest decisions win: date each status line.
 ## Waiting
 
 ### Demand charges (agreed 2026-11-22)
-**Status (2026-11-22):** converter + plan browser in PR #42. Home Assistant tracking next (its own PR).
+**Status (2026-11-22):** converter + plan browser in PR #42; Home Assistant tracking in PR #43.
 - HA: a pure demand meter in `engine/` (aligned 30-min intervals from the grid import sensor, time-split readings,
   the plan's windows, max per month / bill / rolling 12 months, `minimum_kw`); a peak kW sensor per demand charge
   per plan (attributes: when, window, rate, days, charge so far); `sensor.eta_grid_demand_charge_total` on Active
