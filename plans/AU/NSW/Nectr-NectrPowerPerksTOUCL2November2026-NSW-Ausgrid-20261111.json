@@ -9,7 +9,7 @@
   "plan_id": "NTR1217257MRE1",
   "customer_type": "residential",
   "effective_from": "2026-11-11",
-  "effective_to": null,
+  "effective_to": "2026-11-21",
   "source": {
     "type": "EME",
     "url": "https://www.energymadeeasy.gov.au/",
@@ -118,5 +118,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan NTR1217257MRE1@EME; charges include GST (CDR ex GST x1.1). Discount: Loyalty Credit (conditional, fixedAmount 150.00). Discount: Refer a Friend (conditional, fixedAmount 150.00). Fees: DISCONNECTION, RECONNECTION, OTHER."
+  "notes": "Converted from Energy Made Easy (CDR) plan NTR1217257MRE1@EME; charges include GST (CDR ex GST x1.1). Discount: Loyalty Credit (conditional, fixedAmount 150.00). Discount: Refer a Friend (conditional, fixedAmount 150.00). Fees: DISCONNECTION, RECONNECTION, OTHER. Not on Energy Made Easy any more (checked 2026-11-21)."
 }

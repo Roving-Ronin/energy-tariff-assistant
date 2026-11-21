@@ -9,7 +9,7 @@
   "plan_id": "ENG1208814MRE4",
   "customer_type": "residential",
   "effective_from": "2026-10-27",
-  "effective_to": null,
+  "effective_to": "2026-11-21",
   "source": {
     "type": "EME",
     "url": "https://www.energymadeeasy.gov.au/",
@@ -144,5 +144,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan ENG1208814MRE4@EME; charges include GST (CDR ex GST x1.1). Discount: 11% Guaranteed Discount (guaranteed, percentOfBill 0.11). Incentive: ENGIE 100% GreenPower. Incentive: Once Off Join and Stay - $220. Fees: DISCONNECTION, LATE_PAYMENT. The plan gives its times in AEST all year (an hour later on the clock in summer), but Ausgrid's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+  "notes": "Converted from Energy Made Easy (CDR) plan ENG1208814MRE4@EME; charges include GST (CDR ex GST x1.1). Discount: 11% Guaranteed Discount (guaranteed, percentOfBill 0.11). Incentive: ENGIE 100% GreenPower. Incentive: Once Off Join and Stay - $220. Fees: DISCONNECTION, LATE_PAYMENT. The plan gives its times in AEST all year (an hour later on the clock in summer), but Ausgrid's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet. Not on Energy Made Easy any more (checked 2026-11-21)."
 }

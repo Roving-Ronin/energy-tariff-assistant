@@ -9,7 +9,7 @@
   "plan_id": "RED1116682SRE3",
   "customer_type": "residential",
   "effective_from": "2026-11-17",
-  "effective_to": null,
+  "effective_to": "2026-11-21",
   "source": {
     "type": "EME",
     "url": "https://www.energymadeeasy.gov.au/",
@@ -173,5 +173,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan RED1116682SRE3@EME; charges include GST (CDR ex GST x1.1). Incentive: Solar Sharer Offer. Fees: CONNECTION, DISCONNECTION."
+  "notes": "Converted from Energy Made Easy (CDR) plan RED1116682SRE3@EME; charges include GST (CDR ex GST x1.1). Incentive: Solar Sharer Offer. Fees: CONNECTION, DISCONNECTION. Not on Energy Made Easy any more (checked 2026-11-21)."
 }

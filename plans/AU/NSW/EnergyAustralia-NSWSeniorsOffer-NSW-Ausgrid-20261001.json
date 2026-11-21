@@ -9,7 +9,7 @@
   "plan_id": "ENE831704MRE21",
   "customer_type": "residential",
   "effective_from": "2026-10-01",
-  "effective_to": "2026-11-25",
+  "effective_to": "2026-11-21",
   "source": {
     "type": "EME",
     "url": "https://www.energymadeeasy.gov.au/",
@@ -137,5 +137,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan ENE831704MRE21@EME; charges include GST (CDR ex GST x1.1). Discount: Guaranteed discount (guaranteed, percentOfBill 0.14). Incentive: PowerResponse program rebate. Incentive: $250 Credit Offer. Fees: DISCONNECTION, RECONNECTION, CONNECTION, LATE_PAYMENT."
+  "notes": "Converted from Energy Made Easy (CDR) plan ENE831704MRE21@EME; charges include GST (CDR ex GST x1.1). Discount: Guaranteed discount (guaranteed, percentOfBill 0.14). Incentive: PowerResponse program rebate. Incentive: $250 Credit Offer. Fees: DISCONNECTION, RECONNECTION, CONNECTION, LATE_PAYMENT. Not on Energy Made Easy any more (checked 2026-11-21)."
 }

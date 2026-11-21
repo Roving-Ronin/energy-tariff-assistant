@@ -80,6 +80,13 @@ INDEX = {
         {"file": "plans/AU/NSW/CovaU-SolarMaxTOU-NSW-EssentialEnergy-20250701.json", "country": "AU",
          "region": "NSW", "dnsp": "Essential Energy", "retailer": "CovaU", "plan": "SolarMax Residential TOU",
          "effective_from": "2025-07-01"},
+        # Ended (an old version, and a plan withdrawn from Energy Made Easy): never offered
+        {"file": "plans/AU/NSW/CovaU-SolarMaxTOU-NSW-EssentialEnergy-20240701.json", "country": "AU",
+         "region": "NSW", "dnsp": "Essential Energy", "retailer": "CovaU", "plan": "SolarMax Residential TOU",
+         "effective_from": "2024-07-01", "effective_to": "2025-06-30"},
+        {"file": "plans/AU/QLD/Gone-Plan-QLD-Energex-20250701.json", "country": "AU", "region": "QLD",
+         "dnsp": "Energex", "retailer": "Gone", "plan": "Plan", "effective_from": "2025-07-01",
+         "effective_to": "2026-01-31"},
         {"file": "plans/AU/NSW/Other-Plan-NSW-Ausgrid-20260701.json", "country": "AU", "region": "NSW",
          "dnsp": "Ausgrid", "retailer": "Other", "plan": "Plan", "effective_from": "2026-07-01"},
         {"file": "plans/AU/VIC/X-Y-VIC-Jemena-20260701.json", "country": "AU", "region": "VIC",

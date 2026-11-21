@@ -195,7 +195,8 @@ class PlanSteps:
         if user_input is not None:
             self._lib["country"] = user_input["country"].upper()
             # Later steps only offer what matches the customer type
-            self._entries = wizard.for_customer(self._index, user_input["customer_type"])
+            self._entries = wizard.current(wizard.for_customer(self._index, user_input["customer_type"]),
+                                           dt_util.now().date().isoformat())
             return await self.async_step_library_region()
         default = wizard.pick_default(values, DEFAULT_COUNTRY.lower())
         return self.async_show_form(

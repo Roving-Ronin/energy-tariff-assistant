@@ -9,7 +9,7 @@
   "plan_id": "RED552729MRE21",
   "customer_type": "residential",
   "effective_from": "2026-11-17",
-  "effective_to": null,
+  "effective_to": "2026-11-21",
   "source": {
     "type": "EME",
     "url": "https://www.energymadeeasy.gov.au/",
@@ -126,5 +126,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan RED552729MRE21@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Solar Export Tariff (BLNREX2)': the data gives its 7.5 kWh limit per P1Y, but its text says per day: per day was used. Incentive: Contributions to BCNA. Fees: CONNECTION, DISCONNECTION."
+  "notes": "Converted from Energy Made Easy (CDR) plan RED552729MRE21@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Solar Export Tariff (BLNREX2)': the data gives its 7.5 kWh limit per P1Y, but its text says per day: per day was used. Incentive: Contributions to BCNA. Fees: CONNECTION, DISCONNECTION. Not on Energy Made Easy any more (checked 2026-11-21)."
 }

@@ -227,7 +227,10 @@ stored: retailer, distributor, state and counts, no plan text or prices. WA and 
 
 **Actions → Import plans → Run workflow** converts current Energy Made Easy plans for the distributors you give
 (e.g. `Ausgrid, Endeavour Energy, Essential Energy`), customer type and pricing, validates them and opens a pull
-request adding the ones that pass, each marked `needs_review: true`. Plans already in the library are left alone.
+request adding the ones that pass, each marked `needs_review: true`. Run again later, it also keeps the library
+current: new prices or a new version of a plan get a new file (the previous one ends the day before, and the
+plan's period names are kept so meters carry on), and plans no longer on Energy Made Easy are ended rather than
+deleted. Reviewed and hand-made plans are never changed; any differences are listed in the pull request.
 It needs **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**. GitHub asks
 before running checks on a pull request opened by the bot: click **Approve and run workflows** on it.
 

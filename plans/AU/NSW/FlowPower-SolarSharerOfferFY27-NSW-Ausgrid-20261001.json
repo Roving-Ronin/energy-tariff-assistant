@@ -9,7 +9,7 @@
   "plan_id": "FP11199341SRE1",
   "customer_type": "residential",
   "effective_from": "2026-10-01",
-  "effective_to": "2027-06-30",
+  "effective_to": "2026-11-21",
   "source": {
     "type": "EME",
     "url": "https://www.energymadeeasy.gov.au/",
@@ -106,5 +106,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan FP11199341SRE1@EME; charges include GST (CDR ex GST x1.1). No retailer feed-in tariff in the plan data: feed-in set to 0. Fees: RECONNECTION, DISCONNECTION."
+  "notes": "Converted from Energy Made Easy (CDR) plan FP11199341SRE1@EME; charges include GST (CDR ex GST x1.1). No retailer feed-in tariff in the plan data: feed-in set to 0. Fees: RECONNECTION, DISCONNECTION. Not on Energy Made Easy any more (checked 2026-11-21)."
 }
