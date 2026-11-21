@@ -223,6 +223,14 @@ AER's [Energy Product Reference Data](https://www.aer.gov.au/energy-product-refe
 Consumer Data Right; Victorian plans come from DEECA), and commits it when it changes. Only derived facts are
 stored: retailer, distributor, state and counts, no plan text or prices. WA and the NT aren't in that data.
 
+### Importing plans from Energy Made Easy
+
+**Actions → Import plans → Run workflow** converts current Energy Made Easy plans for the distributors you give
+(e.g. `Ausgrid, Endeavour Energy, Essential Energy`), customer type and pricing, validates them and opens a pull
+request adding the ones that pass, each marked `needs_review: true`. Plans already in the library are left alone.
+It needs **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**, and checks
+don't start on its pull request by themselves: close and reopen it to run them.
+
 ### Plan browser
 
 The [plan browser][plan-browser] is a static page in `site/` (plain HTML, CSS and JavaScript). The **Plan browser**

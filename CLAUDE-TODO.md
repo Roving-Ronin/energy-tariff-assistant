@@ -22,6 +22,16 @@ Repo topics are set (HACS Validate passes). Before releasing v0.1.0:
 **Status (2026-11-20):** `needs_review: true` (converted from energy-manager-tariffs). Check against EME: supply
 charge 2.29999 (probably 2.30), whether the 30 kWh super FiT cap resets daily, public holidays.
 
+### Validating plans (agreed design 2026-11-21, after the importer)
+Three layers: needs review → matches Energy Made Easy → confirmed by a customer.
+1. Weekly library check against EME for every plan with a plan ID; badge on the plan browser, issue on a difference
+   (also catches price changes). A match is "matches EME", not "confirmed" (EME can be wrong: Covau's AEST).
+2. **Confirm this plan** on the plan browser and in HA's Configure menu: pre-filled form (plan file, checked against
+   bill / fact sheet / EME, its date, yes/no per part). Nothing sent from HA; no meter data or IDs.
+3. Workflow reads confirmation issues (`github-script`), opens a PR setting `needs_review: false` and adding the
+   check to an optional `checks` list on the plan (schema addition). "Wrong" answers stay issues. Same workflow can
+   validate Plan JSON on plan-submission issues and comment the errors.
+
 ### Plan browser (GitHub Pages)
 **Status (2026-11-21):** built (`site/`, `scripts/build_site.py`, Plan browser workflow); PR open. Needs the
 maintainer to set Settings → Pages → Source: **GitHub Actions** before the first deploy, then run the Plan browser
@@ -62,8 +72,9 @@ reported as `register_brands_not_in_list` (a warning in the workflow).
     **Add GST**: check the standard's wording, but CDR prices are understood to be GST-exclusive. Discounts,
     pay-on-time conditions, incentives and fees go in `notes`, not prices. Plans that can't be represented
     (wholesale-linked e.g. Amber, `FLEXIBLE` pricing) are skipped with a reason, never guessed.
-  - **Use 1, library importer** (script + workflow): convert chosen retailers/DNSPs, validate, open a PR with new or
-    changed plans (`needs_review: true` until checked against the BPID).
+  - **Use 1, library importer:** built 2026-11-21 (`scripts/import_eme_plans.py`, Import plans workflow). New plans
+    only; changed rates for plans already in the library are not handled yet (needs a plan-version step that
+    keeps period ids). First run planned: residential TOU on Ausgrid, Endeavour Energy, Essential Energy.
   - **Use 2, live in Home Assistant**: state → DNSP → retailer → plan from Energy Made Easy, converted on the spot
     (`async_add_executor_job` for the conversion if it gets heavy), with the library as fallback.
   - ~17,600 electricity plans: fetch on demand or per DNSP, not all weekly.
