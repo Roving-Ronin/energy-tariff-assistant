@@ -500,3 +500,62 @@ def test_one_date_range_on_every_entry_is_not_a_season(solarmax_cdr):
     assert plan["export"]["periods"] == [{"id": "sumo_zero_feed_in", "name": "Sumo Zero Feed-In", "rate": 0.0,
                                           "default": True}]
     assert any("2026-04-01 to 2026-12-31 only; used all year" in note for note in result.notes)
+
+
+# ----- seasons listed separately, as Energy Made Easy data does (Amber Solar Sharer) -----------------------------
+
+
+def tou(name, rate, *times, kind="PEAK", volume=None):
+    rates = [{"unitPrice": ex(rate), **({"volume": volume} if volume else {})}]
+    if volume:
+        rates.append({"unitPrice": ex(0.275597)})
+    return {"type": kind, "displayName": name, "rates": rates, "period": "P1D",
+            "timeOfUse": [{"days": ALL, "startTime": a, "endTime": b} for a, b in times]}
+
+
+def season(start, end, *rates):
+    return {"displayName": "Time of Use Tariff Period", "startDate": start, "endDate": end,
+            "rateBlockUType": "timeOfUseRates", "timeOfUseRates": list(rates)}
+
+
+def test_each_rate_is_one_period_across_seasons(solarmax_cdr):
+    peak = lambda: tou("Peak", 0.637177, ("15:00", "20:59"))  # noqa: E731
+    free = lambda: tou("Free Period", 0.0, ("11:00", "13:59"), kind="SOLAR_SPONGE", volume=24)  # noqa: E731
+    contract = solarmax_cdr["data"]["electricityContract"]
+    contract["tariffPeriod"] = [
+        season("11-01", "03-31", peak(), free(), tou("Off Peak", 0.275597, ("21:00", "10:59"), ("14:00", "14:59"),
+                                                     kind="OFF_PEAK")),
+        season("06-01", "08-31", peak(), free(), tou("Off Peak", 0.275597, ("21:00", "10:59"), ("14:00", "14:59"),
+                                                     kind="OFF_PEAK")),
+        season("04-01", "05-31", free(), tou("Off Peak", 0.275597, ("14:00", "10:59"), kind="OFF_PEAK")),
+        season("09-01", "10-31", free(), tou("Off Peak", 0.275597, ("14:00", "10:59"), kind="OFF_PEAK")),
+    ]
+    for tariff in contract["tariffPeriod"]:
+        tariff.update({k: v for k, v in SOLARMAX["data"]["electricityContract"]["tariffPeriod"][0].items()
+                       if k in ("dailySupplyCharge", "dailySupplyChargeType")})
+    plan = convert(solarmax_cdr, TODAY).plans[0]
+    assert validate_plan(plan).ok, validate_plan(plan).errors
+    assert plan["seasons"] == {"nov_mar": [11, 12, 1, 2, 3], "jun_aug": [6, 7, 8], "apr_may": [4, 5],
+                               "sep_oct": [9, 10]}
+    periods = {p["id"]: p for p in plan["import"]["periods"]}
+    assert set(periods) == {"peak", "free_period", "off_peak"}
+    # Free is the same in every season: no seasons on its window
+    assert periods["free_period"]["windows"] == [{"days": "all", "start": "11:00", "end": "14:00"}]
+    assert periods["peak"]["windows"] == [{"days": "all", "start": "15:00", "end": "21:00",
+                                           "seasons": ["jun_aug", "nov_mar"]}]
+    resolver = Resolver(load_plan(plan))
+    assert resolver.rate_at("import", at("2026-12-02 16:00")).period.id == "peak"
+    assert resolver.rate_at("import", at("2026-07-01 16:00")).period.id == "peak"
+    assert resolver.rate_at("import", at("2026-04-15 16:00")).period.id == "off_peak"  # no peak in autumn
+    assert resolver.rate_at("import", at("2026-04-15 12:00")).period.id == "free_period"
+
+
+def test_one_plan_per_network_when_it_has_several_names(solarmax_cdr):
+    solarmax_cdr["data"]["geography"]["distributors"] = ["Essential Energy", "Essential Energy Far West"]
+    plans = convert(solarmax_cdr, TODAY).plans
+    assert [p["dnsp"] for p in plans] == ["Essential Energy"]
+
+
+def test_retailer_name_is_trimmed(solarmax_cdr):
+    solarmax_cdr["data"]["brandName"] = "GEE Energy "
+    assert convert(solarmax_cdr, TODAY).plans[0]["retailer"] == "GEE Energy"

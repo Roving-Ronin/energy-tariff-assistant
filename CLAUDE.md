@@ -115,6 +115,10 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   month boundaries, per-year steps, differing supply charges) is skipped with a reason in `Conversion.skipped`;
   parts left out of a converted plan go in its `notes`. Converted plans are `needs_review: true`.
 - Period ids come from the plan's own rate names (`free`, `peak`), so meters and entity ids read naturally.
+  EME lists each season's rates separately: the same name and price in several seasons is **one period** with
+  each season's windows (Amber Solar Sharer: 10 CDR rates → peak, off_peak, free_period). Seasons take the plan's
+  names when they tell them apart, else their months (`nov_mar`). Several CDR distributor names for one network
+  ("Essential Energy", "... Far West") give one plan; retailer names are trimmed ("GEE Energy ").
 
 ### Building plans
 - Wizard output goes through `check_plan` like any other plan; the wizard never writes a plan the validator rejects.

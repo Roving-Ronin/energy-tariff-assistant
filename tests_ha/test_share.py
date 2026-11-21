@@ -34,7 +34,7 @@ def test_link_carries_the_plan(plan_data):
     assert len(link.url) <= MAX_URL_LENGTH
     q = _query(link.url)
     assert q["template"] == "plan_submission.yml"
-    assert q["title"] == "[Plan] Covau SolarMax Residential TOU (NSW, Essential Energy)"
+    assert q["title"] == "[Plan] CovaU SolarMax Residential TOU (NSW, Essential Energy)"
     assert q["kind"] == KIND_NEW
     assert q["state"] == "NSW"
     assert q["customer-type"] == "Residential"

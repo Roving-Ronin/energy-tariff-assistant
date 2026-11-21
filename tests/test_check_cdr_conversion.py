@@ -16,7 +16,7 @@ from engine.importers.cdr import convert  # noqa: E402
 
 LIBRARY_FILE = (
     Path(__file__).resolve().parent.parent
-    / "plans/AU/NSW/Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json"
+    / "plans/AU/NSW/CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json"
 )
 
 
