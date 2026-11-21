@@ -28,7 +28,7 @@ pip install ruff && ruff check .        # lint incl. security rules (ruff.toml);
 pip install zizmor actionlint-py && zizmor . && actionlint   # workflow security + syntax; Security workflow runs both
 python scripts/validate_plans.py && python scripts/build_index.py --check   # plan library; Plans workflow runs both
 python scripts/build_site.py --out /tmp/site && python -m http.server -d /tmp/site   # plan browser, locally
-python scripts/import_eme_plans.py --dnsp Ausgrid --dry-run   # convert EME plans (needs internet; the Import plans workflow runs it)
+python scripts/import_eme_plans.py --dnsp Ausgrid --dry-run   # convert EME plans (needs internet; the Import Plans - <state> workflows run it)
 python scripts/fetch_synergy_plans.py --dry-run   # Synergy (WA) plans (home connection + pypdf; GitHub is refused)
 python scripts/fetch_synergy_plans.py --from DIR  # ...or from saved .mhtml pages + the DEBS PDF
 python scripts/fetch_horizon_plans.py --dry-run   # Horizon Power (regional WA) plans (needs internet; weekly workflow)
@@ -227,7 +227,9 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   `seasons`. The library's same-plan check (`validate_plans`) treats different plan IDs as different plans
   (EME gives a retailer's variants one name). Only the library goes on
   the site: never raw CDR data or unchecked conversions.
-- **Import plans** (manual workflow, `scripts/import_eme_plans.py`): converts Energy Made Easy plans for chosen
+- **Import plans** (manual workflows `Import Plans - NSW`/`QLD`/`VIC`/`SA`/`ACT`/`TAS`, each a small caller with its
+  state's distributors pre-filled and a Residential/Business choice, run titled "Import Plans - NSW Residential";
+  the work is in the shared `import-plans.yaml` (`workflow_call`, one import at a time); `scripts/import_eme_plans.py`): converts Energy Made Easy plans for chosen
   DNSPs, customer type and pricing, validates them and opens a PR with the summary. **EME lists only current plans
   and keeps no history** (checked 2026-11-21: 17,657 plans, none ended or future, one version per family), so
   changes are found by comparing each run with the library, in three phases (convert everything listed for those
@@ -253,7 +255,7 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   browser offer only plans that haven't ended (`wizard.current`). The repo needs "Allow GitHub Actions to create
   and approve pull requests"; checks on a PR the bot opens need **Approve and run workflows** (GitHub, since
   2026-06; not settable for the bot). Retailer names come from the CDR `brandName`.
-- **Synergy plans (WA)** (by-hand workflow, `scripts/fetch_synergy_plans.py`): WA isn't on EME. **synergy.net.au
+- **Synergy plans (WA)** (by-hand workflow **Import Plans - WA - Synergy**, `scripts/fetch_synergy_plans.py`): WA isn't on EME. **synergy.net.au
   answers GitHub's runners with HTTP 403 whatever the headers** (Fetch check, 2026-11-21), so it isn't scheduled:
   run it from home, or `--from <folder>` with the plan pages saved as `.mhtml` (their URL is inside) and the DEBS
   PDF (name contains "debs"); a missing saved page stops the run. Horizon's weekly run is the alarm: A2/K2 =
@@ -266,7 +268,7 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   and writes nothing (every plan is read before any is written). A new effective date adds a file and sets the old
   one's `effective_to`; period ids never change. A1 is cross-checked against the WA Government page (warning only).
   Western Power, `Australia/Perth`.
-- **Horizon Power plans (WA)** (weekly workflow, `scripts/fetch_horizon_plans.py`, reuses the Synergy reader and
+- **Horizon Power plans (WA)** (weekly workflow **Import Plans - WA - Horizon Power**, `scripts/fetch_horizon_plans.py`, reuses the Synergy reader and
   `place_plan`): one pricing page. A2/K2 (= Synergy A1/K1 prices), DEBS and Buyback Bonus **per town** (37): per
   town an `A2 Residential (<town>)` (DEBS, peak 3pm-9pm) and `A2 Residential Buyback Bonus (<town>)` plan, plus
   `K2 Combined Use` (no feed-in, as K1). Buyback Bonus always has the four seasonal ids (`peak_nov_mar`,

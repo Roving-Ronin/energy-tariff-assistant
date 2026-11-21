@@ -1,4 +1,4 @@
-name: Horizon Power plans (WA)
+name: Import Plans - WA - Horizon Power
 
 # Weekly: reads Horizon Power's pricing page (A2, K2, DEBS and Buyback Bonus per town),
 # checks every label, column heading and town row, and opens a pull
