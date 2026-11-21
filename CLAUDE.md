@@ -92,8 +92,10 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
 
 ### Converting CDR (Energy Made Easy) plans
 - CDR prices are **ex GST**: `cdr.with_gst` adds 10%. Our plans are GST-inclusive.
-- Contract `timeZone` **AEST is the default when absent**: such plans get timezone `Australia/Brisbane` so fixed-AEST
-  windows stay right through daylight saving. LOCAL uses the state's zone.
+- Contract `timeZone`: AEST gets timezone `Australia/Brisbane` (fixed AEST windows stay right through daylight
+  saving); LOCAL uses the state's zone. **Absent is read as LOCAL** (decided 2026-11-21), not the standard's AEST
+  default: distributors' periods follow local time (Essential Energy: "AEST or AEDST") and the library check found
+  Covau SolarMax an hour out all summer read as AEST. The plan gets a note that local time was assumed.
 - CDR window ends are inclusive (14:59, 23:59): they become 15:00, 24:00.
 - Never guess: anything the plan format can't express exactly (FLEXIBLE/QUOTA pricing, banded supply, seasons not on
   month boundaries, per-year steps, differing supply charges) is skipped with a reason in `Conversion.skipped`;

@@ -11,9 +11,12 @@ anything left out. Every converted plan is `needs_review: true`.
 Rules:
 - **GST is added.** CDR prices are "exclusive of GST" (unit prices, daily supply
   charges); our plans hold GST-inclusive dollars, so x1.1.
-- Contract `timeZone` AEST (the default when absent) means windows are in fixed
-  AEST; the plan gets timezone Australia/Brisbane (AEST, no daylight saving) so
-  windows land correctly year-round. LOCAL uses the state's own time zone.
+- Contract `timeZone` LOCAL uses the state's own time zone. AEST means windows
+  are in fixed AEST: the plan gets Australia/Brisbane (no daylight saving).
+  **Absent** is read as LOCAL, not the standard's AEST default: distributors'
+  time-of-use periods follow local time (Essential Energy: "AEST or AEDST"), and
+  the library check found a plan with no time zone an hour out all summer. The
+  plan gets a note saying local time was assumed.
 - Window end times like 14:59 or 23:59:59 are inclusive ends: they become the
   next minute (15:00, 24:00). A whole day becomes `all_day`.
 - Time of use: the rate covering the most time becomes the default period.
@@ -292,6 +295,13 @@ def _import_periods(
     return periods
 
 
+def _has_windows(usage: list[dict[str, Any]], contract: dict[str, Any]) -> bool:
+    """True if any rate depends on the time of day (so the time zone matters)."""
+    if any(t.get("rateBlockUType") == "timeOfUseRates" for t in usage):
+        return True
+    return any(fit.get("timeVaryingTariffs") for fit in contract.get("solarFeedInTariff") or [])
+
+
 def _export_periods(contract: dict[str, Any], notes: list[str]) -> list[dict[str, Any]]:
     feed_ins = [
         f for f in contract.get("solarFeedInTariff") or []
@@ -443,10 +453,16 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
         if sorted(m for ms in seasons.values() for m in ms) != list(range(1, 13)):
             raise CdrImportError("the tariff periods don't cover the whole year exactly once")
 
-    zones = {(t.get("timeZone") or contract.get("timeZone") or "AEST").upper() for t in usage}
+    stated = {(t.get("timeZone") or contract.get("timeZone") or "").upper() for t in usage}
+    zones = {zone or "LOCAL" for zone in stated}
     if len(zones) != 1:
         raise CdrImportError("tariff periods use different time zones")
     timezone = AEST_ZONE if zones == {"AEST"} else None  # None: the state's own zone, set per DNSP
+    if "" in stated and _has_windows(usage, contract):
+        notes.append(
+            "The plan doesn't say which time zone its times are in: local time (with daylight saving) was "
+            "assumed. Check against the plan's fact sheet."
+        )
 
     holiday_rates: set[str] = set()
     import_periods = _import_periods(usage, season_names, holiday_rates)
