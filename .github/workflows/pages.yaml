@@ -1,0 +1,50 @@
+name: Plan browser
+
+# Publishes the plan browser (site/ plus the library plans and their validation results)
+# to GitHub Pages whenever the plans, the page or the scripts that build it change on main.
+# Pages must be set to Source: GitHub Actions (Settings -> Pages).
+
+permissions: {}
+
+on:
+  push:
+    branches: [main]
+    paths: ["plans/**", "site/**", "scripts/**", "custom_components/energy_tariff_assistant/engine/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements_test.txt
+      - name: Build the site
+        run: python scripts/build_site.py --out _site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

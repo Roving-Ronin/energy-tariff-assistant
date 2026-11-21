@@ -23,6 +23,8 @@ SOURCES = [SOURCE_LIBRARY, SOURCE_BUILD, SOURCE_PASTE, SOURCE_FILE]
 # Where the wizard saves the plans it builds, relative to the config folder
 BUILT_PLANS_DIR = "energy_tariff_assistant/plans"
 
+# Plan browser (GitHub Pages): the library with filters, a timeline per plan and validation results.
+PLAN_BROWSER_URL = "https://roving-ronin.github.io/energy-tariff-assistant/"
 LIBRARY_BASE_URL = (
     "https://raw.githubusercontent.com/Roving-Ronin/energy-tariff-assistant/main/"
 )

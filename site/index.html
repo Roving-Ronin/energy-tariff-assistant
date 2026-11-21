@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Energy Tariff Assistant: plan library</title>
+  <meta name="description" content="Browse and check the Australian electricity tariff plans in the Energy Tariff Assistant library for Home Assistant.">
+  <link rel="icon" href="icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#/"><img src="icon.png" alt="" width="32" height="32"><span>Energy Tariff Assistant <small>plan library</small></span></a>
+    <nav>
+      <a href="#/" data-nav="list">Plans</a>
+      <a href="#/coverage" data-nav="coverage">Coverage</a>
+      <a href="https://github.com/Roving-Ronin/energy-tariff-assistant">GitHub</a>
+    </nav>
+  </header>
+  <main id="app" aria-live="polite"><p class="muted">Loading the library…</p></main>
+  <footer>
+    Plans include GST. Check every plan against your retailer's Basic Plan Information Document or
+    <a href="https://www.energymadeeasy.gov.au/">Energy Made Easy</a> before relying on it.
+    <span id="built"></span>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>

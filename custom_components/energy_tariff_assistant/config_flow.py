@@ -30,6 +30,7 @@ from .const import (
     CONF_SOURCE,
     DOMAIN,
     BUILT_PLANS_DIR,
+    PLAN_BROWSER_URL,
     SOURCE_BUILD,
     SOURCE_FILE,
     SOURCE_LIBRARY,
@@ -207,6 +208,7 @@ class PlanSteps:
                     vol.Required("country", default=default): _select(values, "country"),
                 }
             ),
+            description_placeholders={"browser_url": PLAN_BROWSER_URL},
         )
 
     async def async_step_library_region(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
