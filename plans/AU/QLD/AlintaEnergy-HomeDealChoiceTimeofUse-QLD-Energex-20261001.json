@@ -1,0 +1,75 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "QLD",
+  "dnsp": "Energex",
+  "retailer": "Alinta Energy",
+  "plan": "HomeDeal Choice - Time of Use",
+  "plan_id": "ALI1172605MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.67178,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "off_peak",
+        "name": "Off-Peak",
+        "rate": 0.06567,
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "16:00"
+          }
+        ]
+      },
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.44924,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.23782,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "single_rate_solar_fit",
+        "name": "Single Rate Solar FiT",
+        "rate": 0.02,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ALI1172605MRE1@EME; charges include GST (CDR ex GST x1.1). Incentive: $200 Delayed Credit. Fees: DISCONNECTION, RECONNECTION, OTHER, CONNECTION, RECONNECTION, DISCONNECT_MOVE_OUT, OTHER, PAYMENT_PROCESSING, PAPER_BILL, LATE_PAYMENT."
+}

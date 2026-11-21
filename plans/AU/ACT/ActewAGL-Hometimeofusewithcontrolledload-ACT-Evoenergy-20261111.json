@@ -1,0 +1,113 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "ACT",
+  "dnsp": "Evoenergy",
+  "retailer": "ActewAGL",
+  "plan": "Home time-of-use with controlled load",
+  "plan_id": "ACT62936SRE16",
+  "customer_type": "residential",
+  "effective_from": "2026-11-11",
+  "effective_to": "2027-07-01",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.342,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.4972,
+        "windows": [
+          {
+            "days": "all",
+            "start": "07:00",
+            "end": "09:00"
+          },
+          {
+            "days": "all",
+            "start": "17:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-peak",
+        "rate": 0.2992,
+        "windows": [
+          {
+            "days": "all",
+            "start": "22:00",
+            "end": "07:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.335661,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "voluntary_retailer_buyback_rate",
+        "name": "Voluntary retailer buyback rate",
+        "rate": 0.027,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_night",
+      "name": "Controlled Load Night",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load Night",
+          "rate": 0.27775,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "controlled_load_day_night",
+      "name": "Controlled Load Day & Night",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load Day & Night",
+          "rate": 0.27775,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ACT62936SRE16@EME; charges include GST (CDR ex GST x1.1). Incentive: Battery Power Top-Up. Incentive: Battery Power Top-Up Bonus. Fees: DISCONNECTION, RECONNECTION, OTHER, LATE_PAYMENT, DD_DISHONOUR."
+}

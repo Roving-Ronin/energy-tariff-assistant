@@ -1,0 +1,92 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "QLD",
+  "dnsp": "Energex",
+  "retailer": "Amber Electric",
+  "plan": "Standing Offer: TOU + Controlled Load",
+  "plan_id": "AMB1126223SRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-07-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.778531,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.477858,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.069848,
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "16:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.252956,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "fixed_feed_in",
+        "name": "Fixed feed in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled load 1",
+          "rate": 0.164324,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan AMB1126223SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, CONNECTION, DISCONNECT_MOVE_OUT."
+}

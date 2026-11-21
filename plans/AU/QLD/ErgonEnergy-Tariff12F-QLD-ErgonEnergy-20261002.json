@@ -1,0 +1,96 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "QLD",
+  "dnsp": "Ergon Energy",
+  "retailer": "Ergon Energy",
+  "plan": "Tariff 12F",
+  "plan_id": "ERG1201966RRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-02",
+  "effective_to": "2027-06-30",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.778535,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.489016,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder_2",
+        "name": "Shoulder 2",
+        "rate": 0.081015,
+        "windows": [
+          {
+            "days": "all",
+            "start": "14:00",
+            "end": "16:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off peak",
+        "tiers": [
+          {
+            "up_to_kwh": 24.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.081015
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "14:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder_1",
+        "name": "Shoulder 1",
+        "rate": 0.264121,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "single_rate_solar_fit",
+        "name": "Single Rate Solar FiT",
+        "rate": 0.06006,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ERG1201966RRE1@EME; charges include GST (CDR ex GST x1.1). Fees: CHEQUE_DISHONOUR, OTHER, OTHER, OTHER, OTHER."
+}

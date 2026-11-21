@@ -1,0 +1,80 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "ACT",
+  "dnsp": "Evoenergy",
+  "retailer": "Red Energy",
+  "plan": "Standing Offer Flat Rate (SunSoak)",
+  "plan_id": "RED1038220SRE6",
+  "customer_type": "residential",
+  "effective_from": "2026-11-17",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.51734,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.35365,
+        "windows": [
+          {
+            "days": "all",
+            "start": "07:00",
+            "end": "09:00"
+          },
+          {
+            "days": "all",
+            "start": "17:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "smart_rate",
+        "name": "Smart Rate",
+        "rate": 0.35365,
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "15:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-Peak",
+        "rate": 0.35365,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "solar_feed_in_tariffs_fit",
+        "name": "Solar feed-in tariffs (FIT)",
+        "rate": 0.025,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan RED1038220SRE6@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION. The plan gives its times in local time, following daylight saving, but Evoenergy's time-of-use periods follow AEST all year (an hour later on the clock in summer). The plan's own time zone was used: check against the plan's fact sheet."
+}
