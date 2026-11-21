@@ -206,6 +206,14 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   `K2 Combined Use` (no feed-in, as K1). Buyback Bonus always has the four seasonal ids (`peak_nov_mar`,
   `peak_apr_oct`, `off_peak_nov_mar`, `off_peak_apr_oct`) even when a town's seasons match, so ids never change.
   Labels contain spans and info icons: lines split without `span`, non-ASCII dropped. REBS ignored (closed).
+- **Plan feedback** (`plan-feedback.yaml`, `scripts/plan_feedback.py`): the plan browser's **Confirm this plan**
+  opens a fully pre-filled issue (`plan_confirmation.yml`, title `[Confirm] …`); on opening, the workflow adds the
+  author to the plan's `confirmations` (`date`, `by`, `issue`; once per account) and sets `needs_review: false`
+  (badge **Confirmed** / **Confirmed by N**), commits to main, runs the Pages workflow by name (a workflow-token push
+  starts no workflows) and closes the issue. A **Report a problem** correction naming a library file sets
+  `needs_review: true` again (confirmations kept) and notes the issue. Issue text is read only in github-script;
+  only a path matching `plans/<CC>/<REGION>/<name>.json` that exists, the login and the issue number go further.
+  Confirmed plans count as reviewed, so the importer never changes them.
 - **CDR conversion check** (manual workflow, `scripts/check_cdr_conversion.py`): real plan details are an uploaded
   artifact only, never committed. Tests use hand-written or trimmed samples.
 

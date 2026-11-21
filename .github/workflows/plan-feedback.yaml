@@ -1,0 +1,122 @@
+name: Plan feedback
+
+# Records feedback from the plan browser on a library plan:
+# - "[Confirm] ..." issues (Confirm this plan): the plan gets the person in `confirmations` and shows as
+#   Confirmed; the issue is closed with thanks.
+# - "Report a problem" corrections (plan submission, "Correction to a library plan", whose Source names the
+#   library file): the plan goes back to Needs review until it's fixed; the issue stays open.
+# Issue text is attacker-controlled: it's read only in github-script, and only a plan path matching the
+# library's pattern, the author's login and the issue number go further (as env values).
+on:
+  issues:
+    types: [opened]
+
+permissions: {}
+
+concurrency:
+  group: plan-feedback
+  cancel-in-progress: false
+
+jobs:
+  record:
+    if: github.event.issue.pull_request == null
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # commit the plan change
+      issues: write  # comment on and close the issue
+      actions: write  # rebuild the plan browser
+    steps:
+      - name: Read the issue
+        id: read
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const body = issue.body || '';
+            const field = (label) => {
+              const m = body.match(new RegExp('^#{1,6}[ \\t]+' + label + '[ \\t]*\\r?\\n+([^\\r\\n]+)', 'im'));
+              return m ? m[1].trim() : '';
+            };
+            const PLAN = /^plans\/[A-Z]{2}\/[A-Z]{2,3}\/[A-Za-z0-9-]+\.json$/;
+            let action = '', file = '';
+            if ((issue.title || '').startsWith('[Confirm]')) {
+              action = 'confirm';
+              file = field('Plan file');
+            } else if (field('New or correction\\?') === 'Correction to a library plan') {
+              const m = field('Source').match(/library file (plans\/\S+?\.json)/);
+              if (m) { action = 'problem'; file = m[1]; }
+            }
+            if (!action) { core.info('Not plan feedback.'); return; }
+            if (!PLAN.test(file)) {
+              core.warning(`#${issue.number}: "${file}" isn't a library plan path`);
+              if (action === 'confirm') {
+                await github.rest.issues.createComment({ ...context.repo, issue_number: issue.number,
+                  body: "Thanks! The plan file in this issue isn't one of the library's, so nothing was recorded. Please use **Confirm this plan** on the plan's page in the [plan browser](https://roving-ronin.github.io/energy-tariff-assistant/)." });
+              }
+              return;
+            }
+            core.setOutput('action', action);
+            core.setOutput('file', file);
+            core.setOutput('login', issue.user.login);
+            core.setOutput('number', String(issue.number));
+
+      - name: Check out the default branch
+        if: steps.read.outputs.action
+        # zizmor: ignore[artipacked] this job pushes the plan change, so it keeps the token
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: actions/setup-python@v7
+        if: steps.read.outputs.action
+        with:
+          python-version: "3.13"
+
+      - name: Record it on the plan
+        if: steps.read.outputs.action
+        id: record
+        env:
+          ACTION: ${{ steps.read.outputs.action }}
+          PLAN_FILE: ${{ steps.read.outputs.file }}
+          LOGIN: ${{ steps.read.outputs.login }}
+          NUMBER: ${{ steps.read.outputs.number }}
+        run: |
+          pip install -q -r requirements_test.txt
+          message="$(python scripts/plan_feedback.py "$ACTION" "$PLAN_FILE" --by "$LOGIN" --issue "$NUMBER")"
+          echo "$message"
+          python scripts/validate_plans.py "$PLAN_FILE"
+          echo "message=$message" >> "$GITHUB_OUTPUT"
+          if git diff --quiet -- plans; then
+            echo "changed=" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=1" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit, rebuild the plan browser, answer the issue
+        if: steps.read.outputs.action
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACTION: ${{ steps.read.outputs.action }}
+          PLAN_FILE: ${{ steps.read.outputs.file }}
+          NUMBER: ${{ steps.read.outputs.number }}
+          CHANGED: ${{ steps.record.outputs.changed }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if [ -n "$CHANGED" ]; then
+            git add -- "$PLAN_FILE"
+            git -c user.name="github-actions[bot]" \
+                -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+                commit -q -m "Plan feedback: $ACTION $(basename "$PLAN_FILE") (#$NUMBER)"
+            git push -q origin "HEAD:$DEFAULT_BRANCH"
+            # A push with the workflow token doesn't start other workflows: ask for the plan browser by name
+            gh workflow run pages.yaml --ref "$DEFAULT_BRANCH"
+          fi
+          if [ "$ACTION" = "confirm" ] && [ -z "$CHANGED" ]; then
+            gh issue comment "$NUMBER" --body "Thanks! You've already confirmed this plan, so nothing changed."
+            gh issue close "$NUMBER" --reason completed
+          elif [ "$ACTION" = "confirm" ]; then
+            gh issue comment "$NUMBER" --body "Thanks for confirming! It's recorded on the plan, which now shows as **Confirmed** in the plan browser (give it a few minutes to update)."
+            gh issue close "$NUMBER" --reason completed
+          else
+            gh issue comment "$NUMBER" --body "Thanks. The plan is marked **Needs review** in the plan browser until this is fixed."
+          fi

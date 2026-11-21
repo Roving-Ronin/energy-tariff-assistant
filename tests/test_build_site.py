@@ -23,6 +23,7 @@ def test_site_has_every_library_plan(tmp_path):
         assert (out / entry["file"]).is_file()
         assert entry["errors"] == []
         assert set(build_site.INDEX_FIELDS) <= set(entry)
+        assert entry["confirmations"] == 0
     for name in ("index.html", "app.js", "style.css", "icon.png", ".nojekyll"):
         assert (out / name).is_file()
     assert json.loads((out / "data" / "library.json").read_text(encoding="utf-8")) == lib

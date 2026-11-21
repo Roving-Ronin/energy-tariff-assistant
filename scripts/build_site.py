@@ -38,6 +38,7 @@ def library(results) -> dict:
             file=result.rel,
             source_checked=(plan.get("source") or {}).get("checked"),
             needs_review=bool(plan.get("needs_review")),
+            confirmations=len(plan.get("confirmations") or []),
             errors=result.errors,
             warnings=result.warnings,
         )
