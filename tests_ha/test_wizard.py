@@ -215,6 +215,8 @@ def test_plan_label_puts_the_plan_id_before_the_date():
     entry = {"plan": "SolarMax Residential TOU", "plan_id": "COV1117612MRE3", "effective_from": "2026-07-01"}
     assert wizard.plan_label(entry) == "SolarMax Residential TOU · COV1117612MRE3 · from 2026-07-01"
     assert wizard.plan_label({"plan": "Home", "effective_from": "2026-07-01"}) == "Home · from 2026-07-01"
+    assert wizard.plan_label({"plan": "Ezi Peak", "plan_id": "SLV1213507MRE1", "effective_from": "2026-10-22",
+                              "effective_to": "2028-06-30"}) == "Ezi Peak · SLV1213507MRE1 · from 2026-10-22 · ends 2028-06-30"
 
 
 @pytest.mark.parametrize(("retailer", "plan", "name", "slug"), [
