@@ -80,6 +80,8 @@ th.sorted-asc::after { content: " ↑"; opacity: 1; }
 th.sorted-desc::after { content: " ↓"; opacity: 1; }
 tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
 td.num { text-align: right; font-variant-numeric: tabular-nums; }
+/* Dates and plan IDs stay on one line; so do column headings and their sort arrows */
+td.nowrap, th { white-space: nowrap; }
 
 /* Badges */
 .badge { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 10px; margin: 0 4px 2px 0; white-space: nowrap; }

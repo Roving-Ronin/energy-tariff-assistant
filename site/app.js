@@ -392,9 +392,9 @@ function renderList(params) {
       h("td", {}, entry.region),
       h("td", {}, entry.dnsp || "—"),
       h("td", {}, title(entry.customer_type)),
-      h("td", {}, entry.effective_from, entry.effective_to ? ` to ${entry.effective_to}` : ""),
-      h("td", {}, entry.plan_id || "—"),
-      h("td", {}, entry.source_checked || "—"),
+      h("td", { class: "nowrap" }, entry.effective_from, entry.effective_to ? ` to ${entry.effective_to}` : ""),
+      h("td", { class: "nowrap" }, entry.plan_id || "—"),
+      h("td", { class: "nowrap" }, entry.source_checked || "—"),
       h("td", {}, badges(entry)),
     ));
     view.append(h("div", { class: "table-wrap card", style: "padding:0" }, h("table", {}, h("thead", {}, head), h("tbody", {}, body))),
