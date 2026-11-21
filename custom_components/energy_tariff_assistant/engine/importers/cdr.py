@@ -43,6 +43,7 @@ from __future__ import annotations
 import calendar
 from dataclasses import dataclass, field
 from datetime import date
+import json
 import re
 from typing import Any
 
@@ -98,6 +99,7 @@ def observes_dst(state: str) -> bool:
 CDR_DAYS = {"MON": "mon", "TUE": "tue", "WED": "wed", "THU": "thu", "FRI": "fri", "SAT": "sat", "SUN": "sun"}
 DAY_ORDER = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 TIER_RESET = {"P1D": "day", "P1M": "month"}
+MONTH_NAMES = ("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec")
 NAME_BY_TYPE = {
     "PEAK": "Peak",
     "OFF_PEAK": "Off-peak",
@@ -373,9 +375,44 @@ FEED_IN_GST_NOTES = {
 }
 
 
-def _export_periods(contract: dict[str, Any], notes: list[str], customer: str) -> list[dict[str, Any]]:
-    """Retailer feed-in. GST: households aren't paid GST on feed-in, so residential (and unstated) plans use
-    the published rate; GST-registered businesses are, so business plans add it, as their bill shows."""
+@dataclass
+class _FeedInPiece:
+    """One retailer feed-in rate for one set of times (and maybe months), from one CDR entry."""
+
+    months: tuple[int, ...] | None  # None: all year
+    windows: list[dict[str, Any]] | None  # None: all times
+    rates: list[dict[str, Any]]
+    period: str | None
+    name: str
+    text: str  # displayName + description, to settle a cap's reset when the data's period can't
+    type_name: str | None = None  # Peak, Off-peak...: used when entries share a name
+
+    @property
+    def key(self) -> tuple[Any, ...]:
+        return (self.months, json.dumps(self.windows, sort_keys=True))
+
+    @property
+    def capped(self) -> bool:
+        return len(self.rates) == 1 and bool(self.rates[0].get("volume"))
+
+
+PER_DAY_TEXT = re.compile(r"(per|each|a)\s+day|/\s*day", re.IGNORECASE)
+
+
+def _export_periods(
+    contract: dict[str, Any], notes: list[str], customer: str, seasons: dict[str, list[int]]
+) -> list[dict[str, Any]]:
+    """Retailer feed-in, from every retailer feed-in entry.
+
+    Retailers often split one feed-in over several entries (CDS standards-maintenance #520): a
+    capped block (`volume`) and the rate after it as separate entries for the same times, other
+    times as more entries, and seasons as entries with their own dates. Entries for the same
+    times and months are combined into one period (a capped entry + one uncapped entry -> tiers).
+    `seasons` (the plan's, from usage) may gain the feed-in's own when usage has none.
+
+    GST: households aren't paid GST on feed-in, so residential (and unstated) plans use the
+    published rate; GST-registered businesses are, so business plans add it, as their bill shows.
+    """
     gst = customer == "business"
     feed_ins = [
         f for f in contract.get("solarFeedInTariff") or []
@@ -384,34 +421,163 @@ def _export_periods(contract: dict[str, Any], notes: list[str], customer: str) -
     if not feed_ins:
         notes.append("No retailer feed-in tariff in the plan data: feed-in set to 0.")
         return [{"id": "feed_in", "name": "Feed-in", "rate": 0.0, "default": True}]
-    if len(feed_ins) > 1:
-        notes.append(f"{len(feed_ins)} retailer feed-in tariffs; used the first ({feed_ins[0].get('displayName')}).")
-    fit = feed_ins[0]
-    name = fit.get("displayName") or "Feed-in"
-    if fit.get("tariffUType") == "singleTariff":
-        single = fit.get("singleTariff") or {}
-        _feed_in_note(notes, customer)
-        return [{"id": "feed_in", "name": name,
-                 **_rates(single.get("rates") or [], single.get("period"), name, gst), "default": True}]
+
+    pieces: list[_FeedInPiece] = []
+    for fit in feed_ins:
+        months = _entry_months(fit)
+        text = f"{fit.get('displayName') or ''} {fit.get('description') or ''}"
+        if fit.get("tariffUType") == "singleTariff":
+            single = fit.get("singleTariff") or {}
+            pieces.append(_FeedInPiece(months, None, single.get("rates") or [], single.get("period"),
+                                       fit.get("displayName") or "Feed-in", text))
+            continue
+        variations = fit.get("timeVaryingTariffs") or []
+        if not variations:
+            raise CdrImportError("time-varying feed-in has no variations")
+        for variation in variations:
+            windows = []
+            for slot in variation.get("timeVariations") or []:
+                days, _ = _days(slot.get("days"))
+                windows.append(_window(days, slot.get("startTime"), slot.get("endTime"), None))
+            type_name = NAME_BY_TYPE.get(variation.get("type"))
+            name = variation.get("displayName") or type_name or "Feed-in"
+            pieces.append(_FeedInPiece(months, windows or None, variation.get("rates") or [],
+                                       variation.get("period"), name, text, type_name))
+
+    season_of = _feed_in_seasons(pieces, seasons)
+    groups: dict[tuple[Any, ...], list[_FeedInPiece]] = {}
+    for piece in pieces:
+        groups.setdefault(piece.key, []).append(piece)
+
     periods: list[dict[str, Any]] = []
     taken: set[str] = set()
-    for variation in fit.get("timeVaryingTariffs") or []:
-        vname = variation.get("displayName") or NAME_BY_TYPE.get(variation.get("type"), "Feed-in")
-        windows = []
-        for slot in variation.get("timeVariations") or []:
-            days, _ = _days(slot.get("days"))
-            windows.append(_window(days, slot.get("startTime"), slot.get("endTime"), None))
-        periods.append({
-            "id": _unique(_slug(vname), taken),
-            "name": vname,
-            **_rates(variation.get("rates") or [], variation.get("period"), vname, gst),
-            "windows": windows,
-        })
-    if not periods:
-        raise CdrImportError("time-varying feed-in has no variations")
+    type_names: dict[int, str | None] = {}
+    for group in groups.values():
+        first = next((p for p in group if p.capped), group[0])  # the capped block names a stepped rate
+        label = first.name
+        rate = _combine(group, gst, label, notes)
+        windows = first.windows or [{"days": "all", "all_day": True}]
+        if first.months is not None:
+            windows = [{**w, "seasons": [season_of[first.months]]} for w in windows]
+        period = {"id": "", "name": label, **rate, "windows": windows}
+        type_names[id(period)] = first.type_name
+        periods.append(period)
+
+    periods = _merge_same_rates(periods, set(seasons))
+    names = [p["name"] for p in periods]
+    if len(set(names)) < len(names):  # entries share a name: try their types, else say when they apply
+        typed = [type_names.get(id(p)) or p["name"] for p in periods]
+        for period, name in zip(periods, typed, strict=True):
+            period["name"] = name if typed.count(name) == 1 else _describe(period)
+    for period in periods:
+        period["id"] = _unique(_slug(period["name"]), taken)
+    if len(periods) == 1:
+        periods[0].pop("windows")
+        periods[0]["default"] = True
+    else:
+        _make_default(periods)
     _feed_in_note(notes, customer)
-    _make_default(periods)
     return periods
+
+
+def _entry_months(fit: dict[str, Any]) -> tuple[int, ...] | None:
+    """Months an entry applies to, from its dates (yyyy-mm-dd), or None for all year."""
+    start, end = fit.get("startDate"), fit.get("endDate")
+    if not start or not end:
+        return None
+    try:
+        first, last = date.fromisoformat(start), date.fromisoformat(end)
+    except ValueError as err:
+        raise CdrImportError(f"feed-in dates {start!r} to {end!r} aren't dates") from err
+    if (last - first).days >= 364:
+        return None  # a year or more: not a season
+    months = _months(start[5:], end[5:])
+    if months is None:
+        raise CdrImportError(f"feed-in dates {start} to {end} don't follow month boundaries")
+    return tuple(months)
+
+
+def _feed_in_seasons(pieces: list[_FeedInPiece], seasons: dict[str, list[int]]) -> dict[tuple[int, ...], str]:
+    """Season name for each set of feed-in months: the usage's own seasons, or new ones if usage has none."""
+    month_sets = sorted({p.months for p in pieces if p.months is not None})
+    if not month_sets:
+        return {}
+    if sorted(m for ms in month_sets for m in ms) != list(range(1, 13)):
+        raise CdrImportError("feed-in seasons don't cover the whole year exactly once")
+    out: dict[tuple[int, ...], str] = {}
+    if seasons:
+        for months in month_sets:
+            name = next((n for n, ms in seasons.items() if sorted(ms) == sorted(months)), None)
+            if name is None:
+                raise CdrImportError("feed-in seasons differ from the usage seasons")
+            out[months] = name
+        return out
+    for months in month_sets:
+        name = _unique(f"{MONTH_NAMES[months[0] - 1]}_{MONTH_NAMES[months[-1] - 1]}", set(seasons))
+        seasons[name] = list(months)
+        out[months] = name
+    return out
+
+
+def _combine(group: list[_FeedInPiece], gst: bool, label: str, notes: list[str]) -> dict[str, Any]:
+    """One period's rate from the entries for the same times: a lone entry, or a capped block + the rest."""
+    if len(group) == 1:
+        piece = group[0]
+        if piece.capped:
+            raise CdrImportError(f"feed-in {label!r} has a {piece.rates[0]['volume']} kWh limit and no rate after it")
+        return _rates(piece.rates, piece.period, label, gst)
+    capped = [p for p in group if p.capped]
+    rest = [p for p in group if not p.capped]
+    if len(capped) != 1 or len(rest) != 1 or len(rest[0].rates) != 1:
+        raise CdrImportError(f"feed-in entries for the same times ({label!r}) can't be combined")
+    cap, after = capped[0], rest[0]
+    reset = TIER_RESET.get(cap.period or "")
+    if reset is None:
+        if not PER_DAY_TEXT.search(cap.text):
+            raise CdrImportError(f"feed-in {label!r} has a limit per {cap.period or 'year'}, which plans can't express")
+        reset = "day"
+        note = (f"Feed-in {label!r}: the data gives its {cap.rates[0]['volume']} kWh limit per "
+                f"{cap.period or 'year'}, but its text says per day: per day was used.")
+        if note not in notes:
+            notes.append(note)
+    return {
+        "tiers": [
+            {"up_to_kwh": round(float(cap.rates[0]["volume"]), 6), "rate": _price(cap.rates[0]["unitPrice"], gst)},
+            {"rate": _price(after.rates[0]["unitPrice"], gst)},
+        ],
+        "tier_reset": reset,
+    }
+
+
+def _merge_same_rates(periods: list[dict[str, Any]], all_seasons: set[str]) -> list[dict[str, Any]]:
+    """Periods with the same rate and times in different seasons become one period; a window
+    that ends up in every season needs no seasons."""
+    out: list[dict[str, Any]] = []
+    keys: list[tuple[str, str]] = []
+    for period in periods:
+        key = (json.dumps({k: period[k] for k in ("rate", "tiers", "tier_reset") if k in period}),
+               json.dumps([{k: v for k, v in w.items() if k != "seasons"} for w in period["windows"]]))
+        if key not in keys:
+            keys.append(key)
+            out.append(period)
+            continue
+        match = out[keys.index(key)]
+        for mine, theirs in zip(match["windows"], period["windows"], strict=True):
+            if "seasons" in mine and "seasons" in theirs:
+                mine["seasons"] = sorted(set(mine["seasons"]) | set(theirs["seasons"]))
+    for period in out:
+        for window in period["windows"]:
+            if all_seasons and set(window.get("seasons", ())) == all_seasons:
+                window.pop("seasons")
+    return out
+
+
+def _describe(period: dict[str, Any]) -> str:
+    """A name for a period whose CDR name is shared: its name plus when it applies."""
+    window = (period.get("windows") or [{}])[0]
+    when = "all day" if window.get("all_day") else f"{window.get('start')}-{window.get('end')}"
+    season = f" {'/'.join(window['seasons'])}" if window.get("seasons") else ""
+    return f"{period['name']} {when}{season}"
 
 
 def _feed_in_note(notes: list[str], customer: str) -> None:
@@ -546,7 +712,7 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
 
     holiday_rates: set[str] = set()
     import_periods = _import_periods(usage, season_names, holiday_rates)
-    export_periods = _export_periods(contract, notes, (data.get("customerType") or "").lower())
+    export_periods = _export_periods(contract, notes, (data.get("customerType") or "").lower(), seasons)
     controlled = _controlled_loads(contract, notes)
     if holiday_rates:
         notes.append(

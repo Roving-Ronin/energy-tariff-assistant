@@ -98,6 +98,21 @@ def test_covau_stated_aest_now_agrees_with_the_library():
     assert chk.compare_plans(library_solarmax(), converted, date(2026, 11, 20)) == []
 
 
+def test_covau_feed_in_as_published_agrees_with_the_library():
+    # Energy Made Easy splits SolarMax's feed-in over three entries; combined they price like the library plan
+    from test_importer_cdr import fit_entry
+
+    detail = copy.deepcopy(SOLARMAX)
+    detail["data"]["electricityContract"]["timeZone"] = "AEST"  # as published; CovaU bills on local time
+    detail["data"]["electricityContract"]["solarFeedInTariff"] = [
+        fit_entry("0.05", times=[("21:00", "17:59")], kind="OFF_PEAK"),
+        fit_entry("0.05", times=[("18:00", "20:59")]),
+        fit_entry("0.15", volume=30, times=[("18:00", "20:59")]),
+    ]
+    converted = convert(detail, date(2026, 11, 20)).plans[0]
+    assert chk.compare_plans(library_solarmax(), converted, date(2026, 11, 20)) == []
+
+
 def test_daylight_saving_shift_shows_as_ranges():
     detail = copy.deepcopy(SOLARMAX)
     detail["data"]["electricityContract"]["timeZone"] = "AEST"

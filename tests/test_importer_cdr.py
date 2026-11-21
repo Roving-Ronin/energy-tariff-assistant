@@ -363,3 +363,129 @@ def test_demand_and_tou_controlled_load_noted(solarmax_cdr):
     assert [c["id"] for c in plan["controlled_load"]] == ["cl1"]
     assert plan["controlled_load"][0]["periods"][0]["rate"] == pytest.approx(0.2)
     assert "Demand charges left out" in plan["notes"] and "CL2" in plan["notes"]
+
+
+# ----- feed-in split over several entries (as Energy Made Easy data does) ---------------------------------------
+
+
+def fit_entry(rate, *, volume=None, period="P1D", times=None, kind="PEAK", name="SolarMax_26: Time of Use Feed In Tariff",
+              description="", dates=None):
+    """One retailer feed-in entry: time-varying when `times` is given, else a single tariff."""
+    rates = [{"unitPrice": rate, "measureUnit": "KWH", **({"volume": volume} if volume else {})}]
+    entry = {"scheme": "OTHER", "payerType": "RETAILER", "displayName": name, "description": description}
+    if dates:
+        entry["startDate"], entry["endDate"] = dates
+    if times is None:
+        entry.update(tariffUType="singleTariff", singleTariff={"rates": rates, "period": period})
+    else:
+        entry.update(tariffUType="timeVaryingTariffs", timeVaryingTariffs=[{
+            "type": kind, "displayName": name, "rates": rates, "period": period,
+            "timeVariations": [{"days": ALL, "startTime": a, "endTime": b} for a, b in times],
+        }])
+    return entry
+
+
+def with_feed_in(detail, entries):
+    detail["data"]["electricityContract"]["solarFeedInTariff"] = entries
+    return detail
+
+
+def test_covau_feed_in_over_three_entries_matches_the_library(solarmax_cdr):
+    # As Covau SolarMax is published: 6-9pm first 30 kWh/day at 15c, 6-9pm after that at 5c, 5c at other times
+    dates = ("2026-07-01", "2030-06-30")
+    with_feed_in(solarmax_cdr, [
+        fit_entry("0.05", times=[("21:00", "17:59")], kind="OFF_PEAK", dates=dates),
+        fit_entry("0.05", times=[("18:00", "20:59")], dates=dates),
+        fit_entry("0.15", volume=30, times=[("18:00", "20:59")], dates=dates),
+    ])
+    plan = convert(solarmax_cdr, TODAY).plans[0]
+    assert validate_plan(plan).ok
+    export = plan["export"]["periods"]
+    assert export[0]["name"] == "Peak"
+    assert export[0]["tiers"] == [{"up_to_kwh": 30.0, "rate": 0.15}, {"rate": 0.05}]
+    assert export[0]["tier_reset"] == "day"
+    assert export[0]["windows"] == [{"days": "all", "start": "18:00", "end": "21:00"}]
+    assert export[1] == {"id": "off_peak", "name": "Off-peak", "rate": 0.05, "default": True}
+    resolver = Resolver(load_plan(plan))
+    assert resolver.rate_at("export", at("2026-11-04 19:00")).rate == 0.15
+    assert resolver.rate_at("export", at("2026-11-04 19:00"), {"peak": 31}).rate == 0.05
+    assert resolver.rate_at("export", at("2026-11-04 12:00")).rate == 0.05
+
+
+def test_cap_per_year_in_the_data_but_per_day_in_the_text(solarmax_cdr):
+    # 1st Energy: "first 5 kWh's/day" at 1c then 0.1c, but both entries give period P1Y
+    with_feed_in(solarmax_cdr, [
+        fit_entry("0.01", volume=5, period="P1Y", name="Feed-in tariff (GST exempt)",
+                  description="Feed-in tariff (GST exempt), first 5 kWh's/day"),
+        fit_entry("0.001", period="P1Y", name="Feed-in tariff (GST exempt)",
+                  description="Feed-in tariff (GST exempt), thereafter (>5 kWh's/day)"),
+    ])
+    result = convert(solarmax_cdr, TODAY)
+    export = result.plans[0]["export"]["periods"]
+    assert export == [{"id": "feed_in_tariff_gst_exempt", "name": "Feed-in tariff (GST exempt)",
+                       "tiers": [{"up_to_kwh": 5.0, "rate": 0.01}, {"rate": 0.001}], "tier_reset": "day",
+                       "default": True}]
+    assert any("its text says per day: per day was used" in note for note in result.notes)
+
+
+def test_cap_per_year_with_no_per_day_text_is_skipped(solarmax_cdr):
+    with_feed_in(solarmax_cdr, [fit_entry("0.01", volume=500, period="P1Y"), fit_entry("0.001", period="P1Y")])
+    result = convert(solarmax_cdr, TODAY)
+    assert not result.plans
+    assert "limit per P1Y, which plans can't express" in result.skipped[0]
+
+
+def test_cap_with_nothing_after_it_is_skipped(solarmax_cdr):
+    with_feed_in(solarmax_cdr, [fit_entry("0.15", volume=30, times=[("18:00", "20:59")]),
+                                fit_entry("0.05", times=[("21:00", "17:59")], kind="OFF_PEAK")])
+    result = convert(solarmax_cdr, TODAY)
+    assert "30 kWh limit and no rate after it" in result.skipped[0]
+
+
+def test_capped_peak_with_its_balance_named_by_the_capped_entry(solarmax_cdr):
+    # Flow Power: "Peak FiT" first 15 kWh/day at 40c, "Peak FiT balance" 10c, 5:30-9:30pm; 0c otherwise
+    with_feed_in(solarmax_cdr, [
+        fit_entry("0.00", period="P1Y", times=[("21:30", "17:29")], kind="OFF_PEAK", name="Off-Peak FiT"),
+        fit_entry("0.10", period="P1Y", times=[("17:30", "21:29")], name="Peak FiT balance"),
+        fit_entry("0.40", volume=15, times=[("17:30", "21:29")], name="Peak FiT"),
+    ])
+    plan = convert(solarmax_cdr, TODAY).plans[0]
+    peak = plan["export"]["periods"][0]
+    assert (peak["id"], peak["tiers"]) == ("peak_fit", [{"up_to_kwh": 15.0, "rate": 0.4}, {"rate": 0.1}])
+    assert plan["export"]["periods"][1]["id"] == "off_peak_fit"
+
+
+def test_feed_in_seasons_from_entry_dates(solarmax_cdr):
+    # Red Energy style: summer (Nov-Mar) and winter (Apr-Oct) entries with their own rates; usage has no seasons
+    summer, winter = ("2024-11-01", "2025-03-31"), ("2025-04-01", "2025-10-31")
+    with_feed_in(solarmax_cdr, [
+        fit_entry("0.154", period="P1Y", times=[("16:00", "19:59")], dates=summer, name="Smart"),
+        fit_entry("0.063", period="P1Y", times=[("16:00", "19:59")], dates=winter, name="Smart"),
+        fit_entry("0.025", period="P1Y", times=[("20:00", "15:59")], kind="SHOULDER", dates=summer, name="Solar"),
+        fit_entry("0.025", period="P1Y", times=[("20:00", "15:59")], kind="SHOULDER", dates=winter, name="Solar"),
+    ])
+    plan = convert(solarmax_cdr, TODAY).plans[0]
+    assert validate_plan(plan).ok, validate_plan(plan).errors
+    assert plan["seasons"] == {"nov_mar": [11, 12, 1, 2, 3], "apr_oct": [4, 5, 6, 7, 8, 9, 10]}
+    resolver = Resolver(load_plan(plan))
+    assert resolver.rate_at("export", at("2026-12-02 17:00")).rate == 0.154
+    assert resolver.rate_at("export", at("2026-07-01 17:00")).rate == 0.063
+    assert resolver.rate_at("export", at("2026-07-01 12:00")).rate == 0.025
+    # The same 2.5c in both seasons is one period, with no seasons on its windows
+    solar = [p for p in plan["export"]["periods"] if p.get("rate") == 0.025]
+    assert len(solar) == 1 and solar[0]["default"]
+
+
+def test_feed_in_seasons_unlike_the_usage_seasons_are_skipped(solarmax_cdr):
+    contract = solarmax_cdr["data"]["electricityContract"]
+    base = contract["tariffPeriod"][0]
+    contract["tariffPeriod"] = [
+        {**copy.deepcopy(base), "displayName": "Summer", "startDate": "12-01", "endDate": "02-28"},
+        {**copy.deepcopy(base), "displayName": "Rest", "startDate": "03-01", "endDate": "11-30"},
+    ]
+    with_feed_in(solarmax_cdr, [
+        fit_entry("0.10", period="P1Y", dates=("2024-11-01", "2025-03-31")),
+        fit_entry("0.05", period="P1Y", dates=("2025-04-01", "2025-10-31")),
+    ])
+    result = convert(solarmax_cdr, TODAY)
+    assert "feed-in seasons differ from the usage seasons" in result.skipped[0]

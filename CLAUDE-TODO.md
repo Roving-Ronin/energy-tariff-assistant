@@ -83,7 +83,10 @@ reported as `register_brands_not_in_list` (a warning in the workflow).
     affected); and the cap and the 5c rate are missing: WATTever shows SolarMax's feed-in as a condition, "15c per
     kWh for the first 30kWh exported per day. 5c per kWh for exports at all other times", i.e. stepped FiT only in
     the description (CDS standards-maintenance #520). GST fixed (2026-11-21): residential and unstated feed-in as published, business feed-in +GST (bill amounts;
-    claiming it back is the business's accounting). Still open: stepped FiT only in text: flag for review.
+    claiming it back is the business's accounting). Feed-in steps (2026-11-21): not text after all. The
+    data splits them over separate entries (capped block + the rest for the same times, seasons as dated
+    entries; seen in Covau, Flow Power, 1st Energy, Red Energy); the converter read only the first. Now combined
+    (see CLAUDE.md); the check logs `FEED-IN TEXT` lines for entries whose text has numbers.
   - **Real samples:** Actions → **CDR conversion check** (`scripts/check_cdr_conversion.py`) converts a few plans per
     path and uploads `report.json` + raw details as an artifact (not committed). Use it to find what real data
     does that the hand-written samples don't, and add trimmed cases to `tests/test_importer_cdr.py`.
