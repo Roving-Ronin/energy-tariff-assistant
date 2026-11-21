@@ -20,7 +20,7 @@ const SCALES = {
 const RESET_LABEL = { day: "per day", month: "per month", bill: "per bill" };
 const STREAM_LABEL = { import: "Import (buying)", export: "Export (selling)" };
 
-const state = { library: null, coverage: null, plans: new Map() };
+const state = { library: null, coverage: null, plans: new Map(), typePickerOpen: false };
 const app = document.getElementById("app");
 
 // ---------- small helpers ----------
@@ -272,6 +272,34 @@ function rateText(period, periods) {
 // In this order in the Plan type filter; a plan can be several (Time of use with Demand and Controlled load)
 const PLAN_TYPES = ["Single rate", "Time of use", "Demand", "Controlled load"];
 
+// Single rate and Time of use describe the import prices, so ticking both means either; the rest must all be there
+// (Time of use + Demand: time-of-use plans with a demand charge)
+const PRICE_SHAPES = ["Single rate", "Time of use"];
+
+function typesMatch(entry, types) {
+  const has = entry.plan_types || [];
+  const shapes = types.filter((t) => PRICE_SHAPES.includes(t));
+  return (!shapes.length || shapes.some((t) => has.includes(t))) &&
+    types.filter((t) => !PRICE_SHAPES.includes(t)).every((t) => has.includes(t));
+}
+
+// A drop-down of tick boxes; it stays open while ticking (the page re-renders on each change)
+function typePicker(selected, options, onchange) {
+  const shown = [...new Set([...options, ...selected])].sort((a, b) => PLAN_TYPES.indexOf(a) - PLAN_TYPES.indexOf(b));
+  const details = h("details", { class: "multi", open: state.typePickerOpen },
+    h("summary", {}, selected.length ? selected.join(" + ") : "All plan types"),
+    h("div", { class: "multi-list" },
+      shown.map((t) => h("label", { class: "check" },
+        h("input", {
+          type: "checkbox", checked: selected.includes(t),
+          onchange: (e) => onchange(e.target.checked ? [...selected, t] : selected.filter((x) => x !== t)),
+        }), t)),
+      selected.length ? h("button", { type: "button", onclick: () => onchange([]) }, "Clear") : null));
+  details.addEventListener("toggle", () => { state.typePickerOpen = details.open; });
+  // Not a <label>: a click on the summary would tick the first box
+  return h("div", { class: "field" }, "Plan type", details);
+}
+
 const DEMAND_OVER = { month: "each month", bill: "each bill", rolling_12_months: "over the last 12 months" };
 
 // "Highest 30-min kW reading in the peak window each month (at least 1.5 kW)": demand counts only inside the
@@ -315,7 +343,8 @@ function renderList(params) {
   const pick = (key) => params.get(key) || "";
   const customer = params.has("customer") ? pick("customer") : "residential";
   const filters = {
-    customer, region: pick("state"), dnsp: pick("dnsp"), retailer: pick("retailer"), type: pick("type"),
+    customer, region: pick("state"), dnsp: pick("dnsp"), retailer: pick("retailer"),
+    types: pick("type").split(",").filter((t) => PLAN_TYPES.includes(t)),
     q: pick("q").toLowerCase(), confirmed: params.get("confirmed") === "1", all: params.get("all") === "1",
   };
   const sort = pick("sort") || "-effective_from";
@@ -325,7 +354,7 @@ function renderList(params) {
     (skip === "region" || !filters.region || entry.region === filters.region) &&
     (skip === "dnsp" || !filters.dnsp || entry.dnsp === filters.dnsp) &&
     (skip === "retailer" || !filters.retailer || entry.retailer === filters.retailer) &&
-    (skip === "type" || !filters.type || (entry.plan_types || []).includes(filters.type)) &&
+    (skip === "type" || typesMatch(entry, filters.types)) &&
     (!filters.q || [entry.retailer, entry.plan, entry.plan_id, entry.dnsp, entry.file].join(" ").toLowerCase().includes(filters.q)) &&
     (!filters.confirmed || !entry.needs_review) &&
     (filters.all || status(entry) !== "expired");
@@ -368,7 +397,8 @@ function renderList(params) {
       select("State", "state", filters.region, stateOptions, "All states"),
       select("Distributor", "dnsp", filters.dnsp, optionsFor("dnsp", "dnsp"), "All distributors"),
       select("Retailer", "retailer", filters.retailer, optionsFor("retailer", "retailer"), "All retailers"),
-      select("Plan type", "type", filters.type, PLAN_TYPES.filter((t) => plans.some((e) => matches(e, "type") && (e.plan_types || []).includes(t))), "All plan types"),
+      typePicker(filters.types, PLAN_TYPES.filter((t) => plans.some((e) => matches(e, "type") && (e.plan_types || []).includes(t))),
+        (types) => update("type", types.join(","))),
       h("label", {}, "Search",
         h("input", {
           type: "search", value: pick("q"), placeholder: "Plan name, plan ID…",
