@@ -1,7 +1,7 @@
 {
   "format": "ha_tariff_index",
   "version": 1,
-  "updated_at": "2026-11-21T07:03:28Z",
+  "updated_at": "2026-11-21T08:21:19Z",
   "plans": [
     {
       "file": "plans/AU/NSW/1stEnergy-1stEmeraldTimeofUse-NSW-Ausgrid-20261026.json",
@@ -1434,19 +1434,6 @@
       "source_checked": "2026-11-21"
     },
     {
-      "file": "plans/AU/NSW/FlowPower-FlowHomeBatterySolarEVVariablePricesesti-NSW-Ausgrid-20261001.json",
-      "country": "AU",
-      "region": "NSW",
-      "dnsp": "Ausgrid",
-      "retailer": "Flow Power",
-      "plan": "Flow Home Battery+Solar+EV: Variable Prices (estimate)",
-      "plan_id": "FP11199008MRE1",
-      "customer_type": "residential",
-      "effective_from": "2026-10-01",
-      "effective_to": "2027-07-31",
-      "source_checked": "2026-11-21"
-    },
-    {
       "file": "plans/AU/NSW/FlowPower-HappyHourPlus-NSW-Ausgrid-20261104.json",
       "country": "AU",
       "region": "NSW",
@@ -1768,84 +1755,6 @@
       "plan_id": "GLO1218596MRE1",
       "customer_type": "residential",
       "effective_from": "2026-11-12",
-      "effective_to": null,
-      "source_checked": "2026-11-21"
-    },
-    {
-      "file": "plans/AU/NSW/GlobirdEnergy-WHOLESAVEResiTwoRateCTLestimateAusgrid-NSW-Ausgrid-20261120.json",
-      "country": "AU",
-      "region": "NSW",
-      "dnsp": "Ausgrid",
-      "retailer": "Globird Energy",
-      "plan": "WHOLESAVE Resi (Two Rate CTL) estimate-Ausgrid",
-      "plan_id": "GLO1220399MRE1",
-      "customer_type": "residential",
-      "effective_from": "2026-11-20",
-      "effective_to": null,
-      "source_checked": "2026-11-21"
-    },
-    {
-      "file": "plans/AU/NSW/GlobirdEnergy-WHOLESAVEResiTwoRateCTLestimateEndeavour-NSW-EndeavourEnergy-20261120.json",
-      "country": "AU",
-      "region": "NSW",
-      "dnsp": "Endeavour Energy",
-      "retailer": "Globird Energy",
-      "plan": "WHOLESAVE Resi (Two Rate CTL) estimate-Endeavour",
-      "plan_id": "GLO1220403MRE1",
-      "customer_type": "residential",
-      "effective_from": "2026-11-20",
-      "effective_to": null,
-      "source_checked": "2026-11-21"
-    },
-    {
-      "file": "plans/AU/NSW/GlobirdEnergy-WHOLESAVEResiTwoRateCTLestimateEssential-NSW-EssentialEnergy-20261120.json",
-      "country": "AU",
-      "region": "NSW",
-      "dnsp": "Essential Energy",
-      "retailer": "Globird Energy",
-      "plan": "WHOLESAVE Resi (Two Rate CTL) estimate-Essential",
-      "plan_id": "GLO1220407MRE1",
-      "customer_type": "residential",
-      "effective_from": "2026-11-20",
-      "effective_to": null,
-      "source_checked": "2026-11-21"
-    },
-    {
-      "file": "plans/AU/NSW/GlobirdEnergy-WHOLESAVEResiTwoRateestimateAusgrid-NSW-Ausgrid-20261120.json",
-      "country": "AU",
-      "region": "NSW",
-      "dnsp": "Ausgrid",
-      "retailer": "Globird Energy",
-      "plan": "WHOLESAVE Resi (Two Rate) estimate-Ausgrid",
-      "plan_id": "GLO1220398MRE1",
-      "customer_type": "residential",
-      "effective_from": "2026-11-20",
-      "effective_to": null,
-      "source_checked": "2026-11-21"
-    },
-    {
-      "file": "plans/AU/NSW/GlobirdEnergy-WHOLESAVEResiTwoRateestimateEndeavour-NSW-EndeavourEnergy-20261120.json",
-      "country": "AU",
-      "region": "NSW",
-      "dnsp": "Endeavour Energy",
-      "retailer": "Globird Energy",
-      "plan": "WHOLESAVE Resi (Two Rate) estimate-Endeavour",
-      "plan_id": "GLO1220402MRE1",
-      "customer_type": "residential",
-      "effective_from": "2026-11-20",
-      "effective_to": null,
-      "source_checked": "2026-11-21"
-    },
-    {
-      "file": "plans/AU/NSW/GlobirdEnergy-WHOLESAVEResiTwoRateestimateEssential-NSW-EssentialEnergy-20261120.json",
-      "country": "AU",
-      "region": "NSW",
-      "dnsp": "Essential Energy",
-      "retailer": "Globird Energy",
-      "plan": "WHOLESAVE Resi (Two Rate) estimate-Essential",
-      "plan_id": "GLO1220406MRE1",
-      "customer_type": "residential",
-      "effective_from": "2026-11-20",
       "effective_to": null,
       "source_checked": "2026-11-21"
     },

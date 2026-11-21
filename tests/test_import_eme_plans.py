@@ -271,3 +271,21 @@ def test_an_empty_list_doesnt_end_the_library(eme, library):
     report = run(eme, per_retailer=0, today=date(2026, 12, 5))
     assert not report.withdrawn and "too many to be real" in report.failed[0]
     assert all(p["effective_to"] is None for p in plans_in(library).values())
+
+
+@pytest.mark.parametrize("name, description", [
+    ("WHOLESAVE Resi (Two Rate) estimate-Ausgrid", ""),
+    ("Flow Home Battery+Solar+EV: Variable Prices (estimate)", ""),
+    ("Smart Saver", "Prices follow the wholesale market every five minutes."),
+])
+def test_wholesale_and_estimate_plans_are_skipped(eme, library, name, description):
+    detail = offer(eme, "GLO1220399MRE1@EME", name=name)
+    detail["data"]["description"] = description
+    report = run(eme)
+    assert not report.written and "follows wholesale prices" in report.skipped[0]
+
+
+def test_ordinary_plan_names_are_not_mistaken_for_wholesale(eme, library):
+    detail = offer(eme, "COV1@EME", name="Variable rate Everyday Saver")
+    detail["data"]["description"] = "Our variable-rate plan with no exit fees."
+    assert len(run(eme).written) == 1

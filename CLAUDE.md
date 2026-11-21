@@ -181,7 +181,9 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   replacement. New files end the old one the day before and **keep its period ids** (`keep_ids`: same name, else
   same times; tier `use_period` follows), so meters carry on. **Reviewed plans** (`needs_review: false`) **and
   plans not made by the importer** (source not `EME`, e.g. the hand-made CovaU plan) are never changed: their
-  differences are listed in the PR. `--per-retailer` limits new plans only. HA's library steps and the plan
+  differences are listed in the PR. `--per-retailer` limits new plans only. **Wholesale-linked plans are skipped** (`WHOLESALE`: "estimate",
+  "wholesale", "spot price", "variable prices" in the name or description; EME shows only the retailer's estimate,
+  e.g. GloBird WHOLESAVE, Flow Power Variable Prices): as fixed rates they'd price meters wrongly. HA's library steps and the plan
   browser offer only plans that haven't ended (`wizard.current`). The repo needs "Allow GitHub Actions to create
   and approve pull requests"; checks on a PR the bot opens need **Approve and run workflows** (GitHub, since
   2026-06; not settable for the bot). Retailer names come from the CDR `brandName`.
