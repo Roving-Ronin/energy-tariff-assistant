@@ -6,37 +6,21 @@ they're released. Newest decisions win: date each status line.
 
 ## Waiting
 
-### Active Tariff and price sensors (design agreed 2026-11-22)
-**Status (2026-11-22):** built, in the v0.1.0b4 release PR. Remove this item once it's released.
-Replaces the per-entry meters. Two entry kinds:
-- **Plan entries** (one per imported plan), titled "Retailer - Plan" (customer type, network and state words
-  dropped: "CovaU - SolarMax TOU"; renamable). Entities from the entry, never the plan's content, so library
-  updates keep every name, ID and history: `sensor.eta_<retailer>_<planslug>_import_price` / `_export_price`
-  (planslug from the library file name, e.g. `eta_covau_solarmaxtou`), one `…_<period>_used` sensor per capped
-  period (kWh toward the cap, cap, remaining, reset), `update.eta_<…>_plan`.
-- **Active tariff** (created with the first plan): `select.eta_grid_active_tariff_plan` ("Grid - Active Tariff Plan"; the Grid entities are named on their own: "Grid - Import Price", "Grid - Import Cost - Total"…), `sensor.eta_grid_import_price` and
-  `sensor.eta_grid_export_price` (the "CNAME": mirror the active plan, stable for the Energy dashboard, HAEO,
-  EMHASS, Nimbus), action `set_active_plan`, the grid import/export energy sensors (set once; every plan counts
-  the same usage toward its own caps). Removing the active plan: "No active plan" + repair, never auto-switch.
-- **Price sensor attributes** (copy Amber Express): `start_time`/`end_time` of the current period, `period_name`,
-  `interpolation_mode: previous` (HAEO interpolates `forecast` linearly without it), `forecast` `{time, value}`
-  (now, then every :00/:30, plus any off-grid change, 48 h; Nimbus reads this), `forecasts` in Amber core layout
-  `{start_time, end_time, per_kwh}` (HAEO reads it first; EMHASS templates for Amber work unchanged). Export is
-  positive (paid to you). No `detailedForecast` (Nimbus would read it as Amber Express).
-- **Plan updates**: the update entity matches same plan ID with new content, a newer version of its family, or
-  `replaced_by` (new information field the importer sets on withdrawn plans); shows the changes; Install replaces
-  the plan in place. Period ids kept (`keep_ids`); added/removed capped periods add/remove their `_used` sensor.
-- **Energy Manager**: the active plan's JSON at `/config/energy_tariff_assistant/active/active.json` (and per plan).
-  EM writes its own converter later; document our format for other tools (library URLs, index, schema, versioning).
-- **Totals on Active tariff** (agreed 2026-11-22): `sensor.eta_grid_import_cost_total` and
-  `sensor.eta_grid_export_compensation_total` ($, `state_class: total`, for the Energy dashboard's "entity tracking
-  the total costs"): each kWh costed when counted at the active plan's real rate (caps, boundary split), continuous
-  across plan switches; unavailable without the grid energy sensors. `sensor.eta_grid_supply_charge` ($/d, active
-  plan) and `sensor.eta_grid_supply_charge_total` (each day added at 00:00 at the plan active then; missed days added
-  at start; from the day Active tariff is set up). "Supply charge", as bills and EME say (not "connection fee").
-  Controlled load supply charges left out until a setting says the home has CL circuits.
-- No period meters (today/week/month/quarter/year): the Energy dashboard and HA's Utility Meter helper (quarterly
-  cycle + offset) already do that from the totals. Per-period meters and estimated bill: decide later.
+### Demand charges (agreed 2026-11-22)
+**Status (2026-11-22):** converter + plan browser in PR #42. Home Assistant tracking next (its own PR).
+- HA: a pure demand meter in `engine/` (aligned 30-min intervals from the grid import sensor, time-split readings,
+  the plan's windows, max per month / bill / rolling 12 months, `minimum_kw`); a peak kW sensor per demand charge
+  per plan (attributes: when, window, rate, days, charge so far); `sensor.eta_grid_demand_charge_total` on Active
+  Tariff. Charge = month's peak kW x rate x days; a new peak re-prices the period's earlier days, so the total adds
+  the difference (stays monotonic); switches carry over like the cost total.
+
+### Export default period that covers no time (found 2026-11-22)
+**Status (2026-11-22):** waiting on the maintainer. Red Energy Qantas Red Saver Bundled Demand (RED552428MRE21,
+Essential): EME lists a flat "Solar feed-in tariffs (FIT)" 2.5c beside a time-of-use export ("Solar Export Tariff
+(BLNREX2)": 2.5c/1.6c 10:00-15:00 capped 7.5 kWh, 15.4c 17:00-20:00, 2.5c the rest) that already covers the whole
+day, so the flat rate (the default period) never applies. Can't tell from the data whether the flat rate replaces
+the TOU rates, adds to them, or is a leftover. Options: skip such plans with a reason, or drop the flat entry with a
+note. The validator needs a default, so dropping means making the TOU period covering most time the default.
 
 ### v0.1.0: first release
 **Status (2026-11-20):** v0.1.0b1 released (pre-release) for the maintainer to test; v0.1.0b2 adds Share this plan, Build a plan step by step and the filtered library.
