@@ -258,8 +258,9 @@ stored: retailer, distributor, state and counts, no plan text or prices. WA and 
 
 ### Importing plans from Energy Made Easy
 
-**Actions → Import plans → Run workflow** converts current Energy Made Easy plans for the distributors you give
-(e.g. `Ausgrid, Endeavour Energy, Essential Energy`), customer type and pricing, validates them and opens a pull
+**Actions → Import Plans - NSW** (or QLD, VIC, SA, ACT, TAS) **→ Run workflow** converts current Energy Made Easy
+plans for that state's distributors (all of them unless you remove some), customer type (Residential or Business;
+each run is titled e.g. "Import Plans - NSW Residential") and pricing, validates them and opens a pull
 request adding the ones that pass, each marked `needs_review: true`. Run again later, it also keeps the library
 current: new prices or a new version of a plan get a new file (the previous one ends the day before, and the
 plan's period names are kept so meters carry on), and plans no longer on Energy Made Easy are ended rather than
@@ -288,7 +289,7 @@ For `--from`, save each of the four plan pages with your browser's **Save page a
 
 ### Horizon Power plans (regional WA)
 
-The **Horizon Power plans (WA)** workflow runs weekly on Horizon Power's pricing page. Prices are the WA
+The **Import Plans - WA - Horizon Power** workflow runs weekly on Horizon Power's pricing page. Prices are the WA
 Government's uniform tariffs, but feed-in depends on the town, so each of the 37 towns gets an **A2 Residential**
 plan with DEBS (solar up to 5 kW) and one with **Buyback Bonus** (over 5 kW, Community Wave members, summer and
 winter rates), plus one **K2 Combined Use** plan (no feed-in). REBS (closed) and the other tariffs are left out.

@@ -1,0 +1,43 @@
+name: Import Plans - VIC
+run-name: Import Plans - VIC ${{ inputs.customer }}
+
+# By hand: Energy Made Easy plans for VIC's distributors into the library, as a pull request
+# (the work is in import-plans.yaml, shared by every state).
+on:
+  workflow_dispatch:
+    inputs:
+      customer:
+        description: "Customer type"
+        type: choice
+        options: [Residential, Business]
+        default: Residential
+      dnsps:
+        description: "Distributors, comma separated (remove any you don't want)"
+        required: true
+        default: "AusNet Services, CitiPower, Jemena, Powercor, United Energy"
+      pricing:
+        description: "Pricing"
+        type: choice
+        options: [tou, single, all]
+        default: tou
+      per_retailer:
+        description: "Newest plans per retailer per distributor (0: all)"
+        required: false
+        default: "3"
+
+permissions: {}
+
+jobs:
+  import:
+    name: Import VIC plans
+    permissions:
+      contents: write  # push the import branch
+      pull-requests: write  # open the pull request
+    # ./ not $/ (GitHub's newer form): actionlint doesn't accept $/ yet
+    uses: ./.github/workflows/import-plans.yaml  # zizmor: ignore[self-repository]
+    with:
+      state: VIC
+      dnsps: ${{ inputs.dnsps }}
+      customer: ${{ inputs.customer }}
+      pricing: ${{ inputs.pricing }}
+      per_retailer: ${{ inputs.per_retailer }}

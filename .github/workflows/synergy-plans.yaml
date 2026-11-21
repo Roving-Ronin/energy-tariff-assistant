@@ -1,4 +1,4 @@
-name: Synergy plans (WA)
+name: Import Plans - WA - Synergy
 
 # By hand: reads Synergy's four plan pages (price tables only) and its DEBS pricing schedule,
 # checks every rate label and stated time against what each plan expects, and opens a pull
