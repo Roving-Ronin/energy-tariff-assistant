@@ -96,6 +96,8 @@ class Report:
 
 # ----- the library ----------------------------------------------------------------
 
+MAX_WITHDRAWN = 5  # a run may end at most this many plans, or WITHDRAWN_SHARE of them, whichever is more
+WITHDRAWN_SHARE = 0.2
 PRICING_KEYS = ("timezone", "holidays", "seasons", "supply_charge", "import", "export", "demand", "controlled_load")
 VERSION = re.compile(r"^([A-Z0-9]*\d[A-Z]+)\d+$")  # code + number + letters (MRE) + version
 
@@ -324,6 +326,11 @@ def run(
     gone = [lp for lp in library if lp.path not in matched and (family(lp.plan["plan_id"]), lp.plan["dnsp"]) not in listed]
     if report.failed:
         gone = []  # part of the list is missing: don't end plans that might still be there
+    elif len(gone) > max(MAX_WITHDRAWN, WITHDRAWN_SHARE * len(library)):
+        # Far more than a real week's changes: an empty or partial list, not retailers withdrawing plans
+        report.failed.append(f"{len(gone)} of {len(library)} library plans looked withdrawn: too many to be real, "
+                             "so none were ended")
+        gone = []
     for old in gone:
         replacement = next((p for p in unmatched if all(
             p.get(k) == old.plan.get(k) for k in ("retailer", "plan", "dnsp", "customer_type"))), None)

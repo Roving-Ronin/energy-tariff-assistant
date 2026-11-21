@@ -259,3 +259,15 @@ def test_summary_lists_what_was_added(eme):
     text = run(eme).summary(["Essential Energy"], "residential", "tou")
     assert "**1** new plans, all `needs_review: true`" in text
     assert "| CovaU | Everyday Saver | Essential Energy | 2026-07-01 | COV10 |" in text
+
+
+def test_an_empty_list_doesnt_end_the_library(eme, library):
+    # EME answering with nothing (or a fraction) must not look like every retailer withdrawing every plan
+    for n in range(8):
+        offer(eme, f"COV{n}1@EME", name=f"Plan {n}")
+    run(eme, per_retailer=0)
+    assert len(plans_in(library)) == 8
+    eme.plans = []
+    report = run(eme, per_retailer=0, today=date(2026, 12, 5))
+    assert not report.withdrawn and "too many to be real" in report.failed[0]
+    assert all(p["effective_to"] is None for p in plans_in(library).values())

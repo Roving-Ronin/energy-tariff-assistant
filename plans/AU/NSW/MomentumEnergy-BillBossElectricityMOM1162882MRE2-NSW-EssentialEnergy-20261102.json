@@ -9,7 +9,7 @@
   "plan_id": "MOM1162882MRE2",
   "customer_type": "residential",
   "effective_from": "2026-11-02",
-  "effective_to": "2026-11-21",
+  "effective_to": null,
   "source": {
     "type": "EME",
     "url": "https://www.energymadeeasy.gov.au/",
@@ -109,5 +109,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan MOM1162882MRE2@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, RECONNECTION, CONNECTION. Not on Energy Made Easy any more (checked 2026-11-21)."
+  "notes": "Converted from Energy Made Easy (CDR) plan MOM1162882MRE2@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, RECONNECTION, CONNECTION."
 }

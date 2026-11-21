@@ -9,7 +9,7 @@
   "plan_id": "COV1117612MRE3",
   "customer_type": "residential",
   "effective_from": "2026-07-01",
-  "effective_to": "2026-11-21",
+  "effective_to": null,
   "source": {
     "type": "manual",
     "url": null,
@@ -31,32 +31,19 @@
         "name": "Off-peak",
         "rate": 0.165,
         "windows": [
-          {
-            "days": "all",
-            "start": "00:00",
-            "end": "06:00"
-          }
+          { "days": "all", "start": "00:00", "end": "06:00" }
         ]
       },
       {
         "id": "free",
         "name": "Free",
         "tiers": [
-          {
-            "up_to_kwh": 50,
-            "rate": 0.0
-          },
-          {
-            "use_period": "shoulder"
-          }
+          { "up_to_kwh": 50, "rate": 0.0 },
+          { "use_period": "shoulder" }
         ],
         "tier_reset": "day",
         "windows": [
-          {
-            "days": "all",
-            "start": "11:00",
-            "end": "14:00"
-          }
+          { "days": "all", "start": "11:00", "end": "14:00" }
         ]
       },
       {
@@ -64,11 +51,7 @@
         "name": "Peak",
         "rate": 0.45331,
         "windows": [
-          {
-            "days": "all",
-            "start": "15:00",
-            "end": "21:00"
-          }
+          { "days": "all", "start": "15:00", "end": "21:00" }
         ]
       },
       {
@@ -85,21 +68,12 @@
         "id": "super",
         "name": "Super FiT",
         "tiers": [
-          {
-            "up_to_kwh": 30,
-            "rate": 0.15
-          },
-          {
-            "use_period": "standard"
-          }
+          { "up_to_kwh": 30, "rate": 0.15 },
+          { "use_period": "standard" }
         ],
         "tier_reset": "day",
         "windows": [
-          {
-            "days": "all",
-            "start": "18:00",
-            "end": "21:00"
-          }
+          { "days": "all", "start": "18:00", "end": "21:00" }
         ]
       },
       {
@@ -113,5 +87,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from energy-manager-tariffs CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json. Checked 2026-11-21 against a customer's bill: supply charge 229.9990c/day (2.29999, not rounded), the 30 kWh Super FiT cap resets daily, public holidays are priced like any other day. Rates, times and caps match Energy Made Easy (COV1117612MRE3), with times in local time: CovaU bills on local time through daylight saving although its EME data says AEST. Not on Energy Made Easy any more (checked 2026-11-21)."
+  "notes": "Converted from energy-manager-tariffs CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json. Checked 2026-11-21 against a customer's bill: supply charge 229.9990c/day (2.29999, not rounded), the 30 kWh Super FiT cap resets daily, public holidays are priced like any other day. Rates, times and caps match Energy Made Easy (COV1117612MRE3), with times in local time: CovaU bills on local time through daylight saving although its EME data says AEST."
 }

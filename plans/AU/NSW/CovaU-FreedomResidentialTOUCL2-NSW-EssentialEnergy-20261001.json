@@ -9,7 +9,7 @@
   "plan_id": "COV1147466MRE2",
   "customer_type": "residential",
   "effective_from": "2026-10-01",
-  "effective_to": "2026-11-21",
+  "effective_to": null,
   "source": {
     "type": "EME",
     "url": "https://www.energymadeeasy.gov.au/",
@@ -81,5 +81,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan COV1147466MRE2@EME; charges include GST (CDR ex GST x1.1). Discount: Guaranteed Discount on total usages (guaranteed, percentOfUse 0.15). Incentive: Refer a Friend. Fees: CONNECTION, DISCONNECTION, RECONNECTION, DD_DISHONOUR. The plan data gives its times in AEST all year (an hour later on the clock in summer), but CovaU bills on local time, following daylight saving: that was used. Not on Energy Made Easy any more (checked 2026-11-21)."
+  "notes": "Converted from Energy Made Easy (CDR) plan COV1147466MRE2@EME; charges include GST (CDR ex GST x1.1). Discount: Guaranteed Discount on total usages (guaranteed, percentOfUse 0.15). Incentive: Refer a Friend. Fees: CONNECTION, DISCONNECTION, RECONNECTION, DD_DISHONOUR. The plan data gives its times in AEST all year (an hour later on the clock in summer), but CovaU bills on local time, following daylight saving: that was used."
 }

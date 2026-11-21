@@ -9,7 +9,7 @@
   "plan_id": "OVO723790MRE23",
   "customer_type": "residential",
   "effective_from": "2026-10-01",
-  "effective_to": "2026-11-21",
+  "effective_to": null,
   "source": {
     "type": "EME",
     "url": "https://www.energymadeeasy.gov.au/",
@@ -114,5 +114,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan OVO723790MRE23@EME; charges include GST (CDR ex GST x1.1). Incentive: EV Off-Peak. Fees: CONNECTION, DISCONNECTION, OTHER. Not on Energy Made Easy any more (checked 2026-11-21)."
+  "notes": "Converted from Energy Made Easy (CDR) plan OVO723790MRE23@EME; charges include GST (CDR ex GST x1.1). Incentive: EV Off-Peak. Fees: CONNECTION, DISCONNECTION, OTHER."
 }

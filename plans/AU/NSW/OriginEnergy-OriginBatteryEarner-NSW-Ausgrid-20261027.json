@@ -9,7 +9,7 @@
   "plan_id": "ORI1206293MRE1",
   "customer_type": "residential",
   "effective_from": "2026-10-27",
-  "effective_to": "2026-11-21",
+  "effective_to": null,
   "source": {
     "type": "EME",
     "url": "https://www.energymadeeasy.gov.au/",
@@ -104,5 +104,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan ORI1206293MRE1@EME; charges include GST (CDR ex GST x1.1). Fees: RECONNECTION, DISCONNECTION, LATE_PAYMENT, PAPER_BILL, DISCONNECT_NON_PAY. Not on Energy Made Easy any more (checked 2026-11-21)."
+  "notes": "Converted from Energy Made Easy (CDR) plan ORI1206293MRE1@EME; charges include GST (CDR ex GST x1.1). Fees: RECONNECTION, DISCONNECTION, LATE_PAYMENT, PAPER_BILL, DISCONNECT_NON_PAY."
 }
