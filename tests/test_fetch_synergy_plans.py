@@ -154,3 +154,15 @@ def test_a1_differing_from_the_government_page_is_a_warning(library):
     logged = []
     syn.run(lambda url: b"<p>A1: 30.0000 cents</p>" if url == syn.GOV_PRICES_URL else get(url), TODAY, log=logged.append)
     assert any("doesn't show A1 figure" in line for line in logged)
+
+
+def test_a_refused_download_is_a_clear_error_not_a_traceback(monkeypatch, capsys):
+    import urllib.error
+
+    def refuse(url):
+        raise urllib.error.HTTPError(url, 403, "Forbidden", {}, None)
+
+    monkeypatch.setattr(syn, "http_get", refuse)
+    monkeypatch.setattr(sys, "argv", ["fetch_synergy_plans.py", "--dry-run"])
+    assert syn.main() == 1
+    assert f"::error::{syn.DEBS_URL} answered HTTP 403 Forbidden: nothing was changed" in capsys.readouterr().out
