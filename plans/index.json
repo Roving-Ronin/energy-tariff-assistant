@@ -4,11 +4,11 @@
   "updated_at": "2026-11-20T10:58:49Z",
   "plans": [
     {
-      "file": "plans/AU/NSW/Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json",
+      "file": "plans/AU/NSW/CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json",
       "country": "AU",
       "region": "NSW",
       "dnsp": "Essential Energy",
-      "retailer": "Covau",
+      "retailer": "CovaU",
       "plan": "SolarMax Residential TOU",
       "plan_id": "COV1117612MRE3",
       "customer_type": "residential",
