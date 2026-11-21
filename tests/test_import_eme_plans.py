@@ -364,3 +364,22 @@ def test_summary_fits_a_pull_request():
     short = report.summary(["Ausgrid"], "residential", "tou", max_chars=imp.PR_BODY_MAX)
     assert len(full) > imp.PR_BODY_MAX >= len(short)
     assert "Not converted (3000)" in short and "more (the run's summary has the full list)" in short
+
+
+def test_feed_in_options_are_a_file_each_and_the_earlier_file_becomes_option_a(eme, library):
+    from test_importer_cdr import RED_OPTIONS
+
+    offer(eme, "COV7000001MRE1@EME", name="Saver Demand")
+    run(eme)
+    (earlier,) = plans_in(library)
+    detail = offer(eme, "COV7000001MRE1@EME", name="Saver Demand")
+    detail["data"]["electricityContract"]["solarFeedInTariff"] = copy.deepcopy(RED_OPTIONS)
+    report = run(eme)
+    files = plans_in(library)
+    assert files[earlier]["plan"] == "Saver Demand (FIT Option A)" and files[earlier]["feed_in_option"] == "A"
+    assert report.updated and [p["plan"] for p in report.written] == ["Saver Demand (FIT Option B)"]
+    option_b = next(name for name, p in files.items() if p.get("feed_in_option") == "B")
+    assert "SaverDemandFITOptionB" in option_b
+    # A second run finds both unchanged
+    report = run(eme, today=date(2026, 11, 28))
+    assert len(report.already) == 2 and not (report.written or report.updated or report.new_versions)

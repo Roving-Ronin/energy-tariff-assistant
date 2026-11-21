@@ -40,6 +40,8 @@ Rules:
   or the months in the text. kVA is counted as kW (note). Anything unclear ($0,
   cents or yearly figures, "greater of" rules, two month ranges, text and data
   disagreeing) skips the plan with the reason.
+- Feed-in options ("OPTION A: ...", "OPTION B: ..." in the entries' descriptions): one
+  plan per option, "(FIT Option A)" added to its name and `feed_in_option` set.
 - Time-of-use controlled load: left out with a note for now.
 - Discounts, incentives and fees are summarised in `notes`, not priced.
 
@@ -521,7 +523,8 @@ PER_DAY_TEXT = re.compile(r"(per|each|a)\s+day|/\s*day", re.IGNORECASE)
 
 
 def _export_periods(
-    contract: dict[str, Any], notes: list[str], customer: str, seasons: dict[str, list[int]]
+    contract: dict[str, Any], notes: list[str], customer: str, seasons: dict[str, list[int]],
+    option_names: bool = False,
 ) -> list[dict[str, Any]]:
     """Retailer feed-in, from every retailer feed-in entry.
 
@@ -535,10 +538,7 @@ def _export_periods(
     published rate; GST-registered businesses are, so business plans add it, as their bill shows.
     """
     gst = customer == "business"
-    feed_ins = [
-        f for f in contract.get("solarFeedInTariff") or []
-        if (f.get("payerType") or "").upper() == "RETAILER" and (f.get("scheme") or "").upper() != "PREMIUM"
-    ]
+    feed_ins = [f for f in contract.get("solarFeedInTariff") or [] if _is_retailer_feed_in(f)]
     if not feed_ins:
         notes.append("No retailer feed-in tariff in the plan data: feed-in set to 0.")
         return [{"id": "feed_in", "name": "Feed-in", "rate": 0.0, "default": True}]
@@ -547,10 +547,12 @@ def _export_periods(
     for fit in feed_ins:
         months = _entry_months(fit)
         text = f"{fit.get('displayName') or ''} {fit.get('description') or ''}"
+        # A feed-in option names each rate in its description ("Smart FiT"); its entries share a display name
+        own_name = option_rate_name(fit) if option_names else None
         if fit.get("tariffUType") == "singleTariff":
             single = fit.get("singleTariff") or {}
             pieces.append(_FeedInPiece(months, None, single.get("rates") or [], single.get("period"),
-                                       fit.get("displayName") or "Feed-in", text))
+                                       own_name or fit.get("displayName") or "Feed-in", text))
             continue
         variations = fit.get("timeVaryingTariffs") or []
         if not variations:
@@ -561,7 +563,7 @@ def _export_periods(
                 days, _ = _days(slot.get("days"))
                 windows.append(_window(days, slot.get("startTime"), slot.get("endTime"), None))
             type_name = NAME_BY_TYPE.get(variation.get("type"))
-            name = rate_name(variation.get("displayName"), type_name or "Feed-in")
+            name = own_name or rate_name(variation.get("displayName"), type_name or "Feed-in")
             pieces.append(_FeedInPiece(months, windows or None, variation.get("rates") or [],
                                        variation.get("period"), name, text, type_name))
 
@@ -1015,6 +1017,49 @@ def _demand_charges(
     return merged
 
 
+# ----- feed-in options --------------------------------------------------------
+# Some retailers offer a choice of feed-in (Red Energy: "OPTION A: Red Energy FIT", "OPTION B: Surplus FiT
+# (First 7.5 kWh/day) ..."): the customer signs up for one. Each option becomes its own plan.
+
+_OPTION = re.compile(r"^\s*option\s+([a-z0-9]{1,2})\s*[:\-–]\s*(.*)$", re.IGNORECASE)
+_OPTION_NAME_END = re.compile(r"\s+-\s+gst\b.*$|\s*:\s.*$", re.IGNORECASE)
+_CAP_WORDS = re.compile(r"\s*\((?:first|balance|remainder|rest)\b[^)]*\)", re.IGNORECASE)
+
+
+def _is_retailer_feed_in(fit: dict[str, Any]) -> bool:
+    return (fit.get("payerType") or "").upper() == "RETAILER" and (fit.get("scheme") or "").upper() != "PREMIUM"
+
+
+def feed_in_options(contract: dict[str, Any]) -> dict[str, list[dict[str, Any]]] | None:
+    """Retailer feed-in entries by option label ("A", "B"), or None when the plan offers no options.
+
+    Raises CdrImportError when some entries are labelled and others aren't (which option would they be in?).
+    """
+    entries = [f for f in contract.get("solarFeedInTariff") or [] if _is_retailer_feed_in(f)]
+    labels = [_OPTION.match(f.get("description") or "") or _OPTION.match(f.get("displayName") or "")
+              for f in entries]
+    if not any(labels):
+        return None
+    if not all(labels):
+        raise CdrImportError("some feed-in entries are labelled as options and some aren't")
+    options: dict[str, list[dict[str, Any]]] = {}
+    for fit, match in zip(entries, labels, strict=True):
+        if match is not None:
+            options.setdefault(match.group(1).upper(), []).append(fit)
+    if len(options) < 2:
+        raise CdrImportError(f"feed-in is labelled option {next(iter(options))} but there's no other option")
+    return dict(sorted(options.items()))
+
+
+def option_rate_name(fit: dict[str, Any]) -> str | None:
+    """'Surplus FiT' from 'OPTION B: Surplus FiT (First 7.5 kWh/day) - GST included if any: 10am to 3pm'."""
+    match = _OPTION.match(fit.get("description") or "")
+    if not match:
+        return None
+    name = _CAP_WORDS.sub("", _OPTION_NAME_END.sub("", match.group(2))).strip()
+    return name or None
+
+
 def convert(detail: dict[str, Any], today: date) -> Conversion:
     """Convert one CDR plan detail into ha_tariff_plan dicts (one per known distributor)."""
     data = detail.get("data", detail) if isinstance(detail, dict) else None
@@ -1037,18 +1082,44 @@ def convert(detail: dict[str, Any], today: date) -> Conversion:
         return out
 
     try:
-        built = _build(data, contract, today, out.notes)
+        options = feed_in_options(contract)
+        if options is None:
+            builds = [(None, _build(data, contract, today, out.notes))]
+        else:
+            builds = []
+            for option, entries in options.items():
+                others = [f for f in contract.get("solarFeedInTariff") or [] if not _is_retailer_feed_in(f)]
+                option_notes: list[str] = []
+                plan = _build(data, {**contract, "solarFeedInTariff": others + entries}, today, option_notes,
+                              option_names=True)
+                out.notes += [n for n in option_notes if n not in out.notes]
+                plan["plan"] = f"{plan['plan']} (FIT Option {option})"
+                plan["feed_in_option"] = option
+                plan["notes"] = (f"{plan['notes']} Energy Made Easy offers a choice of feed-in "
+                                 f"(options {', '.join(options)}): this is option {option}.")
+                builds.append((option, plan))
     except CdrImportError as err:
         out.skipped.append(f"{label}: {err}")
         return out
 
+    for option, built in builds:
+        _per_distributor(out, data, built, option)
+    if not out.plans and not out.skipped:
+        out.skipped.append(f"{label}: no distributors")
+    return out
+
+
+def _per_distributor(out: Conversion, data: dict[str, Any], built: dict[str, Any], option: str | None) -> None:
+    """One plan per known distributor in the plan's geography."""
+    label = f"{data.get('brandName')} {data.get('displayName')} ({data['planId']})"
     for raw in (data.get("geography") or {}).get("distributors") or []:
         mapped = map_distributor(raw)
         if mapped is None:
-            out.skipped.append(f"{label}: unknown distributor {raw!r}")
+            if (reason := f"{label}: unknown distributor {raw!r}") not in out.skipped:
+                out.skipped.append(reason)
             continue
         dnsp, state = mapped
-        if any(p["dnsp"] == dnsp for p in out.plans):
+        if any(p["dnsp"] == dnsp and p.get("feed_in_option") == option for p in out.plans):
             continue  # several CDR distributor names for one network ("Essential Energy", "... Far West")
         plan = dict(built)
         plan["region"] = state
@@ -1059,12 +1130,11 @@ def convert(detail: dict[str, Any], today: date) -> Conversion:
             if note not in out.notes:
                 out.notes.append(note)
         out.plans.append(_ordered(plan))
-    if not out.plans and not out.skipped:
-        out.skipped.append(f"{label}: no distributors")
-    return out
 
 
-def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: list[str]) -> dict[str, Any]:
+def _build(
+    data: dict[str, Any], contract: dict[str, Any], today: date, notes: list[str], option_names: bool = False
+) -> dict[str, Any]:
     """Everything but region, DNSP and timezone (set per distributor from `_clock`)."""
     tariffs = contract.get("tariffPeriod") or []
     usage = [t for t in tariffs if t.get("rateBlockUType") in ("singleRate", "timeOfUseRates")]
@@ -1115,7 +1185,8 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
 
     holiday_rates: set[str] = set()
     import_periods = _import_periods(usage, season_names, holiday_rates, seasons)
-    export_periods = _export_periods(contract, notes, (data.get("customerType") or "").lower(), seasons)
+    export_periods = _export_periods(contract, notes, (data.get("customerType") or "").lower(), seasons,
+                                     option_names)
     controlled = _controlled_loads(contract, notes)
     if holiday_rates:
         notes.append(
@@ -1164,7 +1235,7 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
 
 TOP_ORDER = (
     "format", "version", "country", "region", "dnsp", "retailer", "plan", "plan_id", "customer_type",
-    "effective_from", "effective_to", "source", "currency", "timezone", "holidays", "seasons",
+    "feed_in_option", "effective_from", "effective_to", "source", "currency", "timezone", "holidays", "seasons",
     "supply_charge", "import", "export", "demand", "controlled_load", "needs_review", "notes",
 )
 

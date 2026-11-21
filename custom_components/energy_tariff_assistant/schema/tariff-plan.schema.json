@@ -20,6 +20,11 @@
     "plan": { "type": "string", "minLength": 1 },
     "plan_id": { "type": ["string", "null"] },
     "customer_type": { "enum": ["residential", "business", null] },
+    "feed_in_option": {
+      "type": "string",
+      "pattern": "^[A-Z0-9]{1,2}$",
+      "description": "Which of the retailer's feed-in options this plan is (\"A\", \"B\"), when the customer chooses one; the plan's identity is plan_id + dnsp + feed_in_option"
+    },
     "effective_from": { "$ref": "#/$defs/date" },
     "effective_to": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
     "source": {

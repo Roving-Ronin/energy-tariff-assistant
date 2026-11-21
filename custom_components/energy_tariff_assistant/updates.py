@@ -42,6 +42,7 @@ def candidates(index: list[dict[str, Any]], plan: dict[str, Any], today: str) ->
         e for e in index
         if e.get("dnsp") == plan.get("dnsp")
         and family(e.get("plan_id")) == fam
+        and e.get("feed_in_option") == plan.get("feed_in_option")  # a feed-in option is a plan of its own
         and (not e.get("effective_to") or e["effective_to"] >= today)
     ]
     return sorted(found, key=lambda e: str(e.get("effective_from") or ""), reverse=True)

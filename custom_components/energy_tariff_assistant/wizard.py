@@ -317,4 +317,10 @@ def entity_slug(plan: dict[str, Any]) -> str:
         return re.sub(r"[^a-z0-9]", "", text.lower())
 
     retailer = compact(str(plan.get("retailer") or "")) or "plan"
-    return f"eta_{retailer}_{compact(short_plan_name(plan))[:32] or 'plan'}"
+    name = compact(short_plan_name(plan))
+    if option := compact(str(plan.get("feed_in_option") or "")):
+        # Options of one plan differ only at the end of the name: keep that part
+        suffix = f"fit{option}"
+        name = compact(re.sub(r"\(\s*fit\s+option\s+\w+\s*\)", "", short_plan_name(plan), flags=re.IGNORECASE))
+        return f"eta_{retailer}_{name[:32 - len(suffix)]}{suffix}"
+    return f"eta_{retailer}_{name[:32] or 'plan'}"

@@ -235,3 +235,11 @@ def test_plan_names_in_home_assistant(retailer, plan, name, slug):
     entry = {"retailer": retailer, "plan": plan}
     assert wizard.display_name(entry) == name
     assert wizard.entity_slug(entry) == slug
+
+
+def test_feed_in_options_get_their_own_entity_ids():
+    a = {"retailer": "Red Energy", "plan": "Qantas Red Saver (Bundled)(Demand) (FIT Option A)", "feed_in_option": "A"}
+    b = {**a, "plan": "Qantas Red Saver (Bundled)(Demand) (FIT Option B)", "feed_in_option": "B"}
+    assert wizard.entity_slug(a) == "eta_redenergy_qantasredsaverbundleddemandfita"
+    assert wizard.entity_slug(b) == "eta_redenergy_qantasredsaverbundleddemandfitb"
+    assert wizard.display_name(b) == "Red Energy - Qantas Red Saver (Bundled)(Demand) (FIT Option B)"
