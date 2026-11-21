@@ -224,6 +224,12 @@ def for_customer(entries: list[dict[str, Any]], customer_type: str) -> list[dict
     return [e for e in entries if e.get("customer_type") in (None, "", customer_type)]
 
 
+def current(entries: list[dict[str, Any]], today: str) -> list[dict[str, Any]]:
+    """Entries that haven't ended (`effective_to` today or later, or none): ended versions and plans
+    withdrawn from Energy Made Easy stay in the library but aren't offered. `today` is an ISO date."""
+    return [e for e in entries if not e.get("effective_to") or str(e["effective_to"]) >= today]
+
+
 def filter_entries(entries: list[dict[str, Any]], **criteria: str) -> list[dict[str, Any]]:
     """Index entries matching every given field (dnsp "" matches entries without one)."""
     return [e for e in entries if all(str(e.get(k) or "") == v for k, v in criteria.items())]

@@ -170,12 +170,21 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   together. Its **Report a problem** link uses the same form field ids as `share.py`. Only the library goes on
   the site: never raw CDR data or unchecked conversions.
 - **Import plans** (manual workflow, `scripts/import_eme_plans.py`): converts Energy Made Easy plans for chosen
-  DNSPs, customer type and pricing (newest `--per-retailer` per retailer per DNSP), validates them, writes the ones
-  that pass (`needs_review: true`, plan ID without `@EME`) and opens a PR with the summary. **Never touches a plan
-  already in the library** (same plan ID + DNSP): reviewed plans keep their period ids, and people's meters. The
-  repo needs "Allow GitHub Actions to create and approve pull requests"; checks on a PR the bot opens need
-  **Approve and run workflows** (GitHub, since 2026-06; not settable for the bot). Retailer names come from the CDR `brandName` (`CovaU`, while the
-  hand-made library plan says `Covau`).
+  DNSPs, customer type and pricing, validates them and opens a PR with the summary. **EME lists only current plans
+  and keeps no history** (checked 2026-11-21: 17,657 plans, none ended or future, one version per family), so
+  changes are found by comparing each run with the library, in three phases (convert everything listed for those
+  DNSPs, library plans included; reconcile; write). Family = plan ID without its version (`COV1117612MRE3` →
+  `COV1117612MRE`, `family()`; Victorian `@VEC` IDs have no version). Same ID + same pricing: nothing. Same ID,
+  new content: updated in place, or a new file when its effective date is later. New version of a family: new
+  file. A library plan no longer listed: ended (`effective_to` = run date, note), never deleted; none are ended if
+  any list couldn't be read. A new ID with the same retailer, name, DNSP and customer type as one that went: its
+  replacement. New files end the old one the day before and **keep its period ids** (`keep_ids`: same name, else
+  same times; tier `use_period` follows), so meters carry on. **Reviewed plans** (`needs_review: false`) **and
+  plans not made by the importer** (source not `EME`, e.g. the hand-made CovaU plan) are never changed: their
+  differences are listed in the PR. `--per-retailer` limits new plans only. HA's library steps and the plan
+  browser offer only plans that haven't ended (`wizard.current`). The repo needs "Allow GitHub Actions to create
+  and approve pull requests"; checks on a PR the bot opens need **Approve and run workflows** (GitHub, since
+  2026-06; not settable for the bot). Retailer names come from the CDR `brandName`.
 - **Synergy plans (WA)** (by-hand workflow, `scripts/fetch_synergy_plans.py`): WA isn't on EME. **synergy.net.au
   answers GitHub's runners with HTTP 403 whatever the headers** (Fetch check, 2026-11-21), so it isn't scheduled:
   run it from home, or `--from <folder>` with the plan pages saved as `.mhtml` (their URL is inside) and the DEBS

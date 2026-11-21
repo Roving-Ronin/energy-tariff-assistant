@@ -204,3 +204,9 @@ def test_write_plan_file_never_overwrites(tmp_path):
     assert first == "energy_tariff_assistant/plans/A-B-NSW-X-20260701.json"
     assert second == "energy_tariff_assistant/plans/A-B-NSW-X-20260701-2.json"
     assert json.loads((tmp_path / first).read_text())["a"] == 1
+
+
+def test_current_hides_ended_plans():
+    entries = [{"plan": "a"}, {"plan": "b", "effective_to": "2026-11-20"}, {"plan": "c", "effective_to": "2026-11-21"},
+               {"plan": "d", "effective_to": None}]
+    assert [e["plan"] for e in wizard.current(entries, "2026-11-21")] == ["a", "c", "d"]
