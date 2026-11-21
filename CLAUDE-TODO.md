@@ -31,6 +31,34 @@ NSW 7,032 res / 4,719 bus, VIC 3,430 / 2,466, QLD 1,448 / 953, SA 604 / 430, ACT
 Open: approve-and-merge each import PR by hand, or auto-merge after checks pass. WA: Synergy and Horizon Power scrapers built
 (2026-11-21); NT later.
 
+### Location → postcode → distributor, retailers and plans (design 2026-11-21, with step 2 above)
+Suggest the user's distributor and plans from Home Assistant's Home zone, **as a suggestion they confirm**.
+- **Offline only:** HA's home latitude/longitude → nearest postcode centre from a small shipped table (~3,000
+  postcodes, tens of KB). No reverse-geocoding service; the location never leaves HA (not to GitHub either).
+- **Postcode → distributor(s) and retailers** from a derived table built from Energy Made Easy plan geography
+  (distributors, included/excluded postcodes): facts only, like `retailers.json`. One distributor: preselect it
+  and the state. Two (boundary postcodes, e.g. Ausgrid/Endeavour): offer just those. Retailers and plans: only
+  those sold there; plans that exclude the postcode are hidden.
+- **Postcode first digit** narrows to a state as a sanity check and fallback: 0 NT (08xx-09xx) / ACT (02xx);
+  1-2 NSW, except **ACT 2600-2618 and 2900-2920**; 3/8 VIC; 4/9 QLD; 5 SA; 6 WA; 7 TAS. Jervis Bay 2540 is an
+  oddity; border towns follow their own state (Queanbeyan 2620 NSW, Albury 2640 NSW). 1xxx is PO boxes / large
+  receivers, never a supply address: ask the user to check. A postcode that doesn't fit HA's state/time zone means
+  the location guess is wrong: just ask for the postcode.
+- **Why only a suggestion:** nearest-centre can pick a neighbouring postcode near an edge; the Home zone may never
+  have been set (defaults elsewhere); network boundary files are partial and caveated (Ausgrid's Data.NSW area:
+  not for "legal service boundaries"), and there's no single national DNSP-boundary dataset. Setup says "you look
+  to be in 2580 (Essential Energy), is that right?" with the postcode editable; the bill names the distributor.
+- **First task:** check how many EME plans fill in `includedPostcodes` / `excludedPostcodes` (diagnostic run on
+  GitHub). If coverage is poor, the table needs distributor boundaries instead.
+
+### WA scrapers: first live run blocked (2026-11-21)
+Synergy plans (WA): synergy.net.au answered the DEBS PDF with **HTTP 403** from GitHub's runners (nothing
+written). Horizon Power not tried yet. Next: a diagnostic run logging status codes for the DEBS PDF, a plan page
+and Horizon's page with (1) the current headers, (2) the honest User-Agent + browser Accept/Accept-Language,
+(3) a browser User-Agent (only with the maintainer's OK). All 403 = GitHub's addresses blocked: run the scrapers
+elsewhere (maintainer's machine on a schedule, or from HA on a home connection). Also: catch HTTP errors so the
+run prints `::error::` with the address and status, not a traceback.
+
 ### Validating plans (design agreed 2026-11-21, after the importer)
 Statuses, shown as badges in the plan browser (and later in HA's library steps): **not checked** → **matches
 Energy Made Easy** (or **differs from EME**) → **confirmed by N customers**. **Never one issue per plan**: the
