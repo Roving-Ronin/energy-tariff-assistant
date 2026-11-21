@@ -284,7 +284,7 @@ function renderList(params) {
   const customer = params.has("customer") ? pick("customer") : "residential";
   const filters = {
     customer, region: pick("state"), dnsp: pick("dnsp"), retailer: pick("retailer"),
-    q: pick("q").toLowerCase(), problems: params.get("problems") === "1", all: params.get("all") === "1",
+    q: pick("q").toLowerCase(), confirmed: params.get("confirmed") === "1", all: params.get("all") === "1",
   };
   const sort = pick("sort") || "-effective_from";
 
@@ -294,7 +294,7 @@ function renderList(params) {
     (skip === "dnsp" || !filters.dnsp || entry.dnsp === filters.dnsp) &&
     (skip === "retailer" || !filters.retailer || entry.retailer === filters.retailer) &&
     (!filters.q || [entry.retailer, entry.plan, entry.plan_id, entry.dnsp, entry.file].join(" ").toLowerCase().includes(filters.q)) &&
-    (!filters.problems || entry.errors.length || entry.warnings.length || entry.needs_review) &&
+    (!filters.confirmed || !entry.needs_review) &&
     (filters.all || status(entry) !== "expired");
 
   const optionsFor = (key, skip) => [...new Set(plans.filter((e) => matches(e, skip)).map((e) => e[key]).filter(Boolean))].sort();
@@ -340,7 +340,7 @@ function renderList(params) {
           type: "search", value: pick("q"), placeholder: "Plan name, plan ID…",
           oninput: (e) => { clearTimeout(searchTimer); const v = e.target.value; searchTimer = setTimeout(() => update("q", v), 250); },
         })),
-      h("label", { class: "check" }, h("input", { type: "checkbox", checked: filters.problems, onchange: (e) => update("problems", e.target.checked ? "1" : "") }), "Only plans to check"),
+      h("label", { class: "check" }, h("input", { type: "checkbox", checked: filters.confirmed, onchange: (e) => update("confirmed", e.target.checked ? "1" : "") }), "Confirmed plans only"),
       h("label", { class: "check" }, h("input", { type: "checkbox", checked: filters.all, onchange: (e) => update("all", e.target.checked ? "1" : "") }), "Include expired"),
     ),
   );
@@ -348,6 +348,7 @@ function renderList(params) {
   if (!rows.length) {
     view.append(h("div", { class: "card" },
       h("p", {}, "No library plans match these filters yet."),
+      filters.confirmed ? h("p", {}, "Plans show as Confirmed once 2 people on them have pressed Confirm this plan. Untick Confirmed plans only to see the rest.") : null,
       h("p", {}, "You can build your plan step by step in Home Assistant and share it, or ",
         h("a", { href: `${ISSUE_FORM}?template=plan_submission.yml` }, "submit it here"), ".")));
   } else {
