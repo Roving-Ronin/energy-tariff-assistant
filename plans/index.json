@@ -1,7 +1,7 @@
 {
   "format": "ha_tariff_index",
   "version": 1,
-  "updated_at": "2026-11-21T06:50:35Z",
+  "updated_at": "2026-11-21T07:03:28Z",
   "plans": [
     {
       "file": "plans/AU/NSW/1stEnergy-1stEmeraldTimeofUse-NSW-Ausgrid-20261026.json",
@@ -3990,6 +3990,58 @@
       "plan": "K2 Combined Use",
       "plan_id": "K2",
       "customer_type": "business",
+      "effective_from": "2026-07-01",
+      "effective_to": null,
+      "source_checked": "2026-11-21"
+    },
+    {
+      "file": "plans/AU/WA/Synergy-EVAddOn-WA-WesternPower-20260701.json",
+      "country": "AU",
+      "region": "WA",
+      "dnsp": "Western Power",
+      "retailer": "Synergy",
+      "plan": "EV Add On",
+      "plan_id": null,
+      "customer_type": "residential",
+      "effective_from": "2026-07-01",
+      "effective_to": null,
+      "source_checked": "2026-11-21"
+    },
+    {
+      "file": "plans/AU/WA/Synergy-HomeBusinessPlanK1-WA-WesternPower-20260701.json",
+      "country": "AU",
+      "region": "WA",
+      "dnsp": "Western Power",
+      "retailer": "Synergy",
+      "plan": "Home Business Plan (K1)",
+      "plan_id": "K1",
+      "customer_type": "business",
+      "effective_from": "2026-07-01",
+      "effective_to": null,
+      "source_checked": "2026-11-21"
+    },
+    {
+      "file": "plans/AU/WA/Synergy-HomePlanA1-WA-WesternPower-20260701.json",
+      "country": "AU",
+      "region": "WA",
+      "dnsp": "Western Power",
+      "retailer": "Synergy",
+      "plan": "Home Plan (A1)",
+      "plan_id": "A1",
+      "customer_type": "residential",
+      "effective_from": "2026-07-01",
+      "effective_to": null,
+      "source_checked": "2026-11-21"
+    },
+    {
+      "file": "plans/AU/WA/Synergy-MiddaySaver-WA-WesternPower-20260701.json",
+      "country": "AU",
+      "region": "WA",
+      "dnsp": "Western Power",
+      "retailer": "Synergy",
+      "plan": "Midday Saver",
+      "plan_id": null,
+      "customer_type": "residential",
       "effective_from": "2026-07-01",
       "effective_to": null,
       "source_checked": "2026-11-21"
