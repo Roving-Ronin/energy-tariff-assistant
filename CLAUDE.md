@@ -230,7 +230,7 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
 - **Import plans** (manual workflows `Import Plans - NSW`/`QLD`/`VIC`/`SA`/`ACT`/`TAS`, each a small caller with its
   state's distributors pre-filled and a Residential/Business choice, run titled "Import Plans - NSW Residential";
   the work is in the shared `import-plans.yaml` (`workflow_call`, one import at a time); `scripts/import_eme_plans.py`): converts Energy Made Easy plans for chosen
-  DNSPs, customer type and pricing, validates them and opens a PR with the summary. **EME lists only current plans
+  DNSPs, customer type and pricing, validates them, opens a PR with the summary and, by default (`auto_merge`, maintainer 2026-11-22), runs the PR's checks itself (plan validation, index, plan browser build, pytest) and merges it, then starts the Pages workflow by name: checks on a bot-opened PR wait for "Approve and run workflows", so GitHub's auto-merge can't be used. **EME lists only current plans
   and keeps no history** (checked 2026-11-21: 17,657 plans, none ended or future, one version per family), so
   changes are found by comparing each run with the library, in three phases (convert everything listed for those
   DNSPs, library plans included; reconcile; write). Family = plan ID without its version (`COV1117612MRE3` →

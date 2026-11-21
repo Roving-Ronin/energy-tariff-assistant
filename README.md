@@ -265,8 +265,10 @@ request adding the ones that pass, each marked `needs_review: true`. Run again l
 current: new prices or a new version of a plan get a new file (the previous one ends the day before, and the
 plan's period names are kept so meters carry on), and plans no longer on Energy Made Easy are ended rather than
 deleted. Reviewed and hand-made plans are never changed; any differences are listed in the pull request.
-It needs **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**. GitHub asks
-before running checks on a pull request opened by the bot: click **Approve and run workflows** on it.
+It needs **Settings → Actions → General → Allow GitHub Actions to create and approve pull requests**. The run
+checks the import itself (plan validation, index, plan browser, tests) and merges its pull request when they pass;
+untick **Merge the pull request once the checks pass** to review it first (GitHub then asks you to **Approve and run
+workflows** before the pull request's own checks run).
 
 ### Synergy plans (WA)
 

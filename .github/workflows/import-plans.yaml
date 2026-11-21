@@ -3,6 +3,9 @@ name: Import Plans (shared)
 # Called by the per-state workflows (Import Plans - NSW, - QLD...): converts Energy Made Easy (CDR) plans for the
 # distributors given, validates them and opens a pull request adding the ones that pass to the library, all
 # `needs_review: true`. Plans already in the library (same plan ID and distributor) are compared, not re-added.
+# The job runs the checks a pull request would (plan validation, index, plan browser build, tests) and, with
+# auto_merge (the default, maintainer 2026-11-22), merges its own pull request when they pass: checks on a PR the
+# bot opens don't start without "Approve and run workflows", so GitHub's own auto-merge would wait forever.
 # Needs Settings -> Actions -> General -> "Allow GitHub Actions to create and approve pull requests".
 # Checks on the pull request start after "Approve and run workflows" (GitHub asks for bot-opened PRs).
 on:
@@ -27,6 +30,11 @@ on:
         type: string
         required: false
         default: "3"
+      auto_merge:
+        description: "Merge the pull request once the import's checks pass"
+        type: boolean
+        required: false
+        default: true
 
 permissions: {}
 
@@ -39,7 +47,8 @@ jobs:
       cancel-in-progress: false
     permissions:
       contents: write  # push the import branch
-      pull-requests: write  # open the pull request
+      pull-requests: write  # open (and merge) the pull request
+      actions: write  # rebuild the plan browser after a merge
     steps:
       - name: Check out the default branch
         # zizmor: ignore[artipacked] this job pushes the import branch, so it keeps the token
@@ -76,6 +85,12 @@ jobs:
           python scripts/validate_plans.py
           python scripts/build_index.py
 
+      - name: Check the import (what a pull request's checks run)
+        run: |
+          python scripts/build_index.py --check
+          python scripts/build_site.py --out "$RUNNER_TEMP/site"
+          python -m pytest -q
+
       - name: Open a pull request
         env:
           GH_TOKEN: ${{ github.token }}
@@ -83,6 +98,7 @@ jobs:
           DNSPS: ${{ inputs.dnsps }}
           CUSTOMER: ${{ inputs.customer }}
           STATE: ${{ inputs.state }}
+          AUTO_MERGE: ${{ inputs.auto_merge }}
           RUN_ID: ${{ github.run_id }}
         run: |
           if [ -z "$(git status --porcelain -- plans)" ]; then
@@ -99,3 +115,9 @@ jobs:
           gh pr create --base "$DEFAULT_BRANCH" --head "$branch" \
             --title "Plans: import $STATE $CUSTOMER from Energy Made Easy ($DNSPS)" \
             --body-file "$RUNNER_TEMP/summary.md"
+          if [ "$AUTO_MERGE" = "true" ]; then
+            # The checks passed in the step before: merge, then ask for the plan browser by name
+            # (a merge with the workflow token doesn't start other workflows)
+            gh pr merge "$branch" --merge --delete-branch
+            gh workflow run pages.yaml --ref "$DEFAULT_BRANCH"
+          fi

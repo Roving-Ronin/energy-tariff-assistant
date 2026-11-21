@@ -24,6 +24,10 @@ on:
         description: "Newest plans per retailer per distributor (0: all)"
         required: false
         default: "3"
+      auto_merge:
+        description: "Merge the pull request once the checks pass"
+        type: boolean
+        default: true
 
 permissions: {}
 
@@ -32,7 +36,8 @@ jobs:
     name: Import TAS plans
     permissions:
       contents: write  # push the import branch
-      pull-requests: write  # open the pull request
+      pull-requests: write  # open (and merge) the pull request
+      actions: write  # rebuild the plan browser after a merge
     # ./ not $/ (GitHub's newer form): actionlint doesn't accept $/ yet
     uses: ./.github/workflows/import-plans.yaml  # zizmor: ignore[self-repository]
     with:
@@ -41,3 +46,4 @@ jobs:
       customer: ${{ inputs.customer }}
       pricing: ${{ inputs.pricing }}
       per_retailer: ${{ inputs.per_retailer }}
+      auto_merge: ${{ inputs.auto_merge }}
