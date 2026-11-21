@@ -1,0 +1,201 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Momentum Energy",
+  "plan": "Bill Boss Electricity",
+  "plan_id": "MOM1162848MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-11-02",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "time_of_use_tariff_period": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "time_of_use_tariff_period_2": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.9899,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_time_of_use_tariff_period",
+        "name": "Peak",
+        "rate": 0.4653,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "time_of_use_tariff_period"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period",
+        "name": "Off-Peak",
+        "rate": 0.1232,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "10:00",
+            "end": "14:00",
+            "seasons": [
+              "time_of_use_tariff_period"
+            ]
+          },
+          {
+            "days": "weekends",
+            "start": "10:00",
+            "end": "14:00",
+            "seasons": [
+              "time_of_use_tariff_period"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period_2",
+        "name": "Off-Peak",
+        "rate": 0.1232,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_time_of_use_tariff_period_2",
+        "name": "Peak",
+        "rate": 0.4719,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_time_of_use_tariff_period_2",
+        "name": "Shoulder",
+        "rate": 0.3564,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "00:00",
+            "end": "10:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "14:00",
+            "end": "16:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          },
+          {
+            "days": "weekends",
+            "start": "14:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          },
+          {
+            "days": "weekends",
+            "start": "00:00",
+            "end": "10:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_time_of_use_tariff_period",
+        "name": "Shoulder",
+        "rate": 0.3564,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "single_rate_solar_fit",
+        "name": "Single Rate Solar FiT",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 2",
+          "rate": 0.2211,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan MOM1162848MRE2@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, RECONNECTION, CONNECTION."
+}

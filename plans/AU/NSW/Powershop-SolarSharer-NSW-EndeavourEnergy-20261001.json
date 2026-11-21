@@ -1,0 +1,223 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Powershop",
+  "plan": "Solar Sharer",
+  "plan_id": "PSH1060196MRE4",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "summer": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "winter": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.79635,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_summer",
+        "name": "Peak",
+        "rate": 0.487482,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "summer"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_summer",
+        "name": "Shoulder",
+        "rate": 0.141868,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "11:00",
+            "seasons": [
+              "summer"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "super_off_peak_summer",
+        "name": "Super Off Peak",
+        "rate": 0.0,
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "14:00",
+            "seasons": [
+              "summer"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_winter",
+        "name": "Peak",
+        "rate": 0.487482,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_winter",
+        "name": "Shoulder",
+        "rate": 0.141868,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "11:00",
+            "seasons": [
+              "winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_winter",
+        "name": "Off Peak",
+        "rate": 0.375299,
+        "windows": [
+          {
+            "days": "all",
+            "start": "20:00",
+            "end": "24:00",
+            "seasons": [
+              "winter"
+            ]
+          },
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "10:00",
+            "seasons": [
+              "winter"
+            ]
+          },
+          {
+            "days": "all",
+            "start": "14:00",
+            "end": "16:00",
+            "seasons": [
+              "winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "super_off_peak_winter",
+        "name": "Super Off Peak",
+        "rate": 0.0,
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "14:00",
+            "seasons": [
+              "winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_summer",
+        "name": "Off Peak",
+        "rate": 0.375299,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "voluntary_fit",
+        "name": "Voluntary FIT",
+        "rate": 0.01,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "single_rate_controlled_load",
+      "name": "Single Rate Controlled Load",
+      "supply_charge": {
+        "rate": 0.138928,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Single Rate Controlled Load",
+          "rate": 0.206437,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "single_rate_controlled_load_2",
+      "name": "Single Rate Controlled Load",
+      "supply_charge": {
+        "rate": 0.138928,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Single Rate Controlled Load",
+          "rate": 0.22086,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan PSH1060196MRE4@EME; charges include GST (CDR ex GST x1.1). Fees: OTHER, DISCONNECTION, DISCONNECTION, CONNECTION, CONNECTION, OTHER, OTHER."
+}

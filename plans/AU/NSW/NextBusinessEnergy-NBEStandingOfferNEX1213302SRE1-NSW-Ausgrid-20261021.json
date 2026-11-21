@@ -1,0 +1,308 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Next Business Energy",
+  "plan": "NBE Standing Offer",
+  "plan_id": "NEX1213302SRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-21",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "low_season_peak": [
+      4,
+      5
+    ],
+    "high_season_peak": [
+      6,
+      7,
+      8
+    ],
+    "low_season_peak_2": [
+      9,
+      10
+    ],
+    "high_season_peak_2": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.8095,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "low_season_peak_low_season_peak",
+        "name": "Low Season Peak",
+        "rate": 0.24035,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "14:00",
+            "end": "20:00",
+            "seasons": [
+              "low_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_low_season_peak",
+        "name": "Shoulder",
+        "rate": 0.24035,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "14:00",
+            "seasons": [
+              "low_season_peak"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "22:00",
+            "seasons": [
+              "low_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "high_season_peak_high_season_peak",
+        "name": "High Season Peak",
+        "rate": 0.60192,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "14:00",
+            "end": "20:00",
+            "seasons": [
+              "high_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_high_season_peak",
+        "name": "Off Peak",
+        "rate": 0.24035,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "22:00",
+            "end": "07:00",
+            "seasons": [
+              "high_season_peak"
+            ]
+          },
+          {
+            "days": "weekends",
+            "all_day": true,
+            "seasons": [
+              "high_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_high_season_peak",
+        "name": "Shoulder",
+        "rate": 0.24035,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "14:00",
+            "seasons": [
+              "high_season_peak"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "22:00",
+            "seasons": [
+              "high_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "low_season_peak_low_season_peak_2",
+        "name": "Low Season Peak",
+        "rate": 0.24035,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "14:00",
+            "end": "20:00",
+            "seasons": [
+              "low_season_peak_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_low_season_peak_2",
+        "name": "Off Peak",
+        "rate": 0.24035,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "22:00",
+            "end": "07:00",
+            "seasons": [
+              "low_season_peak_2"
+            ]
+          },
+          {
+            "days": "weekends",
+            "all_day": true,
+            "seasons": [
+              "low_season_peak_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_low_season_peak_2",
+        "name": "Shoulder",
+        "rate": 0.24035,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "14:00",
+            "seasons": [
+              "low_season_peak_2"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "22:00",
+            "seasons": [
+              "low_season_peak_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "high_season_peak_high_season_peak_2",
+        "name": "High Season Peak",
+        "rate": 0.60192,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "14:00",
+            "end": "20:00",
+            "seasons": [
+              "high_season_peak_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_high_season_peak_2",
+        "name": "Off Peak",
+        "rate": 0.24035,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "22:00",
+            "end": "07:00",
+            "seasons": [
+              "high_season_peak_2"
+            ]
+          },
+          {
+            "days": "weekends",
+            "all_day": true,
+            "seasons": [
+              "high_season_peak_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_high_season_peak_2",
+        "name": "Shoulder",
+        "rate": 0.24035,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "14:00",
+            "seasons": [
+              "high_season_peak_2"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "22:00",
+            "seasons": [
+              "high_season_peak_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_low_season_peak",
+        "name": "Off Peak",
+        "rate": 0.24035,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "rfit_single_rate_feed_in_tariff",
+        "name": "RFIT: Single Rate Feed In Tariff",
+        "rate": 0.001,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.19305,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan NEX1213302SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: RECONNECTION, DISCONNECTION. The plan gives its times in AEST all year (an hour later on the clock in summer), but Ausgrid's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+}

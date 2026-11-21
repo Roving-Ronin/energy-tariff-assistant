@@ -1,0 +1,178 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Nectr",
+  "plan": "Nectr Power Perks TOU - November 2026",
+  "plan_id": "NTR1217255MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-11-11",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "summer": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "non_seasonal": [
+      4,
+      5
+    ],
+    "winter": [
+      6,
+      7,
+      8
+    ],
+    "non_seasonal_2": [
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.025637,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_summer",
+        "name": "Peak",
+        "rate": 0.56126,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "summer"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_non_seasonal",
+        "name": "peak",
+        "rate": 0.238283,
+        "windows": [
+          {
+            "days": "all",
+            "start": "09:00",
+            "end": "15:00",
+            "seasons": [
+              "non_seasonal"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_non_seasonal",
+        "name": "Off-peak",
+        "rate": 0.238283,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "09:00",
+            "seasons": [
+              "non_seasonal"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_winter",
+        "name": "Peak",
+        "rate": 0.56126,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_winter",
+        "name": "Off-peak",
+        "rate": 0.238283,
+        "windows": [
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "15:00",
+            "seasons": [
+              "winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_non_seasonal_2",
+        "name": "peak",
+        "rate": 0.238283,
+        "windows": [
+          {
+            "days": "all",
+            "start": "09:00",
+            "end": "15:00",
+            "seasons": [
+              "non_seasonal_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_non_seasonal_2",
+        "name": "Off-peak",
+        "rate": 0.238283,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "09:00",
+            "seasons": [
+              "non_seasonal_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_summer",
+        "name": "Off-peak",
+        "rate": 0.238283,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "fit",
+        "name": "FiT",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan NTR1217255MRE1@EME; charges include GST (CDR ex GST x1.1). Discount: Loyalty Credit (conditional, fixedAmount 150.00). Discount: Refer a Friend (conditional, fixedAmount 150.00). Fees: DISCONNECTION, RECONNECTION, OTHER."
+}

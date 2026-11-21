@@ -1,0 +1,255 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Future X Power",
+  "plan": "Endeavour - RESI Time of Use FY27",
+  "plan_id": "FXP1125559SRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-07-01",
+  "effective_to": "2027-06-30",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "time_of_use_tariff_period": [
+      7,
+      8,
+      9,
+      10
+    ],
+    "time_of_use_tariff_period_2": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "time_of_use_tariff_period_3": [
+      4,
+      5,
+      6
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.85135,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_time_of_use_tariff_period",
+        "name": "Peak",
+        "rate": 0.471379,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "time_of_use_tariff_period"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "solar_soak_time_of_use_tariff_period",
+        "name": "Solar Soak",
+        "rate": 0.123476,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00",
+            "seasons": [
+              "time_of_use_tariff_period"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_time_of_use_tariff_period_2",
+        "name": "Peak",
+        "rate": 0.465719,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period_2",
+        "name": "Off Peak",
+        "rate": 0.356907,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "00:00",
+            "end": "10:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "14:00",
+            "end": "16:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          },
+          {
+            "days": "weekends",
+            "start": "00:00",
+            "end": "10:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          },
+          {
+            "days": "weekends",
+            "start": "14:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "solar_soak_time_of_use_tariff_period_2",
+        "name": "Solar Soak",
+        "rate": 0.123476,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_time_of_use_tariff_period_3",
+        "name": "Peak",
+        "rate": 0.471379,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period_3",
+        "name": "Off Peak",
+        "rate": 0.356907,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "00:00",
+            "end": "10:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "14:00",
+            "end": "16:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          },
+          {
+            "days": "weekends",
+            "start": "00:00",
+            "end": "10:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          },
+          {
+            "days": "weekends",
+            "start": "14:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "solar_soak_time_of_use_tariff_period_3",
+        "name": "Solar Soak",
+        "rate": 0.123476,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period",
+        "name": "Off Peak",
+        "rate": 0.356907,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "solar_feed_in",
+        "name": "Solar Feed-in",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan FXP1125559SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, CONNECTION, CHEQUE_DISHONOUR, DD_DISHONOUR, CC_PROCESSING."
+}

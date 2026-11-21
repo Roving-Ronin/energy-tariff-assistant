@@ -1,0 +1,195 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Amber Electric",
+  "plan": "Standing Offer: TOU + Controlled Load",
+  "plan_id": "AMB1126218SRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-07-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "time_of_use_tariff_period": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "time_of_use_tariff_period_2": [
+      6,
+      7,
+      8
+    ],
+    "time_of_use_tariff_period_3": [
+      4,
+      5
+    ],
+    "time_of_use_tariff_period_4": [
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.764106,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "ausgrid_time_of_use_peak_time_of_use_tariff_period",
+        "name": "Ausgrid Time of Use Peak",
+        "rate": 0.601966,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "time_of_use_tariff_period"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_time_of_use_peak_time_of_use_tariff_period_2",
+        "name": "Ausgrid Time of Use Peak",
+        "rate": 0.601966,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_time_of_use_off_peak_time_of_use_tariff_period_2",
+        "name": "Ausgrid Time of Use Off Peak",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "15:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_time_of_use_off_peak_am_time_of_use_tariff_period_3",
+        "name": "Ausgrid Time of Use Off Peak (AM)",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "12:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_time_of_use_off_peak_pm_time_of_use_tariff_period_3",
+        "name": "Ausgrid Time of Use Off Peak (PM)",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "12:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_time_of_use_off_peak_am_time_of_use_tariff_period_4",
+        "name": "Ausgrid Time of Use Off Peak (AM)",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "12:00",
+            "seasons": [
+              "time_of_use_tariff_period_4"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_time_of_use_off_peak_pm_time_of_use_tariff_period_4",
+        "name": "Ausgrid Time of Use Off Peak (PM)",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "12:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_4"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_time_of_use_off_peak_time_of_use_tariff_period",
+        "name": "Ausgrid Time of Use Off Peak",
+        "rate": 0.240387,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "fixed_feed_in",
+        "name": "Fixed feed in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled load 1",
+      "supply_charge": {
+        "rate": 0.047312,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled load 1",
+          "rate": 0.193094,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan AMB1126218SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, CONNECTION, DISCONNECT_MOVE_OUT."
+}

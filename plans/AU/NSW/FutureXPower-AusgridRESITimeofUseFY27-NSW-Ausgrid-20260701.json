@@ -1,0 +1,186 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Future X Power",
+  "plan": "Ausgrid - RESI Time of Use FY27",
+  "plan_id": "FXP1125558SRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-07-01",
+  "effective_to": "2027-06-30",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "time_of_use_tariff_period": [
+      6,
+      7,
+      8
+    ],
+    "time_of_use_tariff_period_2": [
+      9,
+      10
+    ],
+    "time_of_use_tariff_period_3": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "time_of_use_tariff_period_4": [
+      4,
+      5
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.764106,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_time_of_use_tariff_period",
+        "name": "Peak",
+        "rate": 0.601966,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "time_of_use_tariff_period"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period_2",
+        "name": "Off Peak",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "12:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_2_time_of_use_tariff_period_2",
+        "name": "Off Peak 2",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "12:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_time_of_use_tariff_period_3",
+        "name": "Peak",
+        "rate": 0.601966,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period_3",
+        "name": "Off Peak",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "15:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          },
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period_4",
+        "name": "Off Peak",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "12:00",
+            "seasons": [
+              "time_of_use_tariff_period_4"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_2_time_of_use_tariff_period_4",
+        "name": "Off Peak 2",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "12:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_4"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period",
+        "name": "Off Peak",
+        "rate": 0.240387,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "solar_feed_in",
+        "name": "Solar Feed-in",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan FXP1125558SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, CONNECTION, CHEQUE_DISHONOUR, DD_DISHONOUR, CC_PROCESSING."
+}

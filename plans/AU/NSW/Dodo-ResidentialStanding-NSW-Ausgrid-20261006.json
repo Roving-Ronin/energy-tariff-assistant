@@ -1,0 +1,235 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Dodo",
+  "plan": "Residential Standing",
+  "plan_id": "DOD14507SRE13",
+  "customer_type": "residential",
+  "effective_from": "2026-10-06",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "time_of_use_tariff_period": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "time_of_use_tariff_period_2": [
+      4,
+      5
+    ],
+    "time_of_use_tariff_period_3": [
+      6,
+      7,
+      8
+    ],
+    "time_of_use_tariff_period_4": [
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.811418,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_time_of_use_tariff_period",
+        "name": "Peak",
+        "rate": 0.601966,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "time_of_use_tariff_period"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_time_of_use_tariff_period_2",
+        "name": "Peak",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period_2",
+        "name": "Off Peak",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "15:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          },
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_time_of_use_tariff_period_3",
+        "name": "Peak",
+        "rate": 0.601966,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period_3",
+        "name": "Off Peak",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "15:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          },
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_time_of_use_tariff_period_4",
+        "name": "Peak",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "time_of_use_tariff_period_4"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period_4",
+        "name": "Off Peak",
+        "rate": 0.240387,
+        "windows": [
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "15:00",
+            "seasons": [
+              "time_of_use_tariff_period_4"
+            ]
+          },
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "24:00",
+            "seasons": [
+              "time_of_use_tariff_period_4"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_tariff_period",
+        "name": "Off Peak",
+        "rate": 0.240387,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "tou_rate_solar_fit",
+        "name": "TOU Rate Solar FiT",
+        "rate": 0.01,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "tou_rate_controlled_load_1",
+      "name": "TOU Rate Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "TOU Rate Controlled Load 1",
+          "rate": 0.193094,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "tou_rate_controlled_load_2",
+      "name": "TOU Rate Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "TOU Rate Controlled Load 2",
+          "rate": 0.23005,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan DOD14507SRE13@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, CONNECTION, DISCONNECTION, RECONNECTION."
+}

@@ -1,0 +1,177 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Tango Energy",
+  "plan": "Everyday Easy",
+  "plan_id": "TAN1154241MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "low_season": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "high_season": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.42153,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "low_season_peak_low_season",
+        "name": "Low Season Peak",
+        "rate": 0.44,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "low_season"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_low_season",
+        "name": "Shoulder",
+        "rate": 0.099,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00",
+            "seasons": [
+              "low_season"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "high_season_peak_high_season",
+        "name": "High Season Peak",
+        "rate": 0.44,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "high_season"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_high_season",
+        "name": "Off Peak",
+        "rate": 0.253,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "10:00",
+            "seasons": [
+              "high_season"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "14:00",
+            "end": "16:00",
+            "seasons": [
+              "high_season"
+            ]
+          },
+          {
+            "days": "weekends",
+            "start": "14:00",
+            "end": "10:00",
+            "seasons": [
+              "high_season"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_high_season",
+        "name": "Shoulder",
+        "rate": 0.099,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00",
+            "seasons": [
+              "high_season"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_low_season",
+        "name": "Off Peak",
+        "rate": 0.253,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "0c_fit_single_rate_feed_in_tariff",
+        "name": "0c FiT: Single Rate Feed In Tariff",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.1793,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan TAN1154241MRE2@EME; charges include GST (CDR ex GST x1.1). Fees: OTHER, RECONNECTION, DISCONNECTION, CONNECTION. The plan gives its times in AEST all year (an hour later on the clock in summer), but Endeavour Energy's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+}

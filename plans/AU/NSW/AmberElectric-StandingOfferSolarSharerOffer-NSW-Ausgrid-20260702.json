@@ -1,0 +1,260 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Amber Electric",
+  "plan": "Standing Offer: Solar Sharer Offer",
+  "plan_id": "AMB1127895SRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-07-02",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "time_of_use_tariff_period": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "time_of_use_tariff_period_2": [
+      6,
+      7,
+      8
+    ],
+    "time_of_use_tariff_period_3": [
+      4,
+      5
+    ],
+    "time_of_use_tariff_period_4": [
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.764106,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "ausgrid_solar_sharer_peak_time_of_use_tariff_period",
+        "name": "Ausgrid Solar Sharer Peak",
+        "rate": 0.637177,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "time_of_use_tariff_period"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_solar_sharer_off_peak_time_of_use_tariff_period",
+        "name": "Ausgrid Solar Sharer Off Peak",
+        "rate": 0.275597,
+        "windows": [
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "11:00",
+            "seasons": [
+              "time_of_use_tariff_period"
+            ]
+          },
+          {
+            "days": "all",
+            "start": "14:00",
+            "end": "15:00",
+            "seasons": [
+              "time_of_use_tariff_period"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_solar_sharer_free_period_time_of_use_tariff_period",
+        "name": "Ausgrid Solar Sharer Free Period",
+        "tiers": [
+          {
+            "up_to_kwh": 24.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.275597
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "14:00",
+            "seasons": [
+              "time_of_use_tariff_period"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_solar_sharer_peak_time_of_use_tariff_period_2",
+        "name": "Ausgrid Solar Sharer Peak",
+        "rate": 0.637177,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_solar_sharer_off_peak_time_of_use_tariff_period_2",
+        "name": "Ausgrid Solar Sharer Off Peak",
+        "rate": 0.275597,
+        "windows": [
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "11:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          },
+          {
+            "days": "all",
+            "start": "14:00",
+            "end": "15:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_solar_sharer_free_period_time_of_use_tariff_period_2",
+        "name": "Ausgrid Solar Sharer Free Period",
+        "tiers": [
+          {
+            "up_to_kwh": 24.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.275597
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "14:00",
+            "seasons": [
+              "time_of_use_tariff_period_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_solar_sharer_free_period_time_of_use_tariff_period_3",
+        "name": "Ausgrid Solar Sharer Free Period",
+        "tiers": [
+          {
+            "up_to_kwh": 24.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.275597
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "14:00",
+            "seasons": [
+              "time_of_use_tariff_period_3"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_solar_sharer_off_peak_time_of_use_tariff_period_4",
+        "name": "Ausgrid Solar Sharer Off Peak",
+        "rate": 0.275597,
+        "windows": [
+          {
+            "days": "all",
+            "start": "14:00",
+            "end": "11:00",
+            "seasons": [
+              "time_of_use_tariff_period_4"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_solar_sharer_free_period_time_of_use_tariff_period_4",
+        "name": "Ausgrid Solar Sharer Free Period",
+        "tiers": [
+          {
+            "up_to_kwh": 24.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.275597
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "14:00",
+            "seasons": [
+              "time_of_use_tariff_period_4"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ausgrid_solar_sharer_off_peak_time_of_use_tariff_period_3",
+        "name": "Ausgrid Solar Sharer Off Peak",
+        "rate": 0.275597,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "fixed_feed_in",
+        "name": "Fixed feed in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan AMB1127895SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, CONNECTION, DISCONNECT_MOVE_OUT."
+}

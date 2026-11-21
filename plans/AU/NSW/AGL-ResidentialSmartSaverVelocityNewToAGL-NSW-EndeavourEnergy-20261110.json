@@ -1,0 +1,160 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "AGL",
+  "plan": "Residential Smart Saver - Velocity New To AGL",
+  "plan_id": "AGL1189569MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-11-10",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "high_season_peak": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "low_season_peak": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.666203,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "time_of_use_peak_high_season_peak",
+        "name": "Time of Use Peak",
+        "rate": 0.419144,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "high_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "solar_soak_shoulder_high_season_peak",
+        "name": "Solar Soak / Shoulder",
+        "rate": 0.111133,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00",
+            "seasons": [
+              "high_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "time_of_use_peak_low_season_peak",
+        "name": "Time of Use Peak",
+        "rate": 0.424237,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "low_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "time_of_use_off_peak_low_season_peak",
+        "name": "Time of Use Off Peak",
+        "rate": 0.321211,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "10:00",
+            "seasons": [
+              "low_season_peak"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "14:00",
+            "end": "16:00",
+            "seasons": [
+              "low_season_peak"
+            ]
+          },
+          {
+            "days": "weekends",
+            "start": "14:00",
+            "end": "10:00",
+            "seasons": [
+              "low_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "solar_soak_shoulder_low_season_peak",
+        "name": "Solar Soak / Shoulder",
+        "rate": 0.111133,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00",
+            "seasons": [
+              "low_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "time_of_use_off_peak_high_season_peak",
+        "name": "Time of Use Off Peak",
+        "rate": 0.321211,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "agl_retailer_feed_in_tariff_exc_gst_if_any",
+        "name": "AGL Retailer Feed-in Tariff (exc GST if any)",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan AGL1189569MRE2@EME; charges include GST (CDR ex GST x1.1). Incentive: 10,000 Sign-Up Velocity Points. Incentive: $100 sign up credit. Fees: CONNECTION, DISCONNECT_MOVE_OUT, DISCONNECT_NON_PAY, RECONNECTION, LATE_PAYMENT."
+}

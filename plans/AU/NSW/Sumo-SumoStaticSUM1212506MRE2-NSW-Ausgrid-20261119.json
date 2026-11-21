@@ -1,0 +1,187 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Sumo",
+  "plan": "Sumo Static",
+  "plan_id": "SUM1212506MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-11-19",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "autumn": [
+      4,
+      5
+    ],
+    "winter": [
+      6,
+      7,
+      8
+    ],
+    "spring": [
+      9,
+      10
+    ],
+    "summer": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.67585,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "off_peak_autumn_2",
+        "name": "Off Peak",
+        "rate": 0.22836,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "autumn"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_winter",
+        "name": "Peak",
+        "rate": 0.57178,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_winter",
+        "name": "Off Peak",
+        "rate": 0.22836,
+        "windows": [
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "15:00",
+            "seasons": [
+              "winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_spring",
+        "name": "Off Peak",
+        "rate": 0.22836,
+        "windows": [
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "15:00",
+            "seasons": [
+              "spring"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_spring_2",
+        "name": "Off Peak",
+        "rate": 0.22836,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "spring"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_summer",
+        "name": "Peak",
+        "rate": 0.57178,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "summer"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_summer",
+        "name": "Off Peak",
+        "rate": 0.22836,
+        "windows": [
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "15:00",
+            "seasons": [
+              "summer"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_autumn",
+        "name": "Off Peak",
+        "rate": 0.22836,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "sumo_static_fit_stepped_rate_feed_in_tariff",
+        "name": "Sumo Static FiT: Stepped Rate Feed In Tariff",
+        "tiers": [
+          {
+            "up_to_kwh": 9.0,
+            "rate": 0.033
+          },
+          {
+            "rate": 0.0
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan SUM1212506MRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in rates are listed for 2026-10-01 to 2027-06-30 only; used all year. Fees: CONNECTION."
+}

@@ -1,0 +1,87 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Ezi Power",
+  "plan": "Ezi Peak",
+  "plan_id": "SLV1213509MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-22",
+  "effective_to": "2028-06-30",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.36785,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.48477,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "solar_soak",
+        "name": "Solar soak",
+        "rate": 0.1067,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.30536,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "peak_solar_feed_in_tariff",
+        "name": "Peak solar feed-in tariff",
+        "rate": 0.25,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "all_other_times_solar_feed_in_tariff",
+        "name": "All other times solar feed-in tariff",
+        "rate": 0.02,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan SLV1213509MRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, CONNECTION, CHEQUE_DISHONOUR, DD_DISHONOUR."
+}

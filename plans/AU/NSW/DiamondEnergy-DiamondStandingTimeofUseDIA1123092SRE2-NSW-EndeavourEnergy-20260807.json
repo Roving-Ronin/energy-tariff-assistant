@@ -1,0 +1,193 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Diamond Energy",
+  "plan": "Diamond Standing - Time of Use",
+  "plan_id": "DIA1123092SRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-08-07",
+  "effective_to": "2027-07-01",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "time_of_use": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "time_of_use_2": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.85135,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_time_of_use",
+        "name": "Peak",
+        "rate": 0.465719,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "time_of_use"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_time_of_use",
+        "name": "Shoulder",
+        "rate": 0.123476,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00",
+            "seasons": [
+              "time_of_use"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_time_of_use_2",
+        "name": "Peak",
+        "rate": 0.471379,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "time_of_use_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use_2",
+        "name": "Off-peak",
+        "rate": 0.356907,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "10:00",
+            "seasons": [
+              "time_of_use_2"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "14:00",
+            "end": "16:00",
+            "seasons": [
+              "time_of_use_2"
+            ]
+          },
+          {
+            "days": "weekends",
+            "start": "14:00",
+            "end": "10:00",
+            "seasons": [
+              "time_of_use_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_time_of_use_2",
+        "name": "Shoulder",
+        "rate": 0.123476,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00",
+            "seasons": [
+              "time_of_use_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak_time_of_use",
+        "name": "Off-peak",
+        "rate": 0.356907,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.138929,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.206438,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.138929,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 2",
+          "rate": 0.220861,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan DIA1123092SRE2@EME; charges include GST (CDR ex GST x1.1). No retailer feed-in tariff in the plan data: feed-in set to 0."
+}

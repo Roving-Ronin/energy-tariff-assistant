@@ -1,0 +1,138 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "CovaU",
+  "plan": "Freedom Residential Flex 1600-2000 + CL2",
+  "plan_id": "COV1147447MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "non_summer_peak": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "summer_peak": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.63196,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "non_summer_peak_non_summer_peak",
+        "name": "Non-Summer Peak",
+        "rate": 0.495,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "non_summer_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "summer_peak_summer_peak",
+        "name": "Summer Peak",
+        "rate": 0.62634,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "summer_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "summer_off_peak_summer_peak",
+        "name": "Summer Off Peak",
+        "rate": 0.36696,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "16:00",
+            "seasons": [
+              "summer_peak"
+            ]
+          },
+          {
+            "days": "weekends",
+            "all_day": true,
+            "seasons": [
+              "summer_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "non_summer_off_peak_non_summer_peak",
+        "name": "Non-Summer Off Peak",
+        "rate": 0.36696,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in_tariff_single_rate_feed_in_tariff",
+        "name": "Feed In Tariff: Single Rate Feed In Tariff",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 2",
+          "rate": 0.29766,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan COV1147447MRE2@EME; charges include GST (CDR ex GST x1.1). Discount: Guaranteed Discount on total usages (guaranteed, percentOfUse 0.15). Incentive: Refer a Friend. Fees: CONNECTION, DISCONNECTION, RECONNECTION, DD_DISHONOUR. The plan data gives its times in AEST all year (an hour later on the clock in summer), but CovaU bills on local time, following daylight saving: that was used."
+}
