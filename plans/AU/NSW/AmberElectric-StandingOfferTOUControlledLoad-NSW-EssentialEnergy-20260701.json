@@ -1,0 +1,85 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Amber Electric",
+  "plan": "Standing Offer: TOU + Controlled Load",
+  "plan_id": "AMB1126220SRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-07-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.722168,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "essential_energy_time_of_use_peak",
+        "name": "Essential Energy Time of Use Peak",
+        "rate": 0.421188,
+        "windows": [
+          {
+            "days": "all",
+            "start": "07:00",
+            "end": "10:00"
+          },
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "essential_energy_time_of_use_off_peak",
+        "name": "Essential Energy Time of Use Off Peak",
+        "rate": 0.241448,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "fixed_feed_in",
+        "name": "Fixed feed in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled load 1",
+      "supply_charge": {
+        "rate": 0.156605,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled load 1",
+          "rate": 0.198887,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan AMB1126220SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, CONNECTION, DISCONNECT_MOVE_OUT."
+}

@@ -1,0 +1,105 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Tango Energy",
+  "plan": "Home Select",
+  "plan_id": "TAN916472MRE3",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "non_summer": [
+      4,
+      5
+    ],
+    "winter": [
+      6,
+      7,
+      8
+    ],
+    "non_winter": [
+      9,
+      10
+    ],
+    "summer": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.199,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_apr_may_sep_oct",
+        "name": "Peak (Apr-May, Sep-Oct)",
+        "rate": 0.28644,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "non_summer",
+              "non_winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_jun_aug_nov_mar",
+        "name": "Peak (Jun-Aug, Nov-Mar)",
+        "rate": 0.5797,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "summer",
+              "winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.28644,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "0c_fit_single_rate_feed_in_tariff",
+        "name": "0c FiT: Single Rate Feed In Tariff",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan TAN916472MRE3@EME; charges include GST (CDR ex GST x1.1). Fees: OTHER, RECONNECTION, DISCONNECTION, CONNECTION. The plan gives its times in AEST all year (an hour later on the clock in summer), but Ausgrid's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+}

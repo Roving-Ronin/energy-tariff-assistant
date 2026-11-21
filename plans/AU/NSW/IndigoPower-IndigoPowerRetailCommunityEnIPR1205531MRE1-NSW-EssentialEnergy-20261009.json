@@ -1,0 +1,113 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Indigo Power",
+  "plan": "Indigo Power Retail - Community Energy Hub plan Essenti",
+  "plan_id": "IPR1205531MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-09",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 3.0415,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.3839,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "17:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.3212,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "17:00"
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.2233,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "solar_feed_in_tariff_flat_single_rate_feed_in_tariff",
+        "name": "Solar Feed-in Tariff Flat: Single Rate Feed In Tariff",
+        "rate": 0.007,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.1595,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 2",
+          "rate": 0.198,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan IPR1205531MRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, DISCONNECT_MOVE_OUT, RECONNECTION. The plan gives its times in AEST all year (an hour later on the clock in summer), but Essential Energy's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+}

@@ -1,0 +1,89 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Diamond Energy",
+  "plan": "Diamond Everyday - Time of Use",
+  "plan_id": "DIA1123067MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-08-07",
+  "effective_to": "2027-07-01",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "time_of_use_winter": [
+      6,
+      7,
+      8
+    ],
+    "time_of_use_summer": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "time_of_use_spring": [
+      9,
+      10
+    ],
+    "time_of_use_autumn": [
+      4,
+      5
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.672204,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.601598,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "time_of_use_summer",
+              "time_of_use_winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-Peak",
+        "rate": 0.238965,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "diamond_feed_in_credit",
+        "name": "Diamond Feed in Credit",
+        "rate": 0.031,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan DIA1123067MRE2@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION."
+}

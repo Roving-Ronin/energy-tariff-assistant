@@ -1,0 +1,147 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Dodo",
+  "plan": "Residential Standing",
+  "plan_id": "DOD14505SRE13",
+  "customer_type": "residential",
+  "effective_from": "2026-09-08",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "jul_oct": [
+      7,
+      8,
+      9,
+      10
+    ],
+    "nov_mar": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "apr_jun": [
+      4,
+      5,
+      6
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.99028,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "low_season_peak_apr_to_oct",
+        "name": "Low Season Peak (Apr to Oct)",
+        "rate": 0.471379,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "apr_jun",
+              "jul_oct"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.123476,
+        "windows": [
+          {
+            "days": "all",
+            "end": "14:00",
+            "start": "10:00"
+          }
+        ]
+      },
+      {
+        "id": "peak_high_season_nov_to_mar",
+        "name": "Peak High Season (Nov to Mar)",
+        "rate": 0.465719,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "nov_mar"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.356907,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "tou_rate_solar_fit",
+        "name": "TOU Rate Solar FiT",
+        "rate": 0.01,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "tou_rate_controlled_load_1",
+      "name": "TOU Rate Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "TOU Rate Controlled Load 1",
+          "rate": 0.206438,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "tou_rate_controlled_load_2",
+      "name": "TOU Rate Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "TOU Rate Controlled Load 2",
+          "rate": 0.220861,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan DOD14505SRE13@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, CONNECTION, DISCONNECTION, RECONNECTION."
+}

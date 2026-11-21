@@ -1,0 +1,128 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "CovaU",
+  "plan": "CovaU Basics Residential TOU + CL1",
+  "plan_id": "COV1118745SRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "low_season_peak": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "high_season_peak": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.815,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "low_season_peak",
+        "name": "Low Season Peak",
+        "rate": 0.4708,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "low_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "solar_soak",
+        "name": "Solar Soak",
+        "rate": 0.12342,
+        "windows": [
+          {
+            "days": "all",
+            "end": "14:00",
+            "start": "10:00"
+          }
+        ]
+      },
+      {
+        "id": "high_season_peak",
+        "name": "High Season Peak",
+        "rate": 0.46563,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "high_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.35684,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in_tariffs_single_rate_feed_in_tariff",
+        "name": "Feed-In Tariffs: Single Rate Feed In Tariff",
+        "rate": 0.055,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.11,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.20636,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan COV1118745SRE2@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION, RECONNECTION, DD_DISHONOUR. The plan data gives its times in AEST all year (an hour later on the clock in summer), but CovaU bills on local time, following daylight saving: that was used."
+}
