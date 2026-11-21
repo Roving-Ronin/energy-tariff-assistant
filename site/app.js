@@ -271,16 +271,16 @@ function rateText(period, periods) {
 
 const DEMAND_OVER = { month: "each month", bill: "each bill", rolling_12_months: "over the last 12 months" };
 
-// "Highest 30-min kW reading in the peak window (Weekdays 17:00–20:00) each month (at least 1.5 kW)": demand counts
-// only inside the charge's windows, so say which
-function measureText(charge, seasons) {
+// "Highest 30-min kW reading in the peak window each month (at least 1.5 kW)": demand counts only inside the
+// charge's windows (shown in the When column)
+function measureText(charge) {
   const m = charge.measure || {};
   const minutes = m.interval_minutes || 30;
   const what = m.method === "mean_of_top_n" ? `Average of the top ${m.n} ${minutes}-min kW readings`
     : `Highest ${minutes}-min kW reading`;
   const windows = charge.windows || [];
   const anyTime = windows.every((w) => w.all_day && (w.days === undefined || w.days === "all") && !(w.seasons || []).length);
-  const where = anyTime ? "at any time" : `in the peak window (${windows.map((w) => windowText(w, seasons)).join("; ")})`;
+  const where = anyTime ? "at any time" : "in the peak window";  // the When column shows the window
   const floor = m.minimum_kw ? ` (at least ${m.minimum_kw} kW)` : "";
   return `${what} ${where} ${DEMAND_OVER[m.over || "month"] || m.over}${floor}`;
 }
@@ -548,7 +548,7 @@ async function renderPlan(file) {
         h("tbody", {}, plan.demand.map((d) => h("tr", {},
           h("td", {}, d.name), h("td", {}, `${dollars(d.rate)} ${d.unit === "per_kw_per_month" ? "per kW per month" : "per kW per day"}`),
           h("td", {}, d.windows.map((w) => h("div", {}, windowText(w, plan.seasons)))),
-          h("td", {}, measureText(d, plan.seasons)))))))));
+          h("td", {}, measureText(d)))))))));
   }
   if (plan.notes) view.append(h("div", { class: "card", style: "margin-top:16px" }, h("strong", {}, "Notes: "), plan.notes));
 
