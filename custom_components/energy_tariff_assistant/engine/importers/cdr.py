@@ -11,12 +11,12 @@ anything left out. Every converted plan is `needs_review: true`.
 Rules:
 - **GST is added.** CDR prices are "exclusive of GST" (unit prices, daily supply
   charges); our plans hold GST-inclusive dollars, so x1.1.
-- Contract `timeZone` LOCAL uses the state's own time zone. AEST means windows
-  are in fixed AEST: the plan gets Australia/Brisbane (no daylight saving).
-  **Absent** is read as LOCAL, not the standard's AEST default: distributors'
-  time-of-use periods follow local time (Essential Energy: "AEST or AEDST"), and
-  the library check found a plan with no time zone an hour out all summer. The
-  plan gets a note saying local time was assumed.
+- Time zone: the plan's stated `timeZone` wins (LOCAL: the state's zone; AEST:
+  Australia/Brisbane, so fixed-AEST windows stay right through daylight saving).
+  **Absent** uses the network's clock, not the standard's AEST default: NSW, VIC
+  and SA networks follow local time, Evoenergy and TasNetworks stay on AEST
+  (`AEST_NETWORKS`). Absent, or stated against the network's clock, adds a
+  review note (a retailer can apply its own rule, so neither is assumed wrong).
 - Window end times like 14:59 or 23:59:59 are inclusive ends: they become the
   next minute (15:00, 24:00). A whole day becomes `all_day`.
 - Time of use: the rate covering the most time becomes the default period.
@@ -75,6 +75,16 @@ STATE_TIMEZONES = {
     "TAS": "Australia/Hobart",
 }
 AEST_ZONE = "Australia/Brisbane"  # UTC+10 all year
+# Networks whose time-of-use periods stay on AEST through daylight saving (an hour later on the clock in
+# summer). ActewAGL: "Evoenergy does not adjust the tariff times to align with daylight saving"; TasNetworks
+# publishes its peak as AEST 7-10am / AEDT 8-11am. NSW, VIC and SA networks follow local time; QLD, WA and the
+# NT have no daylight saving.
+AEST_NETWORKS = frozenset({"Evoenergy", "TasNetworks"})
+DST_STATES = frozenset({"NSW", "ACT", "VIC", "SA", "TAS"})
+
+
+def observes_dst(state: str) -> bool:
+    return state in DST_STATES
 
 CDR_DAYS = {"MON": "mon", "TUE": "tue", "WED": "wed", "THU": "thu", "FRI": "fri", "SAT": "sat", "SUN": "sun"}
 DAY_ORDER = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
@@ -295,6 +305,31 @@ def _import_periods(
     return periods
 
 
+def _clock(clock: dict[str, Any], dnsp: str, state: str) -> tuple[str, str | None]:
+    """The plan's time zone on this distributor, and a review note when it's in doubt.
+
+    The plan's stated zone wins; with none, the network's clock is used. When the two
+    disagree, the plan's word is kept and the note says so (a retailer can apply its own
+    rule on top of the network's, so neither is assumed wrong).
+    """
+    network = "AEST" if dnsp in AEST_NETWORKS else "LOCAL"
+    stated = clock["stated"]
+    used = stated or network
+    timezone = AEST_ZONE if used == "AEST" else STATE_TIMEZONES[state]
+    if not clock["timed"] or not observes_dst(state):
+        return timezone, None  # no times of day, or no daylight saving: AEST and local agree
+    words = {"AEST": "AEST all year (an hour later on the clock in summer)",
+             "LOCAL": "local time, following daylight saving"}
+    if stated is None:
+        return timezone, (f"The plan doesn't say which time zone its times are in: {dnsp}'s clock "
+                          f"({words[network]}) was used. Check against the plan's fact sheet.")
+    if stated != network:
+        return timezone, (f"The plan gives its times in {words[stated]}, but {dnsp}'s time-of-use periods "
+                          f"follow {words[network]}. The plan's own time zone was used: check against the "
+                          "plan's fact sheet.")
+    return timezone, None
+
+
 def _has_windows(usage: list[dict[str, Any]], contract: dict[str, Any]) -> bool:
     """True if any rate depends on the time of day (so the time zone matters)."""
     if any(t.get("rateBlockUType") == "timeOfUseRates" for t in usage):
@@ -411,8 +446,11 @@ def convert(detail: dict[str, Any], today: date) -> Conversion:
         plan = dict(built)
         plan["region"] = state
         plan["dnsp"] = dnsp
-        if plan["timezone"] is None:
-            plan["timezone"] = STATE_TIMEZONES[state]
+        plan["timezone"], note = _clock(plan.pop("_clock"), dnsp, state)
+        if note:
+            plan["notes"] = f"{plan['notes']} {note}"
+            if note not in out.notes:
+                out.notes.append(note)
         out.plans.append(_ordered(plan))
     if not out.plans and not out.skipped:
         out.skipped.append(f"{label}: no distributors")
@@ -420,7 +458,7 @@ def convert(detail: dict[str, Any], today: date) -> Conversion:
 
 
 def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: list[str]) -> dict[str, Any]:
-    """Everything but region/DNSP (and timezone when LOCAL)."""
+    """Everything but region, DNSP and timezone (set per distributor from `_clock`)."""
     tariffs = contract.get("tariffPeriod") or []
     usage = [t for t in tariffs if t.get("rateBlockUType") in ("singleRate", "timeOfUseRates")]
     demand = [t for t in tariffs if t.get("rateBlockUType") == "demandCharges"]
@@ -454,15 +492,10 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
             raise CdrImportError("the tariff periods don't cover the whole year exactly once")
 
     stated = {(t.get("timeZone") or contract.get("timeZone") or "").upper() for t in usage}
-    zones = {zone or "LOCAL" for zone in stated}
-    if len(zones) != 1:
+    if len(stated) != 1:
         raise CdrImportError("tariff periods use different time zones")
-    timezone = AEST_ZONE if zones == {"AEST"} else None  # None: the state's own zone, set per DNSP
-    if "" in stated and _has_windows(usage, contract):
-        notes.append(
-            "The plan doesn't say which time zone its times are in: local time (with daylight saving) was "
-            "assumed. Check against the plan's fact sheet."
-        )
+    # The zone is settled per distributor in convert(): the plan's word, else the network's clock
+    clock = {"stated": next(iter(stated)) or None, "timed": _has_windows(usage, contract)}
 
     holiday_rates: set[str] = set()
     import_periods = _import_periods(usage, season_names, holiday_rates)
@@ -488,7 +521,7 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
         "effective_to": effective_to if effective_to and effective_to >= effective_from else None,
         "source": {"type": "EME", "url": data.get("applicationUri") or SOURCE_URL, "checked": today.isoformat()},
         "currency": "AUD",
-        "timezone": timezone,
+        "timezone": None,  # set per distributor (_clock)
         "holidays": {"treat_as": "sunday" if holiday_rates else "none"},
         "supply_charge": {"rate": with_gst(next(iter(supplies))), "unit": "per_day"},
         "import": {"periods": import_periods},
@@ -501,6 +534,7 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
             + notes + extras
         ),
     }
+    plan["_clock"] = clock
     if seasons:
         plan["seasons"] = seasons
     customer = (data.get("customerType") or "").lower()

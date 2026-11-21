@@ -165,24 +165,49 @@ def test_aest_windows_use_brisbane_time(solarmax_cdr):
     result = convert(solarmax_cdr, TODAY)
     plan = result.plans[0]
     assert plan["timezone"] == "Australia/Brisbane"
-    assert not any("time zone" in note for note in result.notes)
     resolver = Resolver(load_plan(plan))
     # 16:00 AEDT (summer) is 15:00 AEST: peak starts at 15:00 AEST = 16:00 Sydney summer time
     assert resolver.rate_at("import", at("2026-11-04 15:30")).period.name == "Shoulder"
     assert resolver.rate_at("import", at("2026-11-04 16:30")).period.name == "Peak"
 
 
-def test_no_time_zone_means_local_time(solarmax_cdr):
-    # The standard says absent = AEST, but distributors' periods follow local time: the library
-    # check found a plan with no time zone an hour out all summer when read as AEST.
-    del solarmax_cdr["data"]["electricityContract"]["timeZone"]
+def test_stated_aest_against_a_local_time_network_is_flagged(solarmax_cdr):
+    # Covau SolarMax on Essential Energy says AEST; Essential Energy follows local time.
+    solarmax_cdr["data"]["electricityContract"]["timeZone"] = "AEST"
     result = convert(solarmax_cdr, TODAY)
     plan = result.plans[0]
-    assert plan["timezone"] == "Australia/Sydney"
-    assert any("local time" in note for note in result.notes)
-    assert "local time" in plan["notes"]
-    resolver = Resolver(load_plan(plan))
+    assert plan["timezone"] == "Australia/Brisbane"  # the plan's word is kept
+    assert "Essential Energy's time-of-use periods follow local time" in plan["notes"]
+    assert any("plan's own time zone was used" in note for note in result.notes)
+
+
+def test_stated_local_on_a_local_network_has_no_note(solarmax_cdr):
+    assert solarmax_cdr["data"]["electricityContract"]["timeZone"] == "LOCAL"
+    result = convert(solarmax_cdr, TODAY)
+    assert result.plans[0]["timezone"] == "Australia/Sydney"
+    assert not any("time zone" in note for note in result.notes)
+
+
+def test_no_time_zone_uses_the_network_clock(solarmax_cdr):
+    # The standard says absent = AEST, but NSW networks follow local time and Evoenergy stays on AEST.
+    del solarmax_cdr["data"]["electricityContract"]["timeZone"]
+    solarmax_cdr["data"]["geography"]["distributors"] = ["Essential Energy", "Evoenergy"]
+    result = convert(solarmax_cdr, TODAY)
+    by_dnsp = {p["dnsp"]: p for p in result.plans}
+    assert by_dnsp["Essential Energy"]["timezone"] == "Australia/Sydney"
+    assert by_dnsp["Evoenergy"]["timezone"] == "Australia/Brisbane"
+    assert "Essential Energy's clock (local time" in by_dnsp["Essential Energy"]["notes"]
+    assert "Evoenergy's clock (AEST all year" in by_dnsp["Evoenergy"]["notes"]
+    resolver = Resolver(load_plan(by_dnsp["Essential Energy"]))
     assert resolver.rate_at("import", at("2026-11-04 15:30")).period.name == "Peak"
+
+
+def test_no_time_zone_without_daylight_saving_has_no_note(solarmax_cdr):
+    del solarmax_cdr["data"]["electricityContract"]["timeZone"]
+    solarmax_cdr["data"]["geography"]["distributors"] = ["Energex"]
+    result = convert(solarmax_cdr, TODAY)
+    assert result.plans[0]["timezone"] == "Australia/Brisbane"
+    assert not any("time zone" in note for note in result.notes)
 
 
 def test_no_time_zone_note_only_when_times_matter(solarmax_cdr):
