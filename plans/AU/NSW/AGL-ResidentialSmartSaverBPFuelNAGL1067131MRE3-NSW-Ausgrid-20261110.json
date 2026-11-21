@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=AGL1067131MRE3",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -75,8 +75,8 @@
   "export": {
     "periods": [
       {
-        "id": "agl_retailer_feed_in_tariff_exc_gst_if_any",
-        "name": "AGL Retailer Feed-in Tariff (exc GST if any)",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.03,
         "default": true
       }
@@ -118,5 +118,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan AGL1067131MRE3@EME; charges include GST (CDR ex GST x1.1). Incentive: Bonus $100 Prepaid Visa. Incentive: $100 sign up credit. Fees: CONNECTION, DISCONNECT_MOVE_OUT, DISCONNECT_NON_PAY, RECONNECTION, LATE_PAYMENT."
+  "notes": "Converted from Energy Made Easy (CDR) plan AGL1067131MRE3@EME; charges include GST (CDR ex GST x1.1). Incentive: Bonus $100 Prepaid Visa. Incentive: $100 sign up credit. Fees: CONNECTION, DISCONNECT_MOVE_OUT, DISCONNECT_NON_PAY, RECONNECTION, LATE_PAYMENT. Feed-in is called 'AGL Retailer Feed-in Tariff (exc GST if any)' on Energy Made Easy."
 }

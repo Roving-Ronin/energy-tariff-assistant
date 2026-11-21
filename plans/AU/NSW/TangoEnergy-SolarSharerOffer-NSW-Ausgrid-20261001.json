@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=TAN1128297SRE2",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -96,8 +96,8 @@
   "export": {
     "periods": [
       {
-        "id": "rfit_single_rate_feed_in_tariff",
-        "name": "RFiT: Single Rate Feed In Tariff",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.0,
         "default": true
       }
@@ -139,5 +139,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan TAN1128297SRE2@EME; charges include GST (CDR ex GST x1.1). Fees: OTHER, RECONNECTION, DISCONNECTION, CONNECTION. The plan gives its times in AEST all year (an hour later on the clock in summer), but Ausgrid's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+  "notes": "Converted from Energy Made Easy (CDR) plan TAN1128297SRE2@EME; charges include GST (CDR ex GST x1.1). Fees: OTHER, RECONNECTION, DISCONNECTION, CONNECTION. The plan gives its times in AEST all year (an hour later on the clock in summer), but Ausgrid's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet. Feed-in is called 'RFiT: Single Rate Feed In Tariff' on Energy Made Easy."
 }

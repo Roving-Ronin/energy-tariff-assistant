@@ -12,7 +12,7 @@
   "effective_to": "2027-07-01",
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ACT1042852SRE5",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -82,8 +82,8 @@
   "export": {
     "periods": [
       {
-        "id": "voluntary_retailer_buyback_rate",
-        "name": "Voluntary retailer buyback rate",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.0,
         "default": true
       }
@@ -125,5 +125,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan ACT1042852SRE5@EME; charges include GST (CDR ex GST x1.1). Incentive: 3 hour free usage. Incentive: Battery Power Top-Up. Incentive: Battery Power Top-Up Bonus. Fees: DISCONNECTION, RECONNECTION, OTHER, LATE_PAYMENT, DD_DISHONOUR. The plan gives its times in AEST all year (an hour later on the clock in summer), but Endeavour Energy's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+  "notes": "Converted from Energy Made Easy (CDR) plan ACT1042852SRE5@EME; charges include GST (CDR ex GST x1.1). Incentive: 3 hour free usage. Incentive: Battery Power Top-Up. Incentive: Battery Power Top-Up Bonus. Fees: DISCONNECTION, RECONNECTION, OTHER, LATE_PAYMENT, DD_DISHONOUR. The plan gives its times in AEST all year (an hour later on the clock in summer), but Endeavour Energy's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet. Feed-in is called 'Voluntary retailer buyback rate' on Energy Made Easy."
 }

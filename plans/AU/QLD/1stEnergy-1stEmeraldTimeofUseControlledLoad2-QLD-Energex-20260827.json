@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=1ST1161470MRE1",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -61,8 +61,8 @@
   "export": {
     "periods": [
       {
-        "id": "feed_in_tariff_gst_exempt",
-        "name": "Feed-in tariff (GST exempt)",
+        "id": "feed_in",
+        "name": "Feed-in",
         "tiers": [
           {
             "up_to_kwh": 5.0,
@@ -97,5 +97,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan 1ST1161470MRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Feed-in tariff (GST exempt)': the data gives its 5 kWh limit per P1Y, but its text says per day: per day was used. Fees: CONNECTION, DISCONNECTION, CHEQUE_DISHONOUR, DD_DISHONOUR, PAPER_BILL, PAYMENT_PROCESSING."
+  "notes": "Converted from Energy Made Easy (CDR) plan 1ST1161470MRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Feed-in tariff (GST exempt)': the data gives its 5 kWh limit per P1Y, but its text says per day: per day was used. Fees: CONNECTION, DISCONNECTION, CHEQUE_DISHONOUR, DD_DISHONOUR, PAPER_BILL, PAYMENT_PROCESSING. Feed-in is called 'Feed-in tariff (GST exempt)' on Energy Made Easy."
 }

@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=SUM1202036MRE2",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -66,8 +66,8 @@
   "export": {
     "periods": [
       {
-        "id": "sumo_zero_feed_in_single_rate_feed_in_tariff",
-        "name": "Sumo Zero Feed-In: Single Rate Feed In Tariff",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.0,
         "default": true
       }
@@ -93,5 +93,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan SUM1202036MRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in rates are listed for 2026-04-01 to 2026-12-31 only; used all year. Discount: $120 (incl.GST) sign-up credit (conditional, fixedAmount 120.00). Incentive: $120 (incl.GST) sign-up credit. Fees: CONNECTION."
+  "notes": "Converted from Energy Made Easy (CDR) plan SUM1202036MRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in rates are listed for 2026-04-01 to 2026-12-31 only; used all year. Discount: $120 (incl.GST) sign-up credit (conditional, fixedAmount 120.00). Incentive: $120 (incl.GST) sign-up credit. Fees: CONNECTION. Feed-in is called 'Sumo Zero Feed-In: Single Rate Feed In Tariff' on Energy Made Easy."
 }

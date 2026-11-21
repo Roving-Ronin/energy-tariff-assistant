@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ENG1214658MRE1",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -61,8 +61,8 @@
   "export": {
     "periods": [
       {
-        "id": "single_stepped_rate_solar_fit",
-        "name": "Single Stepped Rate Solar FiT",
+        "id": "feed_in",
+        "name": "Feed-in",
         "tiers": [
           {
             "up_to_kwh": 8.0,
@@ -113,5 +113,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan ENG1214658MRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Single Stepped Rate Solar FiT': the data gives its 8 kWh limit per P1Y, but its text says per day: per day was used. Incentive: EV Flex Charge. Fees: DISCONNECTION, DISCONNECTION, PAPER_BILL, LATE_PAYMENT."
+  "notes": "Converted from Energy Made Easy (CDR) plan ENG1214658MRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Single Stepped Rate Solar FiT': the data gives its 8 kWh limit per P1Y, but its text says per day: per day was used. Incentive: EV Flex Charge. Fees: DISCONNECTION, DISCONNECTION, PAPER_BILL, LATE_PAYMENT. Feed-in is called 'Single Stepped Rate Solar FiT' on Energy Made Easy."
 }

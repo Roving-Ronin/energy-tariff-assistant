@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=FEA1154616MRE2",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -61,8 +61,8 @@
   "export": {
     "periods": [
       {
-        "id": "solar_feed_in_tariff",
-        "name": "Solar Feed In Tariff",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.02,
         "default": true
       }
@@ -71,5 +71,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan FEA1154616MRE2@EME; charges include GST (CDR ex GST x1.1). Discount: Referral Discount (conditional, fixedAmount 30.00). Fees: DISCONNECTION, RECONNECTION, CONNECTION."
+  "notes": "Converted from Energy Made Easy (CDR) plan FEA1154616MRE2@EME; charges include GST (CDR ex GST x1.1). Discount: Referral Discount (conditional, fixedAmount 30.00). Fees: DISCONNECTION, RECONNECTION, CONNECTION. Feed-in is called 'Solar Feed In Tariff' on Energy Made Easy."
 }

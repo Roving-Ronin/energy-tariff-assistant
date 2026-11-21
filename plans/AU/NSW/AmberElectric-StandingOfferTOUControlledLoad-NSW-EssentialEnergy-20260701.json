@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=AMB1126220SRE1",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -54,8 +54,8 @@
   "export": {
     "periods": [
       {
-        "id": "fixed_feed_in",
-        "name": "Fixed feed in",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.0,
         "default": true
       }
@@ -81,5 +81,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan AMB1126220SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, CONNECTION, DISCONNECT_MOVE_OUT."
+  "notes": "Converted from Energy Made Easy (CDR) plan AMB1126220SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, CONNECTION, DISCONNECT_MOVE_OUT. Feed-in is called 'Fixed feed in' on Energy Made Easy."
 }

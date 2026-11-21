@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=SUM1212497MRE2",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -75,8 +75,8 @@
   "export": {
     "periods": [
       {
-        "id": "sumo_static_fit_stepped_rate_feed_in_tariff",
-        "name": "Sumo Static FiT: Stepped Rate Feed In Tariff",
+        "id": "feed_in",
+        "name": "Feed-in",
         "tiers": [
           {
             "up_to_kwh": 9.0,
@@ -127,5 +127,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan SUM1212497MRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in rates are listed for 2026-10-01 to 2027-06-30 only; used all year. Fees: CONNECTION."
+  "notes": "Converted from Energy Made Easy (CDR) plan SUM1212497MRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in rates are listed for 2026-10-01 to 2027-06-30 only; used all year. Fees: CONNECTION. Feed-in is called 'Sumo Static FiT: Stepped Rate Feed In Tariff' on Energy Made Easy."
 }

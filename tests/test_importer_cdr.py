@@ -15,6 +15,7 @@ import pytest
 
 from engine import Resolver, load_plan, validate_plan
 from engine.importers.cdr import CdrImportError, convert, map_distributor, rate_name, with_gst
+from engine.importers import cdr as cdr_module
 
 TODAY = date(2026, 11, 20)
 SYD = ZoneInfo("Australia/Sydney")
@@ -422,7 +423,7 @@ def test_cap_per_year_in_the_data_but_per_day_in_the_text(solarmax_cdr):
     ])
     result = convert(solarmax_cdr, TODAY)
     export = result.plans[0]["export"]["periods"]
-    assert export == [{"id": "feed_in_tariff_gst_exempt", "name": "Feed-in tariff (GST exempt)",
+    assert export == [{"id": "feed_in", "name": "Feed-in",
                        "tiers": [{"up_to_kwh": 5.0, "rate": 0.01}, {"rate": 0.001}], "tier_reset": "day",
                        "default": True}]
     assert any("its text says per day: per day was used" in note for note in result.notes)
@@ -497,7 +498,7 @@ def test_one_date_range_on_every_entry_is_not_a_season(solarmax_cdr):
     result = convert(solarmax_cdr, TODAY)
     plan = result.plans[0]
     assert "seasons" not in plan
-    assert plan["export"]["periods"] == [{"id": "sumo_zero_feed_in", "name": "Sumo Zero Feed-In", "rate": 0.0,
+    assert plan["export"]["periods"] == [{"id": "feed_in", "name": "Feed-in", "rate": 0.0,
                                           "default": True}]
     assert any("2026-04-01 to 2026-12-31 only; used all year" in note for note in result.notes)
 
@@ -594,3 +595,18 @@ def test_seasonal_prices_are_named_by_season_not_price(solarmax_cdr):
 ])
 def test_rate_names_drop_the_network_and_tariff_words(text, name):
     assert rate_name(text, "Anytime") == name
+
+
+def test_one_feed_in_period_is_called_feed_in():
+    periods = [{"id": "single_rate_solar_fit", "name": "Single Rate Solar FIT", "default": True,
+                "tiers": [{"up_to_kwh": 8, "rate": 0.08, "use_period": "single_rate_solar_fit"}, {"rate": 0.03}]}]
+    assert cdr_module.name_feed_in(periods) == "Single Rate Solar FIT"
+    assert periods[0]["id"] == "feed_in" and periods[0]["name"] == "Feed-in"
+    assert periods[0]["tiers"][0]["use_period"] == "feed_in"
+    tou = [{"id": "evening_fit", "name": "Evening FiT"}, {"id": "fit", "name": "FiT", "default": True}]
+    assert cdr_module.name_feed_in(tou) is None and tou[0]["id"] == "evening_fit"  # TOU feed-in keeps its names
+
+
+def test_source_links_the_plan_page():
+    assert cdr_module.plan_page("ALI1151050MRE4@EME") == "https://www.energymadeeasy.gov.au/plan?id=ALI1151050MRE4"
+    assert cdr_module.plan_page("ABC123@VEC") == "https://www.energymadeeasy.gov.au/"

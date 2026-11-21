@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=COV961467SRE2",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -61,8 +61,8 @@
   "export": {
     "periods": [
       {
-        "id": "feed_in_tariff_single_rate_feed_in_tariff",
-        "name": "Feed In Tariff: Single Rate Feed In Tariff",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.055,
         "default": true
       }
@@ -88,5 +88,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan COV961467SRE2@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION, RECONNECTION, DD_DISHONOUR."
+  "notes": "Converted from Energy Made Easy (CDR) plan COV961467SRE2@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION, RECONNECTION, DD_DISHONOUR. Feed-in is called 'Feed In Tariff: Single Rate Feed In Tariff' on Energy Made Easy."
 }

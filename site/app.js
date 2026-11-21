@@ -18,7 +18,7 @@ const SCALES = {
   sell: ["#adb5bd", "#74c0fc", "#339af0", "#1c7ed6", "#1864ab"],
 };
 const RESET_LABEL = { day: "per day", month: "per month", bill: "per bill" };
-const STREAM_LABEL = { import: "Import (buying)", export: "Feed-in (selling)" };
+const STREAM_LABEL = { import: "Import (buying)", export: "Export (selling)" };
 
 const state = { library: null, coverage: null, plans: new Map() };
 const app = document.getElementById("app");
@@ -82,6 +82,19 @@ function monthRange(months) {
 function seasonName(season, seasons) {
   const months = (seasons || {})[season];
   return months && months.length ? monthRange(months) : title(season.replace(/_/g, " "));
+}
+
+const SOURCE_NAMES = { EME: "Energy Made Easy" };
+
+// The source's name, linked to the plan's own page when there is one (Energy Made Easy: plan?id=<plan ID>)
+function sourceLink(plan) {
+  const source = plan.source || {};
+  const name = SOURCE_NAMES[source.type] || title(source.type || "?");
+  let url = /^https?:\/\//i.test(source.url || "") ? source.url : null;
+  if (source.type === "EME" && plan.plan_id && (!url || !url.includes("plan?id="))) {
+    url = `https://www.energymadeeasy.gov.au/plan?id=${encodeURIComponent(plan.plan_id)}`;
+  }
+  return url ? h("a", { href: url, rel: "noopener noreferrer" }, name) : name;
 }
 
 function title(text) {
@@ -489,7 +502,7 @@ async function renderPlan(file) {
       fact("Supply charge", supply.rate !== undefined ? `${dollars(supply.rate)} ${supply.unit === "per_day" ? "per day" : supply.unit || ""}` : "—"),
       fact("Time zone", plan.timezone),
       fact("Public holidays", holidays === "none" ? "Same as any other day" : `Priced as a ${title(holidays)}`),
-      fact("Source", [title(source.type || "?"), /^https?:\/\//i.test(source.url || "") ? h("span", {}, " · ", h("a", { href: source.url, rel: "noopener noreferrer" }, "link")) : null]),
+      fact("Source", sourceLink(plan)),
       fact("Checked", source.checked || "—")),
   );
 
@@ -501,11 +514,14 @@ async function renderPlan(file) {
   for (const key of ["import", "export"]) {
     if (plan[key] && plan[key].periods) streams.append(streamCard(plan, STREAM_LABEL[key], plan[key].periods, null, key === "export" ? "sell" : "buy"));
   }
+  view.append(streams);
+  // Controlled loads on their own row, two to a row, so import and feed-in always sit side by side
+  const loads = h("div", { class: "grid-2", style: "margin-top:16px" });
   for (const load of plan.controlled_load || []) {
     const charge = load.supply_charge ? h("p", { class: "muted" }, `Supply charge ${dollars(load.supply_charge.rate)} per day`) : null;
-    streams.append(streamCard(plan, `Controlled load: ${load.name}`, load.periods, charge));
+    loads.append(streamCard(plan, `Controlled load: ${load.name}`, load.periods, charge));
   }
-  view.append(streams);
+  if (loads.children.length) view.append(loads);
 
   if ((plan.demand || []).length) {
     view.append(h("h2", {}, "Demand charges"), h("div", { class: "card table-wrap" }, h("table", {},

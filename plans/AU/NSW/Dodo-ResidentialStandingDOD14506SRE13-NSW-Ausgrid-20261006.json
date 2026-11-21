@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=DOD14506SRE13",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -91,8 +91,8 @@
   "export": {
     "periods": [
       {
-        "id": "solar_fit",
-        "name": "Solar FiT",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.01,
         "default": true
       }
@@ -101,5 +101,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan DOD14506SRE13@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, CONNECTION, DISCONNECTION, RECONNECTION."
+  "notes": "Converted from Energy Made Easy (CDR) plan DOD14506SRE13@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, CONNECTION, DISCONNECTION, RECONNECTION. Feed-in is called 'Solar FiT' on Energy Made Easy."
 }

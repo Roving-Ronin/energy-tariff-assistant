@@ -12,7 +12,7 @@
   "effective_to": null,
   "source": {
     "type": "EME",
-    "url": "https://www.energymadeeasy.gov.au/",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=RED1038222SRE6",
     "checked": "2026-11-21"
   },
   "currency": "AUD",
@@ -66,8 +66,8 @@
   "export": {
     "periods": [
       {
-        "id": "solar_feed_in_tariffs_fit",
-        "name": "Solar feed-in tariffs (FIT)",
+        "id": "feed_in",
+        "name": "Feed-in",
         "rate": 0.025,
         "default": true
       }
@@ -93,5 +93,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan RED1038222SRE6@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION. The plan gives its times in local time, following daylight saving, but Evoenergy's time-of-use periods follow AEST all year (an hour later on the clock in summer). The plan's own time zone was used: check against the plan's fact sheet."
+  "notes": "Converted from Energy Made Easy (CDR) plan RED1038222SRE6@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION. The plan gives its times in local time, following daylight saving, but Evoenergy's time-of-use periods follow AEST all year (an hour later on the clock in summer). The plan's own time zone was used: check against the plan's fact sheet. Feed-in is called 'Solar feed-in tariffs (FIT)' on Energy Made Easy."
 }
