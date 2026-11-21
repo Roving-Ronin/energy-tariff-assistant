@@ -1,0 +1,99 @@
+name: Import plans
+
+# By hand: converts Energy Made Easy (CDR) plans for the distributors given, validates them and
+# opens a pull request adding the ones that pass to the library, all `needs_review: true`.
+# Plans already in the library (same plan ID and distributor) are left alone.
+# Needs Settings -> Actions -> General -> "Allow GitHub Actions to create and approve pull requests".
+# CI doesn't start on a pull request opened with GITHUB_TOKEN: close and reopen it to run the checks.
+on:
+  workflow_dispatch:
+    inputs:
+      dnsps:
+        description: "Distributors, comma separated, as in the library"
+        required: true
+        default: "Ausgrid, Endeavour Energy, Essential Energy"
+      customer:
+        description: "Customer type"
+        type: choice
+        options: [residential, business]
+        default: residential
+      pricing:
+        description: "Pricing"
+        type: choice
+        options: [tou, single, all]
+        default: tou
+      per_retailer:
+        description: "Newest plans per retailer per distributor (0: all)"
+        required: false
+        default: "3"
+
+permissions: {}
+
+concurrency:
+  group: import-plans
+  cancel-in-progress: false
+
+jobs:
+  import:
+    name: Convert and open a pull request
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # push the import branch
+      pull-requests: write  # open the pull request
+    steps:
+      - name: Check out the default branch
+        # zizmor: ignore[artipacked] this job pushes the import branch, so it keeps the token
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - run: pip install -r requirements_test.txt
+
+      - name: Convert plans from Energy Made Easy
+        env:
+          DNSPS: ${{ inputs.dnsps }}
+          CUSTOMER: ${{ inputs.customer }}
+          PRICING: ${{ inputs.pricing }}
+          PER_RETAILER: ${{ inputs.per_retailer }}
+        run: |
+          args=()
+          IFS=',' read -ra names <<< "$DNSPS"
+          for name in "${names[@]}"; do
+            name="$(echo "$name" | xargs)"
+            [ -n "$name" ] && args+=(--dnsp "$name")
+          done
+          python scripts/import_eme_plans.py "${args[@]}" --customer "$CUSTOMER" --pricing "$PRICING" \
+            --per-retailer "${PER_RETAILER:-3}" --summary "$RUNNER_TEMP/summary.md"
+          cat "$RUNNER_TEMP/summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Validate and rebuild the index
+        run: |
+          python scripts/validate_plans.py
+          python scripts/build_index.py
+
+      - name: Open a pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          DNSPS: ${{ inputs.dnsps }}
+          CUSTOMER: ${{ inputs.customer }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          if [ -z "$(git status --porcelain -- plans)" ]; then
+            echo "No new plans."
+            exit 0
+          fi
+          branch="import/eme-$RUN_ID"
+          git switch -q -c "$branch"
+          git add plans
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "Plans: import from Energy Made Easy ($CUSTOMER, $DNSPS)"
+          git push -q origin "$branch"
+          gh pr create --base "$DEFAULT_BRANCH" --head "$branch" \
+            --title "Plans: import from Energy Made Easy ($CUSTOMER, $DNSPS)" \
+            --body-file "$RUNNER_TEMP/summary.md"

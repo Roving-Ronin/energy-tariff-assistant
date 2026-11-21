@@ -27,6 +27,7 @@ pip install ruff && ruff check .        # lint incl. security rules (ruff.toml);
 pip install zizmor actionlint-py && zizmor . && actionlint   # workflow security + syntax; Security workflow runs both
 python scripts/validate_plans.py && python scripts/build_index.py --check   # plan library; Plans workflow runs both
 python scripts/build_site.py --out /tmp/site && python -m http.server -d /tmp/site   # plan browser, locally
+python scripts/import_eme_plans.py --dnsp Ausgrid --dry-run   # convert EME plans (needs internet; the Import plans workflow runs it)
 ```
 
 CI on every push and PR: Tests (Ruff, pytest), Pull Requests (compile, strings = en.json, engine has no HA
@@ -159,6 +160,13 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   timeline mirrors `Window.segments`/`covers` and `Resolver._period` (first non-default match wins): change them
   together. Its **Report a problem** link uses the same form field ids as `share.py`. Only the library goes on
   the site: never raw CDR data or unchecked conversions.
+- **Import plans** (manual workflow, `scripts/import_eme_plans.py`): converts Energy Made Easy plans for chosen
+  DNSPs, customer type and pricing (newest `--per-retailer` per retailer per DNSP), validates them, writes the ones
+  that pass (`needs_review: true`, plan ID without `@EME`) and opens a PR with the summary. **Never touches a plan
+  already in the library** (same plan ID + DNSP): reviewed plans keep their period ids, and people's meters. The
+  repo needs "Allow GitHub Actions to create and approve pull requests"; CI doesn't start on a PR opened with
+  `GITHUB_TOKEN` (close and reopen it). Retailer names come from the CDR `brandName` (`CovaU`, while the
+  hand-made library plan says `Covau`).
 - **CDR conversion check** (manual workflow, `scripts/check_cdr_conversion.py`): real plan details are an uploaded
   artifact only, never committed. Tests use hand-written or trimmed samples.
 
