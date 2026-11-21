@@ -49,8 +49,8 @@
   "import": {
     "periods": [
       {
-        "id": "ausgrid_solar_sharer_peak",
-        "name": "Ausgrid Solar Sharer Peak",
+        "id": "peak",
+        "name": "Peak",
         "rate": 0.637177,
         "windows": [
           {
@@ -65,8 +65,8 @@
         ]
       },
       {
-        "id": "ausgrid_solar_sharer_free_period",
-        "name": "Ausgrid Solar Sharer Free Period",
+        "id": "free_period",
+        "name": "Free Period",
         "tiers": [
           {
             "up_to_kwh": 24.0,
@@ -86,8 +86,8 @@
         ]
       },
       {
-        "id": "ausgrid_solar_sharer_off_peak",
-        "name": "Ausgrid Solar Sharer Off Peak",
+        "id": "off_peak",
+        "name": "Off Peak",
         "rate": 0.275597,
         "default": true
       }

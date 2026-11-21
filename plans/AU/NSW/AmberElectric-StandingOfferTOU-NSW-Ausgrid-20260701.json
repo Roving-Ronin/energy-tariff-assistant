@@ -49,8 +49,8 @@
   "import": {
     "periods": [
       {
-        "id": "ausgrid_time_of_use_peak",
-        "name": "Ausgrid Time of Use Peak",
+        "id": "peak",
+        "name": "Peak",
         "rate": 0.601966,
         "windows": [
           {
@@ -65,8 +65,8 @@
         ]
       },
       {
-        "id": "ausgrid_time_of_use_off_peak_am",
-        "name": "Ausgrid Time of Use Off Peak (AM)",
+        "id": "off_peak_am",
+        "name": "Off Peak (AM)",
         "rate": 0.240387,
         "windows": [
           {
@@ -81,8 +81,8 @@
         ]
       },
       {
-        "id": "ausgrid_time_of_use_off_peak_pm",
-        "name": "Ausgrid Time of Use Off Peak (PM)",
+        "id": "off_peak_pm",
+        "name": "Off Peak (PM)",
         "rate": 0.240387,
         "windows": [
           {
@@ -97,8 +97,8 @@
         ]
       },
       {
-        "id": "ausgrid_time_of_use_off_peak",
-        "name": "Ausgrid Time of Use Off Peak",
+        "id": "off_peak",
+        "name": "Off Peak",
         "rate": 0.240387,
         "default": true
       }

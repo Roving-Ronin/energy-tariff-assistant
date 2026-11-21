@@ -50,7 +50,7 @@
     "periods": [
       {
         "id": "peak_jun_aug_nov_mar",
-        "name": "Peak (Jun-Aug, Nov-Mar)",
+        "name": "Peak (Jun – Aug, Nov – Mar)",
         "rate": 0.601966,
         "windows": [
           {
@@ -66,7 +66,7 @@
       },
       {
         "id": "peak_apr_may_sep_oct",
-        "name": "Peak (Apr-May, Sep-Oct)",
+        "name": "Peak (Apr – May, Sep – Oct)",
         "rate": 0.240387,
         "windows": [
           {
@@ -91,8 +91,8 @@
   "export": {
     "periods": [
       {
-        "id": "tou_rate_solar_fit",
-        "name": "TOU Rate Solar FiT",
+        "id": "solar_fit",
+        "name": "Solar FiT",
         "rate": 0.01,
         "default": true
       }
@@ -101,8 +101,8 @@
   "demand": [],
   "controlled_load": [
     {
-      "id": "tou_rate_controlled_load_1",
-      "name": "TOU Rate Controlled Load 1",
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
       "supply_charge": {
         "rate": 0.0,
         "unit": "per_day"
@@ -110,15 +110,15 @@
       "periods": [
         {
           "id": "anytime",
-          "name": "TOU Rate Controlled Load 1",
+          "name": "Controlled Load 1",
           "rate": 0.193094,
           "default": true
         }
       ]
     },
     {
-      "id": "tou_rate_controlled_load_2",
-      "name": "TOU Rate Controlled Load 2",
+      "id": "controlled_load_2",
+      "name": "Controlled Load 2",
       "supply_charge": {
         "rate": 0.0,
         "unit": "per_day"
@@ -126,7 +126,7 @@
       "periods": [
         {
           "id": "anytime",
-          "name": "TOU Rate Controlled Load 2",
+          "name": "Controlled Load 2",
           "rate": 0.23005,
           "default": true
         }

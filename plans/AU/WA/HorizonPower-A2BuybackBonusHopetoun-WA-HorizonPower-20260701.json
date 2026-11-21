@@ -56,7 +56,7 @@
     "periods": [
       {
         "id": "peak_nov_mar",
-        "name": "Peak (Nov-Mar)",
+        "name": "Peak (Nov – Mar)",
         "rate": 0.5599,
         "windows": [
           {
@@ -71,7 +71,7 @@
       },
       {
         "id": "peak_apr_oct",
-        "name": "Peak (Apr-Oct)",
+        "name": "Peak (Apr – Oct)",
         "rate": 0.5599,
         "windows": [
           {
@@ -86,7 +86,7 @@
       },
       {
         "id": "off_peak_nov_mar",
-        "name": "Off Peak (Nov-Mar)",
+        "name": "Off Peak (Nov – Mar)",
         "rate": 0.168,
         "windows": [
           {
@@ -101,7 +101,7 @@
       },
       {
         "id": "off_peak_apr_oct",
-        "name": "Off Peak (Apr-Oct)",
+        "name": "Off Peak (Apr – Oct)",
         "rate": 0.168,
         "default": true
       }

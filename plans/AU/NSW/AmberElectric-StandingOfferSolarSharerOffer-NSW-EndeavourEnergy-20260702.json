@@ -27,8 +27,8 @@
   "import": {
     "periods": [
       {
-        "id": "endeavour_energy_solar_sharer_peak",
-        "name": "Endeavour Energy Solar Sharer Peak",
+        "id": "peak",
+        "name": "Peak",
         "rate": 0.487482,
         "windows": [
           {
@@ -39,8 +39,8 @@
         ]
       },
       {
-        "id": "endeavour_energy_solar_sharer_solar_sponge",
-        "name": "Endeavour Energy Solar Sharer Solar Sponge",
+        "id": "solar_sponge",
+        "name": "Solar Sponge",
         "rate": 0.141869,
         "windows": [
           {
@@ -51,8 +51,8 @@
         ]
       },
       {
-        "id": "endeavour_energy_solar_sharer_free_period",
-        "name": "Endeavour Energy Solar Sharer Free Period",
+        "id": "free_period",
+        "name": "Free Period",
         "tiers": [
           {
             "up_to_kwh": 24.0,
@@ -72,8 +72,8 @@
         ]
       },
       {
-        "id": "endeavour_energy_solar_sharer_off_peak",
-        "name": "Endeavour Energy Solar Sharer Off Peak",
+        "id": "off_peak",
+        "name": "Off Peak",
         "rate": 0.3753,
         "default": true
       }

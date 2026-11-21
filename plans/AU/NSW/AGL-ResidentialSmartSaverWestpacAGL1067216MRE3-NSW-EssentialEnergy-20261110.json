@@ -27,8 +27,8 @@
   "import": {
     "periods": [
       {
-        "id": "time_of_use_peak",
-        "name": "Time of Use Peak",
+        "id": "peak",
+        "name": "Peak",
         "rate": 0.39589,
         "windows": [
           {
@@ -44,8 +44,8 @@
         ]
       },
       {
-        "id": "time_of_use_off_peak",
-        "name": "Time of Use Off Peak",
+        "id": "off_peak",
+        "name": "Off Peak",
         "rate": 0.22693,
         "default": true
       }

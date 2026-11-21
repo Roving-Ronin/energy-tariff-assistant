@@ -45,8 +45,8 @@
   "import": {
     "periods": [
       {
-        "id": "endeavour_energy_time_of_use_peak_nov_mar",
-        "name": "Endeavour Energy Time of Use Peak (Nov-Mar)",
+        "id": "peak_nov_mar",
+        "name": "Peak (Nov – Mar)",
         "rate": 0.465719,
         "windows": [
           {
@@ -60,8 +60,8 @@
         ]
       },
       {
-        "id": "endeavour_energy_solar_sponge",
-        "name": "Endeavour Energy Solar Sponge",
+        "id": "solar_sponge",
+        "name": "Solar Sponge",
         "rate": 0.123476,
         "windows": [
           {
@@ -72,8 +72,8 @@
         ]
       },
       {
-        "id": "endeavour_energy_time_of_use_peak_apr_oct",
-        "name": "Endeavour Energy Time of Use Peak (Apr-Oct)",
+        "id": "peak_apr_oct",
+        "name": "Peak (Apr – Oct)",
         "rate": 0.471379,
         "windows": [
           {
@@ -87,8 +87,8 @@
         ]
       },
       {
-        "id": "endeavour_energy_time_of_use_off_peak",
-        "name": "Endeavour Energy Time of Use Off Peak",
+        "id": "off_peak",
+        "name": "Off Peak",
         "rate": 0.356907,
         "default": true
       }

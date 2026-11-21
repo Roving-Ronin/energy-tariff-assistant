@@ -61,8 +61,8 @@
   "export": {
     "periods": [
       {
-        "id": "tou_rate_solar_fit",
-        "name": "TOU Rate Solar FiT",
+        "id": "solar_fit",
+        "name": "Solar FiT",
         "rate": 0.01,
         "default": true
       }

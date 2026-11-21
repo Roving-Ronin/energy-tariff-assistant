@@ -14,7 +14,7 @@ from zoneinfo import ZoneInfo
 import pytest
 
 from engine import Resolver, load_plan, validate_plan
-from engine.importers.cdr import CdrImportError, convert, map_distributor, with_gst
+from engine.importers.cdr import CdrImportError, convert, map_distributor, rate_name, with_gst
 
 TODAY = date(2026, 11, 20)
 SYD = ZoneInfo("Australia/Sydney")
@@ -456,7 +456,7 @@ def test_capped_peak_with_its_balance_named_by_the_capped_entry(solarmax_cdr):
 
 
 def test_feed_in_seasons_from_entry_dates(solarmax_cdr):
-    # Red Energy style: summer (Nov-Mar) and winter (Apr-Oct) entries with their own rates; usage has no seasons
+    # Red Energy style: summer (Nov – Mar) and winter (Apr – Oct) entries with their own rates; usage has no seasons
     summer, winter = ("2024-11-01", "2025-03-31"), ("2025-04-01", "2025-10-31")
     with_feed_in(solarmax_cdr, [
         fit_entry("0.154", period="P1Y", times=[("16:00", "19:59")], dates=summer, name="Smart"),
@@ -577,4 +577,20 @@ def test_seasonal_prices_are_named_by_season_not_price(solarmax_cdr):
     assert validate_plan(plan).ok, validate_plan(plan).errors
     assert plan["seasons"] == {"nov_mar": [11, 12, 1, 2, 3], "apr_oct": [4, 5, 6, 7, 8, 9, 10]}
     ids = {p["id"]: p["name"] for p in plan["import"]["periods"]}
-    assert ids == {"peak_nov_mar": "Peak (Nov-Mar)", "peak_apr_oct": "Peak (Apr-Oct)", "off_peak": "Off Peak"}
+    assert ids == {"peak_nov_mar": "Peak (Nov – Mar)", "peak_apr_oct": "Peak (Apr – Oct)", "off_peak": "Off Peak"}
+
+
+@pytest.mark.parametrize("text, name", [
+    ("Ausgrid Solar Sharer Peak", "Peak"),
+    ("Endeavour Energy Time of Use Off Peak AM", "Off Peak AM"),
+    ("Essential Energy Solar Sharer Free Period", "Free Period"),
+    ("Endeavour Energy Solar Sponge", "Solar Sponge"),
+    ("TOU peak", "Peak"),
+    ("TOU Rate Solar FiT", "Solar FiT"),
+    ("Peak", "Peak"),
+    ("Solar Sharer", "Solar Sharer"),  # nothing left: keep it as given
+    ("Ausgrid", "Ausgrid"),
+    ("", "Anytime"),
+])
+def test_rate_names_drop_the_network_and_tariff_words(text, name):
+    assert rate_name(text, "Anytime") == name

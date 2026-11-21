@@ -27,8 +27,8 @@
   "import": {
     "periods": [
       {
-        "id": "essential_energy_time_of_use_peak",
-        "name": "Essential Energy Time of Use Peak",
+        "id": "peak",
+        "name": "Peak",
         "rate": 0.421188,
         "windows": [
           {
@@ -44,8 +44,8 @@
         ]
       },
       {
-        "id": "essential_energy_time_of_use_off_peak",
-        "name": "Essential Energy Time of Use Off Peak",
+        "id": "off_peak",
+        "name": "Off Peak",
         "rate": 0.241448,
         "default": true
       }

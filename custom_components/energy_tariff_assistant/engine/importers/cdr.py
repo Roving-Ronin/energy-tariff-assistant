@@ -72,6 +72,27 @@ DISTRIBUTORS: list[tuple[str, str, str]] = [
     ("tas networks", "TasNetworks", "TAS"),
 ]
 
+# Words retailers put before a rate's name that only repeat the network or the tariff ("Ausgrid Solar Sharer
+# Peak", "Endeavour Energy Time of Use Off Peak"): left out, so names and meter ids read "Peak", "Off Peak"
+_NETWORK_WORDS = sorted({d for _, d, _ in DISTRIBUTORS} | {k for k, _, _ in DISTRIBUTORS} | {"Endeavour", "Essential"},
+                        key=len, reverse=True)
+_TARIFF_WORDS = ("Solar Sharer Offer", "Solar Sharer", "Time of Use Rate", "Time of Use", "TOU Rate", "TOU")
+_LEADING = re.compile(
+    rf"^(?:(?:{'|'.join(re.escape(w) for w in _NETWORK_WORDS)})\b[\s:-]*)?"
+    rf"(?:(?:{'|'.join(re.escape(w) for w in _TARIFF_WORDS)})\b[\s:-]*)?",
+    re.IGNORECASE,
+)
+
+
+def rate_name(text: str | None, fallback: str) -> str:
+    """A rate's own name without the network and tariff words before it; the text as given if nothing's left."""
+    text = (text or "").strip()
+    if not text:
+        return fallback
+    rest = _LEADING.sub("", text, count=1).strip()
+    return rest[:1].upper() + rest[1:] if re.search(r"[A-Za-z]", rest) else text
+
+
 STATE_TIMEZONES = {
     "NSW": "Australia/Sydney",
     "ACT": "Australia/Sydney",
@@ -292,7 +313,7 @@ def _import_periods(
         kind = tariff.get("rateBlockUType")
         if kind == "singleRate":
             single = tariff.get("singleRate") or {}
-            name = single.get("displayName") or "Anytime"
+            name = rate_name(single.get("displayName"), "Anytime")
             period = {"id": _unique(_slug(name if not season else f"{name} {season}"), taken), "name": name,
                       **_rates(single.get("rates") or [], single.get("period"), name)}
             period["windows"] = [{"days": "all", "all_day": True, **({"seasons": seasons} if seasons else {})}]
@@ -300,7 +321,7 @@ def _import_periods(
             periods.append(period)
         elif kind == "timeOfUseRates":
             for tou in tariff.get("timeOfUseRates") or []:
-                name = tou.get("displayName") or NAME_BY_TYPE.get(tou.get("type"), "Rate")
+                name = rate_name(tou.get("displayName"), NAME_BY_TYPE.get(tou.get("type"), "Rate"))
                 windows = []
                 for slot in tou.get("timeOfUse") or []:
                     days, has_holidays = _days(slot.get("days"))
@@ -311,7 +332,7 @@ def _import_periods(
                     raise CdrImportError(f"time of use rate {name!r} has no time windows")
                 # Ids come from the plan's own names ("Free"), the CDR type only if unnamed:
                 # they key the meters and entity ids, so they should mean something.
-                base = tou.get("displayName") or NAME_BY_TYPE.get(tou.get("type")) or "rate"
+                base = rate_name(tou.get("displayName"), NAME_BY_TYPE.get(tou.get("type")) or "rate")
                 periods.append({
                     "id": _unique(_slug(base if not season else f"{base} {season}"), taken),
                     "name": name,
@@ -373,14 +394,14 @@ def _merge_seasonal(
 
 
 def _season_label(period: dict[str, Any], season_months: dict[str, list[int]]) -> str:
-    """'Nov-Mar' or 'Apr-May, Sep-Oct' for the seasons a period's windows are in."""
+    """'Nov – Mar' or 'Apr – May, Sep – Oct' for the seasons a period's windows are in."""
     names = sorted({s for w in period.get("windows") or [] for s in w.get("seasons") or []},
                    key=lambda n: (season_months.get(n) or [13])[0])
     labels = []
     for name in names:
         months = season_months.get(name) or []
         first, last = (MONTH_NAMES[months[0] - 1], MONTH_NAMES[months[-1] - 1]) if months else (name, name)
-        labels.append(first.title() if first == last else f"{first.title()}-{last.title()}")
+        labels.append(first.title() if first == last else f"{first.title()} – {last.title()}")
     return ", ".join(labels) or "all year"
 
 
@@ -511,7 +532,7 @@ def _export_periods(
                 days, _ = _days(slot.get("days"))
                 windows.append(_window(days, slot.get("startTime"), slot.get("endTime"), None))
             type_name = NAME_BY_TYPE.get(variation.get("type"))
-            name = variation.get("displayName") or type_name or "Feed-in"
+            name = rate_name(variation.get("displayName"), type_name or "Feed-in")
             pieces.append(_FeedInPiece(months, windows or None, variation.get("rates") or [],
                                        variation.get("period"), name, text, type_name))
 
@@ -669,7 +690,7 @@ def _controlled_loads(contract: dict[str, Any], notes: list[str]) -> list[dict[s
     loads = []
     taken: set[str] = set()
     for load in contract.get("controlledLoad") or []:
-        name = load.get("displayName") or "Controlled load"
+        name = rate_name(load.get("displayName"), "Controlled load")
         if load.get("rateBlockUType") != "singleRate":
             notes.append(f"Controlled load {name!r} has time-of-use rates: left out for now.")
             continue
