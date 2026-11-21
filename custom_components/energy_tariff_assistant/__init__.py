@@ -12,12 +12,14 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry, ConfigEntryState
+from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP, Platform
 from homeassistant.core import Event, HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import ConfigEntryError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import service
 from homeassistant.helpers.typing import ConfigType
 
 from . import wizard
@@ -35,6 +37,8 @@ from .const import (
     DOMAIN,
     KIND_ACTIVE,
     KIND_PLAN,
+    ATTR_VALUE,
+    SERVICE_CALIBRATE,
     SERVICE_SET_ACTIVE_PLAN,
     STREAM_EXPORT,
     STREAM_IMPORT,
@@ -83,6 +87,17 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
         hub.runtime_data.async_set_active(entry.entry_id)
 
     hass.services.async_register(DOMAIN, SERVICE_SET_ACTIVE_PLAN, _set_active, schema=SET_ACTIVE_SCHEMA)
+    async def _calibrate(entity: Any, call: ServiceCall) -> None:
+        # Only Active Tariff's totals can be set; the other sensors are worked out from the plan
+        if not hasattr(entity, "async_calibrate"):
+            raise ServiceValidationError(translation_domain=DOMAIN, translation_key="not_a_total")
+        entity.async_calibrate(call.data[ATTR_VALUE])
+
+    # Set one of Active Tariff's totals (to match a bill)
+    service.async_register_platform_entity_service(
+        hass, DOMAIN, SERVICE_CALIBRATE, entity_domain=SENSOR_DOMAIN,
+        schema={vol.Required(ATTR_VALUE): vol.Coerce(float)}, func=_calibrate,
+    )
     return True
 
 

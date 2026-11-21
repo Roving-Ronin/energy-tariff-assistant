@@ -5,7 +5,7 @@
   "region": "NSW",
   "dnsp": "Essential Energy",
   "retailer": "Red Energy",
-  "plan": "Red BCNA (Demand) (FIT Option B)",
+  "plan": "Red BCNA Demand (FIT Option B)",
   "plan_id": "RED552729MRE21",
   "customer_type": "residential",
   "feed_in_option": "B",

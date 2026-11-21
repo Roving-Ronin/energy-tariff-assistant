@@ -85,6 +85,11 @@ class ActiveRuntime:
         self._store: Store[dict[str, Any]] = Store(hass, STORE_VERSION, f"{DOMAIN}.active")
         self.totals = {"import_cost": 0.0, "export_compensation": 0.0, "supply_charge": 0.0, "demand_charge": 0.0}
         self.days_counted = 0
+        # kWh behind the cost and compensation totals, and the totals' value then, since each was last calibrated:
+        # the average rate is (total - base) / kWh
+        self.energy = {"import_cost": 0.0, "export_compensation": 0.0}
+        self.base = {"import_cost": 0.0, "export_compensation": 0.0}
+        self.last_reset: dict[str, str] = {}  # total -> when it was last calibrated (ISO), for the statistics
         self._supply_last_day: date | None = None
         self._seen: dict[str, dict[str, float]] = {}  # entry id -> stream -> ledger total_cost last counted
         self._unsub_plan: Callable[[], None] | None = None
@@ -141,6 +146,9 @@ class ActiveRuntime:
         if last := stored.get("supply_last_day"):
             self._supply_last_day = date.fromisoformat(last)
         self._seen = stored.get("seen", {})
+        self.energy.update({k: float(v) for k, v in stored.get("energy", {}).items() if k in self.energy})
+        self.base.update({k: float(v) for k, v in stored.get("base", {}).items() if k in self.base})
+        self.last_reset = {k: v for k, v in stored.get("last_reset", {}).items() if k in self.totals}
         self.async_follow()
         self._schedule_midnight()
 
@@ -159,6 +167,9 @@ class ActiveRuntime:
             "days_counted": self.days_counted,
             "supply_last_day": self._supply_last_day.isoformat() if self._supply_last_day else None,
             "seen": self._seen,
+            "energy": self.energy,
+            "base": self.base,
+            "last_reset": self.last_reset,
         }
 
     @callback
@@ -205,10 +216,14 @@ class ActiveRuntime:
                 if ledger is None:
                     continue
                 last = seen.get(stream)
+                last_kwh = seen.get(f"{stream}_kwh")
                 # First look at this plan (or its ledger was cleared): start from where it stands, count nothing
                 if last is not None and ledger.total_cost >= last:
                     self.totals[key] += ledger.total_cost - last
+                if last_kwh is not None and ledger.total_kwh >= last_kwh:
+                    self.energy[key] += ledger.total_kwh - last_kwh
                 seen[stream] = ledger.total_cost
+                seen[f"{stream}_kwh"] = ledger.total_kwh
             # Demand: the plan's charge so far (a new peak re-prices earlier days; each day adds a day's charge)
             demand = runtime.demand_total()
             if demand is not None:
@@ -217,6 +232,21 @@ class ActiveRuntime:
                     self.totals["demand_charge"] += demand - last
                 seen["demand"] = demand
             self._store.async_delay_save(self._data, SAVE_DELAY)
+        async_dispatcher_send(self.hass, signal_active())
+
+    @callback
+    def async_calibrate(self, key: str, value: float) -> None:
+        """Set a total (to match a bill, say). It carries on counting from `value`.
+
+        The total's `last_reset` moves to now, so Home Assistant's statistics start a new cycle there instead of
+        counting the jump as cost.
+        """
+        self.totals[key] = float(value)
+        self.last_reset[key] = dt_util.utcnow().isoformat()
+        if key in self.energy:
+            self.energy[key] = 0.0
+            self.base[key] = float(value)
+        self._store.async_delay_save(self._data, SAVE_DELAY)
         async_dispatcher_send(self.hass, signal_active())
 
     @callback

@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from collections.abc import Callable
+from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -15,6 +16,7 @@ from homeassistant.util import dt as dt_util
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
+from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import TariffConfigEntry
@@ -23,6 +25,8 @@ from .const import (
     ACTIVE_SLUG,
     ACTIVE_TITLE,
     ACTIVE_UNIQUE_ID,
+    CONF_EXPORT_SENSOR,
+    CONF_IMPORT_SENSOR,
     CONF_KIND,
     CONF_SLUG,
     DOMAIN,
@@ -38,6 +42,9 @@ PARALLEL_UPDATES = 0
 
 STREAM_LABEL = {STREAM_IMPORT: "Import", STREAM_EXPORT: "Export"}
 FORECAST_ATTRIBUTES = frozenset({"forecast", "forecasts"})
+# Totals change with every grid reading (some meters report every few seconds): write the state at most this often,
+# so the history database stays small. Every reading is still counted.
+TOTAL_WRITE_INTERVAL = 30.0  # seconds
 
 
 async def async_setup_entry(
@@ -315,17 +322,58 @@ class GridPriceSensor(ActiveEntity):
 
 
 class TotalSensor(ActiveEntity):
-    """A running $ total kept across plan switches (import cost, export compensation, supply charge)."""
+    """A running $ total kept across plan switches (import cost, export compensation, supply and demand charges).
+
+    Settable with the `calibrate` action (to match a bill); `last_reset` then moves to that moment, so the
+    statistics start a new cycle instead of counting the jump."""
 
     _attr_device_class = SensorDeviceClass.MONETARY
     _attr_state_class = SensorStateClass.TOTAL
     _attr_suggested_display_precision = 2
+    _unrecorded_attributes = frozenset({"energy_kwh", "average_rate"})
 
     def __init__(self, runtime: ActiveRuntime, key: str, name: str, icon: str) -> None:
         super().__init__(runtime, f"{key}_total")
         self.key = key
         self._attr_name = name
         self._attr_icon = icon
+        self._last_write: datetime | None = None
+        self._pending: Callable[[], None] | None = None
+
+    @callback
+    def _async_refresh(self) -> None:
+        """Write at most every TOTAL_WRITE_INTERVAL seconds; a change in between is written when it's up."""
+        now = dt_util.utcnow()
+        wait = TOTAL_WRITE_INTERVAL - (now - self._last_write).total_seconds() if self._last_write else 0.0
+        if wait <= 0:
+            self._write(now)
+        elif self._pending is None:
+            self._pending = async_call_later(self.hass, wait, self._async_write_later)
+
+    @callback
+    def _async_write_later(self, _now: datetime) -> None:
+        self._pending = None
+        self._write(dt_util.utcnow())
+
+    @callback
+    def _write(self, now: datetime) -> None:
+        self._last_write = now
+        self._update()
+        self.async_write_ha_state()
+
+    async def async_will_remove_from_hass(self) -> None:
+        if self._pending:
+            self._pending()
+            self._pending = None
+
+    @callback
+    def async_calibrate(self, value: float) -> None:
+        """Set this total (the `calibrate` action)."""
+        self.runtime.async_calibrate(self.key, value)
+        if self._pending:  # the new value goes out now, not after the wait
+            self._pending()
+            self._pending = None
+        self._write(dt_util.utcnow())
 
     @property
     def available(self) -> bool:
@@ -343,9 +391,20 @@ class TotalSensor(ActiveEntity):
         # Keep the currency while no plan is in use, so the total's statistics don't break
         self._attr_native_unit_of_measurement = plan_runtime.currency if plan_runtime else "AUD"
         self._attr_native_value = round(self.runtime.totals[self.key], 6)
+        reset = self.runtime.last_reset.get(self.key)
+        self._attr_last_reset = dt_util.parse_datetime(reset) if reset else None
         attributes = self._plan_attributes()
         if self.key == "supply_charge":
             attributes["days_counted"] = self.runtime.days_counted
+        if self.key in self.runtime.energy:
+            stream = STREAM_IMPORT if self.key == "import_cost" else STREAM_EXPORT
+            kwh = self.runtime.energy[self.key]
+            counted = self.runtime.totals[self.key] - self.runtime.base[self.key]
+            attributes["energy_kwh"] = round(kwh, 3)
+            attributes["average_rate"] = round(counted / kwh, 6) if kwh > 0 else None
+            attributes["source"] = self.runtime.entry.options.get(
+                CONF_IMPORT_SENSOR if stream == STREAM_IMPORT else CONF_EXPORT_SENSOR
+            )
         self._attr_extra_state_attributes = attributes
 
 

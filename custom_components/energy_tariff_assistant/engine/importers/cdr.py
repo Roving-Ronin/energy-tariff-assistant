@@ -115,6 +115,16 @@ _LEADING = re.compile(
 )
 
 
+# Red Energy brackets plan-type words: "Qantas Red Saver (Bundled)(Demand)". Unbracketed they read as a name and
+# still tell a bundled plan from the plain one ("Qantas Red Saver Bundled Demand" / "Qantas Red Saver Demand").
+_BRACKETED_WORDS = re.compile(r"\s*\((bundled|demand)\)", re.IGNORECASE)
+
+
+def plan_name(text: str) -> str:
+    """The plan's name as Energy Made Easy gives it, with bracketed plan-type words unbracketed."""
+    return re.sub(r"\s+", " ", _BRACKETED_WORDS.sub(lambda m: f" {m.group(1)}", text)).strip()
+
+
 def rate_name(text: str | None, fallback: str) -> str:
     """A rate's own name without the network and tariff words before it; the text as given if nothing's left."""
     text = (text or "").strip()
@@ -1205,7 +1215,7 @@ def _build(
         "version": VERSION,
         "country": "AU",
         "retailer": (data.get("brandName") or data.get("brand") or "").strip(),
-        "plan": data.get("displayName") or data["planId"],
+        "plan": plan_name(data.get("displayName") or data["planId"]),
         "plan_id": data["planId"],
         "effective_from": effective_from,
         "effective_to": effective_to if effective_to and effective_to >= effective_from else None,
