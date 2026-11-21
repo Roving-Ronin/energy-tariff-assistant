@@ -147,6 +147,12 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   (Sumo: Apr-Dec) is when the rates apply, used all year with a note. Same rate and times in every season → one period. A cap with nothing
   after it, or entries that don't pair up, is skipped with a reason. Covau SolarMax combined matches the library.
 - CDR window ends are inclusive (14:59, 23:59): they become 15:00, 24:00.
+- **Feed-in options** (decided 2026-11-22): some plans offer a choice of feed-in, labelled in each retailer entry's
+  description ("OPTION A: Red Energy FIT…", "OPTION B: Surplus FiT (First 7.5 kWh/day)…"). Each option is **its own
+  plan**: name + " (FIT Option A)", `feed_in_option: "A"`, same plan ID, rates named from the description ("Surplus
+  FiT", "Smart FiT"). Identity is plan ID + DNSP + option everywhere (importer matching, the library's same-plan
+  check, update candidates; the file slug and entity slug keep the option when cut short). Some entries labelled
+  and some not, or only one option: skipped. A library file from before options were told apart becomes option A.
 - **Demand charges** (`_demand_charges`, surveyed 2026-11-21 with the CDR conversion check's `demand_plans`
   input: 40 plans, 67 charges): they sit in `demandCharges` tariff periods **and** in `demandCharges` lists beside
   usage rates; read both. The data is loose: times are often `00:00`-`00:00` with the window only in the description

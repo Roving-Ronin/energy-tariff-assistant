@@ -745,3 +745,62 @@ def test_demand_charges_that_cant_be_read_skip_the_plan(solarmax_cdr, charge, re
     result = with_demand(solarmax_cdr, charge)
     assert not result.plans
     assert reason in result.skipped[0]
+
+
+# ----- feed-in options (Red Energy's shape: "OPTION A: ..." in each entry's description) -------------------------
+
+
+def option_entry(description, name, kind=None, rate="0.025", volume=None, times=None):
+    entry = {"scheme": "OTHER", "payerType": "RETAILER", "startDate": "2024-11-07", "endDate": "9999-12-31",
+             "description": description, "displayName": name}
+    rates = [{"unitPrice": rate, **({"volume": volume} if volume else {})}]
+    if kind is None:
+        entry.update(tariffUType="singleTariff", singleTariff={"rates": rates, "period": "P1Y"})
+    else:
+        entry.update(tariffUType="timeVaryingTariffs", timeVaryingTariffs=[{
+            "type": kind, "displayName": name, "rates": rates, "period": "P1Y",
+            "timeVariations": [{"days": ALL, "startTime": a, "endTime": b} for a, b in times]}])
+    return entry
+
+
+RED_OPTIONS = [
+    option_entry("OPTION A: Retailer FIT - GST included if any", "Solar feed-in tariffs (FIT)"),
+    option_entry("OPTION B: Surplus FiT (First 7.5 kWh/day) - GST included if any: 10am to 3pm", "Export Tariff",
+                 "PEAK", "0.025", 7.5, [("10:00", "14:59")]),
+    option_entry("OPTION B: Surplus FiT (Balance) - GST included if any: 10am to 3pm", "Export Tariff",
+                 "PEAK", "0.016", None, [("10:00", "14:59")]),
+    option_entry("OPTION B: Smart FiT - GST included if any: 5pm to 8pm", "Export Tariff",
+                 "OFF_PEAK", "0.154", None, [("17:00", "19:59")]),
+    option_entry("OPTION B: Solar FiT - GST included if any: All other times", "Export Tariff",
+                 "SHOULDER", "0.025", None, [("15:00", "16:59"), ("20:00", "09:59")]),
+]
+
+
+def test_feed_in_options_become_one_plan_each(solarmax_cdr):
+    solarmax_cdr["data"]["electricityContract"]["solarFeedInTariff"] = RED_OPTIONS
+    result = convert(solarmax_cdr, TODAY)
+    a, b = result.plans
+    for plan in (a, b):
+        assert validate_plan(plan).ok, validate_plan(plan).errors
+    assert (a["plan"], a["feed_in_option"]) == ("SolarMax Residential TOU (FIT Option A)", "A")
+    assert (b["plan"], b["feed_in_option"]) == ("SolarMax Residential TOU (FIT Option B)", "B")
+    assert a["plan_id"] == b["plan_id"]
+    assert a["export"]["periods"] == [{"id": "feed_in", "name": "Feed-in", "rate": 0.025, "default": True}]
+    assert "this is option A" in a["notes"] and "this is option B" not in a["notes"]
+    periods = {p["id"]: p for p in b["export"]["periods"]}
+    assert set(periods) == {"surplus_fit", "smart_fit", "solar_fit"}  # named from the descriptions
+    assert periods["surplus_fit"]["tiers"] == [{"up_to_kwh": 7.5, "rate": 0.025}, {"rate": 0.016}]
+    assert periods["smart_fit"]["rate"] == pytest.approx(0.154)
+    resolver = Resolver(load_plan(b))
+    assert resolver.rate_at("export", at("2026-12-02 18:00")).rate == pytest.approx(0.154)
+    assert resolver.rate_at("export", at("2026-12-02 22:00")).rate == pytest.approx(0.025)
+    # The import side is the same plan
+    assert a["import"] == b["import"]
+
+
+def test_feed_in_options_partly_labelled_are_skipped(solarmax_cdr):
+    entries = [dict(e) for e in RED_OPTIONS]
+    entries[0]["description"] = "Retailer FIT"
+    solarmax_cdr["data"]["electricityContract"]["solarFeedInTariff"] = entries
+    result = convert(solarmax_cdr, TODAY)
+    assert not result.plans and "labelled as options and some aren't" in result.skipped[0]

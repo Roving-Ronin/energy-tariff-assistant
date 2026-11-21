@@ -28,7 +28,7 @@ DEMAND_METHODS = {"max", "mean_of_top_n"}
 DEMAND_OVER = {"month", "bill", "rolling_12_months"}
 TOP_LEVEL_FIELDS = {
     "format", "version", "country", "region", "dnsp", "retailer", "plan", "plan_id",
-    "customer_type", "effective_from", "effective_to", "source", "currency", "timezone",
+    "customer_type", "feed_in_option", "effective_from", "effective_to", "source", "currency", "timezone",
     "holidays", "seasons", "supply_charge", "import", "export", "demand",
     "controlled_load", "needs_review", "confirmations", "problems", "replaced_by", "notes",
 }

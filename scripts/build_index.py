@@ -25,6 +25,8 @@ def build_entries() -> list[dict]:
         plan = load_json(path)
         entry = {"file": f"plans/{path.relative_to(PLANS_DIR).as_posix()}"}
         entry.update({key: plan.get(key) for key in INDEX_FIELDS})
+        if plan.get("feed_in_option"):  # only plans offered with a choice of feed-in have one
+            entry["feed_in_option"] = plan["feed_in_option"]
         entry["source_checked"] = (plan.get("source") or {}).get("checked")
         entries.append(entry)
     entries.sort(key=lambda e: (e["country"], e["region"], e["retailer"], e["plan"], e["dnsp"] or "", e["effective_from"]))

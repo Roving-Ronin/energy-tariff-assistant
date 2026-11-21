@@ -78,6 +78,8 @@ def main() -> int:
             found = demand_charges(contract)
             print(f"{path} {plan_id} {summary.get('displayName')!r}: {len(found)} demand charge(s), "
                   f"timeZone {contract.get('timeZone')!r}")
+            for fit in contract.get("solarFeedInTariff") or []:  # feed-in entries: their names show options
+                print("    feed-in:", json.dumps(fit, ensure_ascii=False))
             for charge in found:
                 print("   ", json.dumps(charge, ensure_ascii=False))
                 charges.append({"path": path, "plan_id": plan_id, "plan": summary.get("displayName"), **charge})

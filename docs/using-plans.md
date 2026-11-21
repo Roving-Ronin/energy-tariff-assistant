@@ -48,6 +48,8 @@ The essentials (the schema has every field and its rules):
   this period's windows at 0.0, then priced as the `shoulder` period. `tier_reset` says when the count restarts:
   `day`, `month` or `cycle` (the customer's billing cycle).
 - `holidays.treat_as`: `none` (public holidays priced like any day), `saturday` or `sunday`.
+- `feed_in_option`: set ("A", "B") when the retailer offers a choice of feed-in and this plan is one of them. Each
+  option is a separate plan file with the same `plan_id`: identify a plan by `plan_id` + `dnsp` + `feed_in_option`.
 - `effective_from` / `effective_to`: when the plan applies (a later version is a separate file).
 - `demand`: `[{"id", "name", "rate", "unit": "per_kw_per_day" | "per_kw_per_month", "windows": [...],
   "measure": {"interval_minutes": 30, "method": "max" | "mean_of_top_n", "n", "over": "month" | "bill" |

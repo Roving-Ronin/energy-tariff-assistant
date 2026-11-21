@@ -59,6 +59,10 @@ def test_family_and_candidates(plan_data):
     index = [index_entry(OLD, plan_data), index_entry(NEW, later), index_entry("x", other_network),
              index_entry("y", ended)]
     assert [e["file"] for e in updates.candidates(index, plan_data, "2026-11-22")] == [NEW, OLD]
+    # Another feed-in option of the same plan is a different plan
+    option_b = {**later, "feed_in_option": "B"}
+    assert "z" not in [e["file"] for e in updates.candidates(
+        index + [{**index_entry("z", option_b), "feed_in_option": "B"}], plan_data, "2026-11-22")]
 
 
 def test_describe_changes(plan_data):

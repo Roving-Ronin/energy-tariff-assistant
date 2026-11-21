@@ -59,7 +59,8 @@ def check_files(paths: list[Path], today: date | None = None) -> list[FileResult
     valid = [r for r in results if r.plan is not None and not r.errors]
     for i, a in enumerate(valid):
         for b in valid[i + 1:]:
-            same = all(a.plan.get(k) == b.plan.get(k) for k in ("country", "region", "retailer", "plan", "dnsp"))
+            same = all(a.plan.get(k) == b.plan.get(k)
+                       for k in ("country", "region", "retailer", "plan", "dnsp", "feed_in_option"))
             # EME gives a retailer's variants (with or without controlled load...) one name: different
             # plan IDs are different plans
             if a.plan.get("plan_id") and b.plan.get("plan_id") and a.plan["plan_id"] != b.plan["plan_id"]:

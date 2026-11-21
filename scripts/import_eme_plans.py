@@ -272,6 +272,10 @@ def wanted_match(summary: dict[str, Any], dnsp: str, entries: list[dict[str, str
 def target_path(plan: dict[str, Any], taken: set[Path]) -> Path:
     """Where a new plan goes, never over another file."""
     plan_slug = slug(plan["plan"])[:SLUG_LENGTH] or "Plan"
+    if option := slug(plan.get("feed_in_option")):
+        # "(FIT Option A)" ends the name: keep it when the name is cut short, or the options would share a slug
+        suffix = f"FITOption{option}"
+        plan_slug = slug(re.sub(r"\(\s*FIT Option \w+\s*\)", "", plan["plan"]))[:SLUG_LENGTH - len(suffix)] + suffix
     path = PLANS_DIR / plan_relpath(plan, plan_slug)
     if path.exists() or path in taken:
         path = PLANS_DIR / plan_relpath(plan, (plan_slug[:SLUG_LENGTH - 12] + slug(plan["plan_id"]))[:SLUG_LENGTH + 12])
@@ -293,8 +297,9 @@ def run(
     wanted_plans = load_wanted() if wanted_plans is None else wanted_plans
     wanted_found: dict[tuple[int, str], int] = {}  # (wanted entry, DNSP) -> plans taken
     library = library_plans(wanted_dnsps, customer, today)
-    by_id = {(base_id(lp.plan["plan_id"]), lp.plan["dnsp"]): lp for lp in library}
-    by_family = {(family(lp.plan["plan_id"]), lp.plan["dnsp"]): lp for lp in library}
+    # A plan with a choice of feed-in is one library plan per option: plan ID + DNSP + option
+    by_id = {(base_id(lp.plan["plan_id"]), lp.plan["dnsp"], lp.plan.get("feed_in_option")): lp for lp in library}
+    by_family = {(family(lp.plan["plan_id"]), lp.plan["dnsp"], lp.plan.get("feed_in_option")): lp for lp in library}
     allowed = PRICING[pricing]
     listed: set[tuple[str, str]] = set()  # (family, DNSP) of everything on the list, converted or not
     incoming: list[dict[str, Any]] = []
@@ -398,8 +403,15 @@ def run(
     matched: set[Path] = set()
     unmatched: list[dict[str, Any]] = []
     for plan in incoming:
-        key = (plan["plan_id"], plan["dnsp"])
-        old = by_id.get(key) or by_family.get((family(plan["plan_id"]), plan["dnsp"]))
+        option = plan.get("feed_in_option")
+        old = by_id.get((plan["plan_id"], plan["dnsp"], option)) or by_family.get(
+            (family(plan["plan_id"]), plan["dnsp"], option))
+        if old is None and option is not None:
+            # Converted before options were told apart: that file becomes the first option, the others are new
+            earlier = by_id.get((plan["plan_id"], plan["dnsp"], None)) or by_family.get(
+                (family(plan["plan_id"]), plan["dnsp"], None))
+            if earlier is not None and earlier.path not in matched:
+                old = earlier
         if old is None:
             unmatched.append(plan)
             continue
