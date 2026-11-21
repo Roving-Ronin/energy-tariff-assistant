@@ -68,7 +68,8 @@ def eme(monkeypatch, library):
 
 def run(eme, **kwargs):
     args = {"dnsps": ["Ausgrid", "Essential Energy"], "customer": "residential", "pricing": "tou",
-            "per_retailer": 3, "today": TODAY, "pause": 0, "log": lambda _: None, "write": True}
+            "per_retailer": 3, "today": TODAY, "pause": 0, "log": lambda _: None, "write": True,
+            "wanted_plans": []}
     return imp.run(eme, **{**args, **kwargs})
 
 
@@ -317,3 +318,36 @@ def test_the_per_retailer_limit_counts_library_plans(eme, library):
     report = run(eme)
     assert not report.written and len(report.already) == 3  # the same limit adds nothing
     assert len(run(eme, per_retailer=0).written) == 2
+
+
+WANTED = [{"retailer": "CovaU", "plan": "SolarMax TOU", "dnsp": "Essential Energy"},
+          {"retailer": "CovaU", "plan": "Basics", "dnsp": "Energex"}]
+
+
+def named(eme, plan_id, name, updated="2026-09-01", **kwargs):
+    detail = offer(eme, plan_id, name=name, **kwargs)
+    eme.plans[-1].update(brandName="CovaU", displayName=name, lastUpdated=updated)
+    return detail
+
+
+def test_wanted_plans_come_in_past_the_limit_and_whatever_their_pricing(eme, library):
+    for n in range(3):
+        named(eme, f"COV{n}1@EME", f"Everyday {n}", updated="2026-10-01")
+    named(eme, "COV1117612MRE3@EME", "SolarMax NSW Essential Residential TOU", pricing="SINGLE_RATE")
+    report = run(eme, wanted_plans=WANTED)
+    assert "COV1117612MRE3" in {p["plan_id"] for p in report.written}  # past the 3, and not TOU
+    assert len(report.written) == 4
+    assert report.wanted_missing == []  # the Energex one wasn't asked for (not in the DNSPs)
+    assert run(eme, wanted_plans=WANTED).written == []  # already in: nothing new
+
+
+def test_wanted_plans_not_on_eme_are_listed(eme, library):
+    named(eme, "COV21@EME", "Something Else")
+    report = run(eme, dnsps=["Essential Energy", "Energex"], wanted_plans=WANTED)
+    assert report.wanted_missing == ["CovaU SolarMax TOU (Essential Energy)", "CovaU Basics (Energex)"]
+    assert "Wanted plans not found" in report.summary(["Essential Energy"], "residential", "tou")
+
+
+def test_the_wanted_list_names_known_distributors():
+    known = {d for _, d, _ in imp.DISTRIBUTORS}
+    assert all(e["dnsp"] in known for e in imp.load_wanted())

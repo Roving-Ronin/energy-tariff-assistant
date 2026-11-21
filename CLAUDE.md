@@ -186,7 +186,11 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   replacement. New files end the old one the day before and **keep its period ids** (`keep_ids`: same name, else
   same times; tier `use_period` follows), so meters carry on. **Reviewed plans** (`needs_review: false`) **and
   plans not made by the importer** (source not `EME`, e.g. the hand-made CovaU plan) are never changed: their
-  differences are listed in the PR. `--per-retailer` counts library plans too (a re-run with the same limit adds nothing). **Wholesale-linked plans are skipped** (`WHOLESALE`: "estimate",
+  differences are listed in the PR. `--per-retailer` counts library plans too (a re-run with the same limit adds nothing). **Wanted plans** (`scripts/wanted_plans.json`,
+  the maintainer's list of plans people use, taken from the energy-manager-tariffs file names: names only, no
+  content) always come in for the DNSPs asked for, past the limit and whatever the pricing, up to 3 newest per entry
+  (`WANTED_PER_ENTRY`; "Smart Saver" has many offers). Matched by words: the retailer starts the CDR brand, every word
+  of the plan name is in the EME name. Ones not found are listed in the PR. **Wholesale-linked plans are skipped** (`WHOLESALE`: "estimate",
   "wholesale", "spot price", "variable prices" in the name or description; EME shows only the retailer's estimate,
   e.g. GloBird WHOLESAVE, Flow Power Variable Prices, Ezi Market): as fixed rates they'd price meters wrongly.
   **Wholesale retailers** (`WHOLESALE_RETAILERS`: Amber, Flow Power, Localvolts; maintainer 2026-11-21) keep only
