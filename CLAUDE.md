@@ -96,7 +96,9 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   windows stay right through daylight saving; LOCAL → the state's zone). **Absent uses the network's clock**, not
   the standard's AEST default: NSW, VIC and SA networks follow local time, Evoenergy and TasNetworks stay on AEST
   (`AEST_NETWORKS`). Absent, or a stated zone that disagrees with the network (Covau SolarMax on Essential Energy
-  says AEST), adds a review note: retailers can apply their own rule, so neither side is assumed wrong.
+  says AEST), adds a review note: retailers can apply their own rule, so neither side is assumed wrong. A retailer
+  known to bill on its own clock overrides its data (`RETAILER_CLOCKS`, with the source: CovaU bills on local time,
+  maintainer 2026-11-21, though its EME data says AEST).
 - CDR window ends are inclusive (14:59, 23:59): they become 15:00, 24:00.
 - Never guess: anything the plan format can't express exactly (FLEXIBLE/QUOTA pricing, banded supply, seasons not on
   month boundaries, per-year steps, differing supply charges) is skipped with a reason in `Conversion.skipped`;

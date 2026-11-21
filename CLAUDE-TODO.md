@@ -75,12 +75,14 @@ reported as `register_brands_not_in_list` (a warning in the workflow).
   - **Second run (2026-11-21):** 112 plans, 109 converted, 3 skipped. Library check, now logged in full as time
     ranges: Covau SolarMax **says AEST** on Energy Made Easy, so every January window is an hour later than the
     library (local time); July import agrees exactly. Essential Energy follows local time ("AEST or AEDST"), so
-    either Covau's data or the library is wrong: **check Covau's fact sheet**. Rule now: the plan's stated zone
-    wins, absent uses the network's clock (Evoenergy, TasNetworks: AEST; others local), and a disagreement adds a
-    review note. **Feed-in:** converted pays 16.5c all day vs library 15c super FiT (18:00-21:00, 30 kWh/day) then
+    either Covau's data or the library is wrong. **Settled:** CovaU bills on local time (maintainer, 2026-11-21),
+    so the library is right and its EME data isn't: `RETAILER_CLOCKS` overrides it. Rule otherwise: the plan's
+    stated zone wins, absent uses the network's clock (Evoenergy, TasNetworks: AEST; others local), and a
+    disagreement adds a review note. **Feed-in:** converted pays 16.5c all day vs library 15c super FiT (18:00-21:00, 30 kWh/day) then
     5c: 15c x 1.1, so the converter adds GST to feed-in (import matches exactly after x1.1, so only feed-in is
-    affected); and the caps/time windows are missing (stepped FiT may be only in the description field, CDS
-    standards-maintenance #520). Waiting on the raw Covau sample (artifact) and the maintainer's OK for the GST fix.
+    affected); and the cap and the 5c rate are missing: WATTever shows SolarMax's feed-in as a condition, "15c per
+    kWh for the first 30kWh exported per day. 5c per kWh for exports at all other times", i.e. stepped FiT only in
+    the description (CDS standards-maintenance #520). Waiting on the raw Covau sample (artifact) and the maintainer's OK for the GST fix.
   - **Real samples:** Actions → **CDR conversion check** (`scripts/check_cdr_conversion.py`) converts a few plans per
     path and uploads `report.json` + raw details as an artifact (not committed). Use it to find what real data
     does that the hand-written samples don't, and add trimmed cases to `tests/test_importer_cdr.py`.

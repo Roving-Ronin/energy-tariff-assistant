@@ -160,9 +160,17 @@ def test_caps_become_tiers(solarmax_cdr):
     assert sfit["tiers"][0] == {"up_to_kwh": 30.0, "rate": pytest.approx(0.15)}
 
 
-def test_aest_windows_use_brisbane_time(solarmax_cdr):
-    solarmax_cdr["data"]["electricityContract"]["timeZone"] = "AEST"
-    result = convert(solarmax_cdr, TODAY)
+@pytest.fixture
+def other_retailer(solarmax_cdr):
+    """SolarMax as if from a retailer with no known clock rule."""
+    solarmax_cdr["data"]["brand"] = "example"
+    solarmax_cdr["data"]["brandName"] = "Example Energy"
+    return solarmax_cdr
+
+
+def test_aest_windows_use_brisbane_time(other_retailer):
+    other_retailer["data"]["electricityContract"]["timeZone"] = "AEST"
+    result = convert(other_retailer, TODAY)
     plan = result.plans[0]
     assert plan["timezone"] == "Australia/Brisbane"
     resolver = Resolver(load_plan(plan))
@@ -171,14 +179,24 @@ def test_aest_windows_use_brisbane_time(solarmax_cdr):
     assert resolver.rate_at("import", at("2026-11-04 16:30")).period.name == "Peak"
 
 
-def test_stated_aest_against_a_local_time_network_is_flagged(solarmax_cdr):
-    # Covau SolarMax on Essential Energy says AEST; Essential Energy follows local time.
-    solarmax_cdr["data"]["electricityContract"]["timeZone"] = "AEST"
-    result = convert(solarmax_cdr, TODAY)
+def test_stated_aest_against_a_local_time_network_is_flagged(other_retailer):
+    other_retailer["data"]["electricityContract"]["timeZone"] = "AEST"
+    result = convert(other_retailer, TODAY)
     plan = result.plans[0]
     assert plan["timezone"] == "Australia/Brisbane"  # the plan's word is kept
     assert "Essential Energy's time-of-use periods follow local time" in plan["notes"]
     assert any("plan's own time zone was used" in note for note in result.notes)
+
+
+def test_covau_bills_on_local_time_whatever_its_data_says(solarmax_cdr):
+    # Covau SolarMax's Energy Made Easy data says AEST; CovaU bills on local time (maintainer, 2026-11-21).
+    solarmax_cdr["data"]["electricityContract"]["timeZone"] = "AEST"
+    result = convert(solarmax_cdr, TODAY)
+    plan = result.plans[0]
+    assert plan["timezone"] == "Australia/Sydney"
+    assert "CovaU bills on local time" in plan["notes"]
+    resolver = Resolver(load_plan(plan))
+    assert resolver.rate_at("import", at("2026-11-04 15:30")).period.name == "Peak"
 
 
 def test_stated_local_on_a_local_network_has_no_note(solarmax_cdr):
@@ -188,11 +206,11 @@ def test_stated_local_on_a_local_network_has_no_note(solarmax_cdr):
     assert not any("time zone" in note for note in result.notes)
 
 
-def test_no_time_zone_uses_the_network_clock(solarmax_cdr):
+def test_no_time_zone_uses_the_network_clock(other_retailer):
     # The standard says absent = AEST, but NSW networks follow local time and Evoenergy stays on AEST.
-    del solarmax_cdr["data"]["electricityContract"]["timeZone"]
-    solarmax_cdr["data"]["geography"]["distributors"] = ["Essential Energy", "Evoenergy"]
-    result = convert(solarmax_cdr, TODAY)
+    del other_retailer["data"]["electricityContract"]["timeZone"]
+    other_retailer["data"]["geography"]["distributors"] = ["Essential Energy", "Evoenergy"]
+    result = convert(other_retailer, TODAY)
     by_dnsp = {p["dnsp"]: p for p in result.plans}
     assert by_dnsp["Essential Energy"]["timezone"] == "Australia/Sydney"
     assert by_dnsp["Evoenergy"]["timezone"] == "Australia/Brisbane"

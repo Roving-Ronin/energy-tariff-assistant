@@ -91,9 +91,17 @@ def test_differences_are_reported():
     assert diffs[0] == "import Wed 06 Jan 15:00-21:00: library 0.45331 vs converted 0.55"
 
 
+def test_covau_stated_aest_now_agrees_with_the_library():
+    detail = copy.deepcopy(SOLARMAX)
+    detail["data"]["electricityContract"]["timeZone"] = "AEST"  # as in its Energy Made Easy data
+    converted = convert(detail, date(2026, 11, 20)).plans[0]
+    assert chk.compare_plans(library_solarmax(), converted, date(2026, 11, 20)) == []
+
+
 def test_daylight_saving_shift_shows_as_ranges():
     detail = copy.deepcopy(SOLARMAX)
     detail["data"]["electricityContract"]["timeZone"] = "AEST"
+    detail["data"]["brand"], detail["data"]["brandName"] = "example", "Example Energy"  # no known clock rule
     converted = convert(detail, date(2026, 11, 20)).plans[0]
     diffs = chk.compare_plans(library_solarmax(), converted, date(2026, 11, 20))
     assert diffs and all(" Jan " in d for d in diffs)  # July is AEST in Sydney too: no differences

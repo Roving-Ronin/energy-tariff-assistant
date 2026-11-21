@@ -17,6 +17,8 @@ Rules:
   and SA networks follow local time, Evoenergy and TasNetworks stay on AEST
   (`AEST_NETWORKS`). Absent, or stated against the network's clock, adds a
   review note (a retailer can apply its own rule, so neither is assumed wrong).
+  A retailer known to bill on its own clock (`RETAILER_CLOCKS`, e.g. CovaU:
+  local time) overrides what its plan data says, with a note.
 - Window end times like 14:59 or 23:59:59 are inclusive ends: they become the
   next minute (15:00, 24:00). A whole day becomes `all_day`.
 - Time of use: the rate covering the most time becomes the default period.
@@ -80,6 +82,10 @@ AEST_ZONE = "Australia/Brisbane"  # UTC+10 all year
 # publishes its peak as AEST 7-10am / AEDT 8-11am. NSW, VIC and SA networks follow local time; QLD, WA and the
 # NT have no daylight saving.
 AEST_NETWORKS = frozenset({"Evoenergy", "TasNetworks"})
+# Retailers known to apply their own clock whatever their plan data says, by CDR brand (lower case), with
+# where we know it from. CovaU: bills on local time during daylight saving in NSW, VIC and SA (maintainer,
+# 2026-11-21), while its Energy Made Easy data says AEST.
+RETAILER_CLOCKS = {"covau": "LOCAL"}
 DST_STATES = frozenset({"NSW", "ACT", "VIC", "SA", "TAS"})
 
 
@@ -305,21 +311,28 @@ def _import_periods(
     return periods
 
 
-def _clock(clock: dict[str, Any], dnsp: str, state: str) -> tuple[str, str | None]:
+def _clock(clock: dict[str, Any], dnsp: str, state: str, brand: str) -> tuple[str, str | None]:
     """The plan's time zone on this distributor, and a review note when it's in doubt.
 
-    The plan's stated zone wins; with none, the network's clock is used. When the two
-    disagree, the plan's word is kept and the note says so (a retailer can apply its own
-    rule on top of the network's, so neither is assumed wrong).
+    A retailer known to bill on its own clock (RETAILER_CLOCKS) wins. Otherwise the plan's
+    stated zone wins; with none, the network's clock is used. When the plan and the network
+    disagree, the plan's word is kept and the note says so (a retailer can apply its own rule
+    on top of the network's, so neither is assumed wrong).
     """
     network = "AEST" if dnsp in AEST_NETWORKS else "LOCAL"
     stated = clock["stated"]
-    used = stated or network
+    known = RETAILER_CLOCKS.get(brand.strip().lower())
+    used = known or stated or network
     timezone = AEST_ZONE if used == "AEST" else STATE_TIMEZONES[state]
     if not clock["timed"] or not observes_dst(state):
         return timezone, None  # no times of day, or no daylight saving: AEST and local agree
     words = {"AEST": "AEST all year (an hour later on the clock in summer)",
              "LOCAL": "local time, following daylight saving"}
+    if known:
+        if stated and stated != known:
+            return timezone, (f"The plan data gives its times in {words[stated]}, but {brand} bills on "
+                              f"{words[known]}: that was used.")
+        return timezone, None
     if stated is None:
         return timezone, (f"The plan doesn't say which time zone its times are in: {dnsp}'s clock "
                           f"({words[network]}) was used. Check against the plan's fact sheet.")
@@ -446,7 +459,7 @@ def convert(detail: dict[str, Any], today: date) -> Conversion:
         plan = dict(built)
         plan["region"] = state
         plan["dnsp"] = dnsp
-        plan["timezone"], note = _clock(plan.pop("_clock"), dnsp, state)
+        plan["timezone"], note = _clock(plan.pop("_clock"), dnsp, state, plan.get("retailer") or "")
         if note:
             plan["notes"] = f"{plan['notes']} {note}"
             if note not in out.notes:
