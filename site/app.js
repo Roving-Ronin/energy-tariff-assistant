@@ -333,7 +333,8 @@ function setNav(name) {
 
 const LIST_COLUMNS = [
   ["retailer", "Retailer"], ["plan", "Plan"], ["region", "State"], ["dnsp", "Distributor"],
-  ["customer_type", "Customer"], ["effective_from", "Effective"], ["plan_id", "Plan ID"],
+  ["customer_type", "Customer"], ["effective_from", "Effective"], ["effective_to", "Ends"],
+  ["plan_id", "Plan ID"],
   ["source_checked", "Checked"], [null, "Status"],
 ];
 
@@ -427,7 +428,8 @@ function renderList(params) {
       h("td", {}, entry.region),
       h("td", {}, entry.dnsp || "—"),
       h("td", {}, title(entry.customer_type)),
-      h("td", { class: "nowrap" }, entry.effective_from, entry.effective_to ? ` to ${entry.effective_to}` : ""),
+      h("td", { class: "nowrap" }, entry.effective_from),
+      h("td", { class: "nowrap" }, entry.effective_to || "—"),
       h("td", { class: "nowrap" }, entry.plan_id || "—"),
       h("td", { class: "nowrap" }, entry.source_checked || "—"),
       h("td", {}, badges(entry)),

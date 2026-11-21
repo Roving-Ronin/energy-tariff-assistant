@@ -258,9 +258,11 @@ def plans_newest_first(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def plan_label(entry: dict[str, Any]) -> str:
-    """'SolarMax Residential TOU · COV1117612MRE3 · from 2026-07-01' (the plan ID tells same-named variants apart)."""
+    """'SolarMax Residential TOU · COV1117612MRE3 · from 2026-07-01' (the plan ID tells same-named variants apart),
+    with ' · ends 2028-06-30' when the plan has an end date."""
     plan_id = f" · {entry['plan_id']}" if entry.get("plan_id") else ""
-    return f"{entry.get('plan', '?')}{plan_id} · from {entry.get('effective_from', '?')}"
+    ends = f" · ends {entry['effective_to']}" if entry.get("effective_to") else ""
+    return f"{entry.get('plan', '?')}{plan_id} · from {entry.get('effective_from', '?')}{ends}"
 
 
 def pick_default(options: list[str], preferred: str | None) -> str | None:
