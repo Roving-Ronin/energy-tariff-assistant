@@ -1,0 +1,67 @@
+name: Synergy plans (WA)
+
+# Weekly: reads Synergy's four plan pages (price tables only) and its DEBS pricing schedule,
+# checks every rate label and stated time against what each plan expects, and opens a pull
+# request when prices changed (normally each 1 July). Anything unexpected fails the run with
+# the reason and changes nothing. WA isn't on Energy Made Easy.
+# Checks on the pull request start after "Approve and run workflows" (it's opened by the bot).
+on:
+  schedule:
+    - cron: "17 21 * * 2"  # Tuesdays 21:17 UTC (Wednesday morning in Perth and Sydney)
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: synergy-plans
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Read Synergy's prices
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # push the update branch
+      pull-requests: write  # open the pull request
+    steps:
+      - name: Check out the default branch
+        # zizmor: ignore[artipacked] this job pushes the update branch, so it keeps the token
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - run: pip install -r requirements_test.txt "pypdf>=5"
+
+      - name: Read Synergy's plan pages and DEBS schedule
+        run: |
+          python scripts/fetch_synergy_plans.py --summary "$RUNNER_TEMP/summary.md"
+          cat "$RUNNER_TEMP/summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Validate and rebuild the index
+        run: |
+          python scripts/validate_plans.py
+          python scripts/build_index.py
+
+      - name: Open a pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          if [ -z "$(git status --porcelain -- plans)" ]; then
+            echo "No changes."
+            exit 0
+          fi
+          branch="synergy/$RUN_ID"
+          git switch -q -c "$branch"
+          git add plans
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -q -m "Plans: Synergy (WA) price update"
+          git push -q origin "$branch"
+          gh pr create --base "$DEFAULT_BRANCH" --head "$branch" \
+            --title "Plans: Synergy (WA) price update" --body-file "$RUNNER_TEMP/summary.md"
