@@ -1,0 +1,144 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Alinta Energy",
+  "plan": "HomeDeal Connect - Time of Use + CL",
+  "plan_id": "ALI1215438MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-11-06",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "nov_mar": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "apr_oct": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.59214,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_nov_mar",
+        "name": "Peak (Nov-Mar)",
+        "rate": 0.40051,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "nov_mar"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder_consumption",
+        "name": "Shoulder consumption",
+        "rate": 0.10615,
+        "windows": [
+          {
+            "days": "all",
+            "end": "14:00",
+            "start": "10:00"
+          }
+        ]
+      },
+      {
+        "id": "peak_apr_oct",
+        "name": "Peak (Apr-Oct)",
+        "rate": 0.40535,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "apr_oct"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-peak",
+        "rate": 0.3069,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "single_rate_solar_fit",
+        "name": "Single Rate Solar FiT",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load",
+      "name": "Controlled load",
+      "supply_charge": {
+        "rate": 0.11946,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled load",
+          "rate": 0.17754,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled load",
+      "supply_charge": {
+        "rate": 0.11946,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled load",
+          "rate": 0.18997,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ALI1215438MRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, RECONNECTION, CONNECTION, DISCONNECT_MOVE_OUT, RECONNECTION."
+}

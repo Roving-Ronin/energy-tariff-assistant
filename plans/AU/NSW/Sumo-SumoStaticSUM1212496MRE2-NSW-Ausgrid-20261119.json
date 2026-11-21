@@ -1,0 +1,115 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Sumo",
+  "plan": "Sumo Static",
+  "plan_id": "SUM1212496MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-11-19",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "autumn": [
+      4,
+      5
+    ],
+    "winter": [
+      6,
+      7,
+      8
+    ],
+    "spring": [
+      9,
+      10
+    ],
+    "summer": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.55749,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.31471,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "summer",
+              "winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.31471,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "sumo_static_fit_stepped_rate_feed_in_tariff",
+        "name": "Sumo Static FiT: Stepped Rate Feed In Tariff",
+        "tiers": [
+          {
+            "up_to_kwh": 9.0,
+            "rate": 0.033
+          },
+          {
+            "rate": 0.0
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "general_controlled_load_2_usage",
+      "name": "General Controlled Load 2 Usage",
+      "supply_charge": {
+        "rate": 0.08437,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "General Controlled Load 2 Usage",
+          "rate": 0.21846,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan SUM1212496MRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in rates are listed for 2026-10-01 to 2027-06-30 only; used all year. Fees: CONNECTION."
+}

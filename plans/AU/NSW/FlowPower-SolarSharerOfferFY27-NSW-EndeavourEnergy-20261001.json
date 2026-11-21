@@ -1,0 +1,96 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Flow Power",
+  "plan": "Solar Sharer Offer FY27",
+  "plan_id": "FP11199352SRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": "2027-06-30",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.85135,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.487482,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "solar_soak",
+        "name": "Solar Soak",
+        "rate": 0.141869,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "11:00"
+          }
+        ]
+      },
+      {
+        "id": "free_period",
+        "name": "Free Period",
+        "tiers": [
+          {
+            "up_to_kwh": 24.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.141869
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "14:00"
+          }
+        ]
+      },
+      {
+        "id": "other_usage",
+        "name": "Other usage",
+        "rate": 0.3753,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan FP11199352SRE1@EME; charges include GST (CDR ex GST x1.1). No retailer feed-in tariff in the plan data: feed-in set to 0. Fees: RECONNECTION, DISCONNECTION."
+}

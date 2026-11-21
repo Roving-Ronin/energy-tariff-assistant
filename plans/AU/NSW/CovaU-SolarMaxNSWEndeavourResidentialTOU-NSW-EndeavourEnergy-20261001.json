@@ -1,0 +1,117 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "CovaU",
+  "plan": "SolarMax NSW Endeavour Residential TOU",
+  "plan_id": "COV1117611MRE3",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.67992,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.4631,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "ev_off_peak",
+        "name": "EV Off-Peak",
+        "rate": 0.165,
+        "windows": [
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "06:00"
+          }
+        ]
+      },
+      {
+        "id": "free_usage",
+        "name": "Free Usage",
+        "tiers": [
+          {
+            "up_to_kwh": 50.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.38533
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "14:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-Peak",
+        "rate": 0.38533,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "tiers": [
+          {
+            "up_to_kwh": 30.0,
+            "rate": 0.15
+          },
+          {
+            "rate": 0.05
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "18:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-peak",
+        "rate": 0.05,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan COV1117611MRE3@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION, RECONNECTION, DD_DISHONOUR. The plan data gives its times in AEST all year (an hour later on the clock in summer), but CovaU bills on local time, following daylight saving: that was used."
+}

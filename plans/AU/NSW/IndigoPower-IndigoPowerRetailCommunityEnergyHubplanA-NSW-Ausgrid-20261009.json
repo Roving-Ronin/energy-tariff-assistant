@@ -1,0 +1,102 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Indigo Power",
+  "plan": "Indigo Power Retail - Community Energy Hub plan Ausgrid",
+  "plan_id": "IPR1205549MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-09",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "apr_may": [
+      4,
+      5
+    ],
+    "jun_aug": [
+      6,
+      7,
+      8
+    ],
+    "sep_oct": [
+      9,
+      10
+    ],
+    "nov_mar": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ]
+  },
+  "supply_charge": {
+    "rate": 2.112,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.1848,
+        "windows": [
+          {
+            "days": "all",
+            "end": "21:00",
+            "start": "15:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.1848,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "solar_feed_in_tariff_flat_single_rate_feed_in_tariff",
+        "name": "Solar Feed-in Tariff Flat: Single Rate Feed In Tariff",
+        "rate": 0.007,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 2",
+          "rate": 0.1826,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan IPR1205549MRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, DISCONNECT_MOVE_OUT, RECONNECTION. The plan gives its times in AEST all year (an hour later on the clock in summer), but Ausgrid's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+}

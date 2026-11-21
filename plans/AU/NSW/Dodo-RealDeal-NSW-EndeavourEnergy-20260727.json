@@ -1,0 +1,75 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Dodo",
+  "plan": "Real Deal",
+  "plan_id": "DOD1042544MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-07-27",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.271943,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.436266,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "13:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.350252,
+        "windows": [
+          {
+            "days": "all",
+            "start": "22:00",
+            "end": "07:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.350252,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "tou_rate_solar_fit",
+        "name": "TOU Rate Solar FiT",
+        "rate": 0.01,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan DOD1042544MRE2@EME; charges include GST (CDR ex GST x1.1). Incentive: Promotional Offers. Fees: CONNECTION, DISCONNECTION, RECONNECTION."
+}

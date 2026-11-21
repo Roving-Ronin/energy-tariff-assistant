@@ -1,0 +1,160 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Red Energy",
+  "plan": "Solar Sharer Offer (Flexible Ref: DM)",
+  "plan_id": "RED1116683SRE3",
+  "customer_type": "residential",
+  "effective_from": "2026-11-17",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "nov_mar": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "jun_aug": [
+      6,
+      7,
+      8
+    ],
+    "apr_may": [
+      4,
+      5
+    ],
+    "sep_oct": [
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.76407,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.637175,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "jun_aug",
+              "nov_mar"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "midday_load",
+        "name": "Midday Load",
+        "tiers": [
+          {
+            "up_to_kwh": 24.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.275594
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "end": "14:00",
+            "start": "11:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.275594,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "tiers": [
+          {
+            "up_to_kwh": 6.85,
+            "rate": 0.025
+          },
+          {
+            "rate": 0.011
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "15:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-peak",
+        "rate": 0.067,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.025,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "16:00"
+          },
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "10:00"
+          }
+        ]
+      },
+      {
+        "id": "solar_feed_in_tariffs_fit",
+        "name": "Solar feed-in tariffs (FIT)",
+        "rate": 0.025,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan RED1116683SRE3@EME; charges include GST (CDR ex GST x1.1). Incentive: Solar Sharer Offer. Fees: CONNECTION, DISCONNECTION."
+}

@@ -1,0 +1,110 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Diamond Energy",
+  "plan": "Diamond Standing - Solar Sharer Offer",
+  "plan_id": "DIA1122914SRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-08-07",
+  "effective_to": "2027-07-01",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "solar_sharer_option_winter": [
+      6,
+      7,
+      8
+    ],
+    "solar_sharer_summer": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "solar_sharer_spring": [
+      9,
+      10
+    ],
+    "solar_sharer_autumn": [
+      4,
+      5
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.764106,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.637177,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "solar_sharer_option_winter",
+              "solar_sharer_summer"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "free_usage_period",
+        "name": "Free Usage Period",
+        "tiers": [
+          {
+            "up_to_kwh": 24.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.275597
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "end": "14:00",
+            "start": "11:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-Peak",
+        "rate": 0.275597,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan DIA1122914SRE2@EME; charges include GST (CDR ex GST x1.1). No retailer feed-in tariff in the plan data: feed-in set to 0. Fees: CONNECTION, DISCONNECTION."
+}

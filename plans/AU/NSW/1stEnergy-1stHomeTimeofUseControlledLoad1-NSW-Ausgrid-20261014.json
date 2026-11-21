@@ -1,0 +1,131 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "1st Energy",
+  "plan": "1st Home - Time of Use + Controlled Load 1",
+  "plan_id": "1ST1203981MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-14",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "apr_may": [
+      4,
+      5
+    ],
+    "jun_aug": [
+      6,
+      7,
+      8
+    ],
+    "sep_oct": [
+      9,
+      10
+    ],
+    "nov_mar": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.6753,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_apr_may_sep_oct",
+        "name": "Peak (Apr-May, Sep-Oct)",
+        "rate": 0.2277,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "apr_may",
+              "sep_oct"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_jun_aug_nov_mar",
+        "name": "Peak (Jun-Aug, Nov-Mar)",
+        "rate": 0.5709,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "jun_aug",
+              "nov_mar"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.2277,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in_tariff_gst_exempt",
+        "name": "Feed-in tariff (GST exempt)",
+        "tiers": [
+          {
+            "up_to_kwh": 5.0,
+            "rate": 0.01
+          },
+          {
+            "rate": 0.001
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0451,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.1826,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan 1ST1203981MRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Feed-in tariff (GST exempt)': the data gives its 5 kWh limit per P1Y, but its text says per day: per day was used. Fees: CONNECTION, DISCONNECTION, CHEQUE_DISHONOUR, DD_DISHONOUR."
+}
