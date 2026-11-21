@@ -23,6 +23,10 @@ def main() -> int:
     families: dict[str, list[dict]] = defaultdict(list)
     names: dict[tuple[str, str], set[str]] = defaultdict(set)
     plans = unversioned = 0
+    shapes: dict[str, list[str]] = defaultdict(list)
+    ended = future = 0
+    from datetime import date
+    today = date.today().isoformat()
     for uri in eme.unique_paths(eme.fallback_brands()):
         try:
             listed = eme.brand_plans(eme.http_json, uri)
@@ -31,15 +35,26 @@ def main() -> int:
             continue
         for p in listed:
             plans += 1
+            if (p.get("effectiveTo") or "9999")[:10] < today:
+                ended += 1
+            if (p.get("effectiveFrom") or "")[:10] > today:
+                future += 1
             m = VERSIONED.match(p.get("planId", ""))
             if not m:
                 unversioned += 1
+                shape = re.sub(r"[A-Za-z]", "A", re.sub(r"\d", "9", p.get("planId", "")))
+                if len(shapes[shape]) < 3:
+                    shapes[shape].append(f"{p.get('planId')} {p.get('brand')} {p.get('displayName')!r}")
                 continue
             families[m.group(1)].append(p)
             names[(p.get("brand") or "", p.get("displayName") or "")].add(m.group(1))
     multi = {f: v for f, v in families.items() if len({p["planId"] for p in v}) > 1}
     print(f"VERSIONS {plans} plans, {len(families)} families, {unversioned} IDs without a version number")
     print(f"VERSIONS {len(multi)} families listed with more than one version")
+    print(f"VERSIONS {ended} plans already ended, {future} starting later")
+    print(f"VERSIONS {len(shapes)} shapes of IDs without a version number:")
+    for shape, examples in sorted(shapes.items(), key=lambda kv: -len(kv[1]))[:12]:
+        print(f"  {shape}: " + " | ".join(examples))
     for family, versions in list(multi.items())[:25]:
         rows = sorted({(p["planId"], p.get("effectiveFrom", "")[:10], (p.get("effectiveTo") or "")[:10],
                         p.get("displayName")) for p in versions}, key=lambda r: r[1])
