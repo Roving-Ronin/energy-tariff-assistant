@@ -117,7 +117,9 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
 - Period ids come from the plan's own rate names (`free`, `peak`), so meters and entity ids read naturally.
   EME lists each season's rates separately: the same name and price in several seasons is **one period** with
   each season's windows (Amber Solar Sharer: 10 CDR rates → peak, off_peak, free_period). Seasons take the plan's
-  names when they tell them apart, else their months (`nov_mar`). Several CDR distributor names for one network
+  names when they tell them apart, else their months (`nov_mar`; also when the names have digits: "Season 1 (1 Nov
+  to 31 Mar)"). The same name at different prices by season (high/low season peak) is named **by its seasons,
+  never its price** (`peak_nov_mar`, "Peak (Nov-Mar)"): ids key the meters and prices change every year. Several CDR distributor names for one network
   ("Essential Energy", "... Far West") give one plan; retailer names are trimmed ("GEE Energy ").
 
 ### Building plans

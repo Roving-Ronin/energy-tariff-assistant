@@ -280,7 +280,8 @@ def _months(start: str, end: str) -> list[int] | None:
 
 
 def _import_periods(
-    usage: list[dict[str, Any]], season_names: list[str | None], holidays: set[str]
+    usage: list[dict[str, Any]], season_names: list[str | None], holidays: set[str],
+    season_months: dict[str, list[int]] | None = None,
 ) -> list[dict[str, Any]]:
     """Import periods for all usage tariff periods (one per season, or one for the year)."""
     periods: list[dict[str, Any]] = []
@@ -319,7 +320,7 @@ def _import_periods(
                 })
         else:
             raise CdrImportError(f"tariff period type {kind!r} isn't a usage rate")
-    periods = _merge_seasonal(periods, {s for s in season_names if s})
+    periods = _merge_seasonal(periods, {s for s in season_names if s}, season_months)
     if len(periods) == 1 and len(single_rate_periods) == 1:
         only = periods[0]
         only.pop("windows")
@@ -329,7 +330,9 @@ def _import_periods(
     return periods
 
 
-def _merge_seasonal(periods: list[dict[str, Any]], all_seasons: set[str]) -> list[dict[str, Any]]:
+def _merge_seasonal(
+    periods: list[dict[str, Any]], all_seasons: set[str], season_months: dict[str, list[int]] | None = None
+) -> list[dict[str, Any]]:
     """One period per rate: the same name and price in several seasons (EME lists each season's rates
     separately) become one period with each season's windows, so meters aren't split by season.
 
@@ -337,6 +340,7 @@ def _merge_seasonal(periods: list[dict[str, Any]], all_seasons: set[str]) -> lis
     """
     if not all_seasons:
         return periods
+    season_months = season_months or {}
     merged: list[dict[str, Any]] = []
     keys: list[tuple[str, str]] = []
     for period in periods:
@@ -360,9 +364,24 @@ def _merge_seasonal(periods: list[dict[str, Any]], all_seasons: set[str]) -> lis
             period["windows"] = _combine_window_seasons(period["windows"])
     names = [p["name"] for p in merged]
     for period in merged:
-        base = period["name"] if names.count(period["name"]) == 1 else f"{period['name']} {_rate_label(period)}"
-        period["id"] = _unique(_slug(base), taken)
+        if names.count(period["name"]) > 1:
+            # Same name, different price by season (high/low season peak): name it by its seasons, never its
+            # price, so the id (and the meters) survive next year's prices
+            period["name"] = f"{period['name']} ({_season_label(period, season_months)})"
+        period["id"] = _unique(_slug(period["name"]), taken)
     return merged
+
+
+def _season_label(period: dict[str, Any], season_months: dict[str, list[int]]) -> str:
+    """'Nov-Mar' or 'Apr-May, Sep-Oct' for the seasons a period's windows are in."""
+    names = sorted({s for w in period.get("windows") or [] for s in w.get("seasons") or []},
+                   key=lambda n: (season_months.get(n) or [13])[0])
+    labels = []
+    for name in names:
+        months = season_months.get(name) or []
+        first, last = (MONTH_NAMES[months[0] - 1], MONTH_NAMES[months[-1] - 1]) if months else (name, name)
+        labels.append(first.title() if first == last else f"{first.title()}-{last.title()}")
+    return ", ".join(labels) or "all year"
 
 
 def _combine_window_seasons(windows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -378,11 +397,6 @@ def _combine_window_seasons(windows: list[dict[str, Any]]) -> list[dict[str, Any
             plains.append(plain)
             out.append(dict(window))
     return out
-
-
-def _rate_label(period: dict[str, Any]) -> str:
-    rate = period.get("rate", (period.get("tiers") or [{}])[0].get("rate"))
-    return f"{rate * 100:g}c" if isinstance(rate, (int, float)) else "rate"
 
 
 def _clock(clock: dict[str, Any], dnsp: str, state: str, brand: str) -> tuple[str, str | None]:
@@ -769,7 +783,9 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
             season_months.append(months)
         labels = [_slug(t.get("displayName") or "") for t in usage]
         # The plan's names ("summer") when they tell the seasons apart; else the months ("nov_mar")
-        if len(set(labels)) < len(labels) or any(not lab or "tariff_period" in lab for lab in labels):
+        if len(set(labels)) < len(labels) or any(
+            not lab or "tariff_period" in lab or re.search(r"\d", lab) for lab in labels
+        ):
             labels = [f"{MONTH_NAMES[ms[0] - 1]}_{MONTH_NAMES[ms[-1] - 1]}" if len(ms) > 1 else MONTH_NAMES[ms[0] - 1]
                       for ms in season_months]
         for label, months in zip(labels, season_months, strict=True):
@@ -786,7 +802,7 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
     clock = {"stated": next(iter(stated)) or None, "timed": _has_windows(usage, contract)}
 
     holiday_rates: set[str] = set()
-    import_periods = _import_periods(usage, season_names, holiday_rates)
+    import_periods = _import_periods(usage, season_names, holiday_rates, seasons)
     export_periods = _export_periods(contract, notes, (data.get("customerType") or "").lower(), seasons)
     controlled = _controlled_loads(contract, notes)
     if holiday_rates:
