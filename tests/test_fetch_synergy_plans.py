@@ -166,3 +166,40 @@ def test_a_refused_download_is_a_clear_error_not_a_traceback(monkeypatch, capsys
     monkeypatch.setattr(sys, "argv", ["fetch_synergy_plans.py", "--dry-run"])
     assert syn.main() == 1
     assert f"::error::{syn.DEBS_URL} answered HTTP 403 Forbidden: nothing was changed" in capsys.readouterr().out
+
+
+def mhtml(url, html):
+    """A page saved from a browser as a single file (MHTML)."""
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
+    message = MIMEMultipart("related")
+    message["Snapshot-Content-Location"] = url
+    message.attach(MIMEText(html, "html", "utf-8"))
+    return message.as_bytes()
+
+
+def test_saved_pages_are_read_like_live_ones(library, tmp_path):
+    saved = tmp_path / "saved"
+    saved.mkdir()
+    for name, html in PAGES.items():
+        (saved / f"{name}.mhtml").write_bytes(mhtml(f"{syn.BASE}/{name}", html.decode()))
+    (saved / "DEBS_Pricing_schedule.pdf").write_bytes(b"%PDF")  # pdf_text is faked by the fixture
+    pages = syn.saved_pages([saved])
+    logged = []
+    changes = syn.run(syn.from_saved(pages), TODAY, log=logged.append)
+    assert len(changes) == 4
+    # The WA Government page wasn't saved: the cross-check is only a warning
+    assert any("couldn't cross-check A1" in line for line in logged)
+    a1 = plans_in(library)["Home Plan (A1)"]
+    assert a1["source"]["url"] == f"{syn.BASE}/Home-Plan-A1"
+
+
+def test_a_missing_saved_page_stops_the_run(library, tmp_path):
+    saved = tmp_path / "saved"
+    saved.mkdir()
+    (saved / "a1.mhtml").write_bytes(mhtml(f"{syn.BASE}/Home-Plan-A1", PAGES["Home-Plan-A1"].decode()))
+    (saved / "debs.pdf").write_bytes(b"%PDF")
+    with pytest.raises(syn.SynergyError, match="no saved copy of .*Midday-Saver"):
+        syn.run(syn.from_saved(syn.saved_pages([saved])), TODAY, log=lambda _: None)
+    assert not list(library.rglob("*.json"))

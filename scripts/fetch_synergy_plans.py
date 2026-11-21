@@ -12,6 +12,11 @@ New prices with a new effective date become a new plan file; the previous file g
 
     python scripts/fetch_synergy_plans.py            # fetch, write changed plans
     python scripts/fetch_synergy_plans.py --dry-run  # fetch and check only
+    python scripts/fetch_synergy_plans.py --from ~/Downloads/synergy   # pages saved from a browser
+
+synergy.net.au refuses GitHub's runners (HTTP 403, any headers: 2026-11-21), so run it from a home
+connection, or save the four plan pages (as .mhtml, "Save page as... single file") and the DEBS
+schedule PDF and pass them with --from. Saved pages are read exactly like live ones.
 """
 
 from __future__ import annotations
@@ -381,13 +386,49 @@ def run(get, today: date, write: bool = True, log=print) -> list[str]:
     return changes
 
 
+def saved_pages(paths: list[Path]) -> dict[str, bytes]:
+    """URL -> content from saved files: .mhtml pages (their URL is inside) and the DEBS schedule PDF."""
+    import email
+    from email import policy
+
+    files = [f for p in paths for f in (sorted(p.iterdir()) if p.is_dir() else [p])]
+    out: dict[str, bytes] = {}
+    for path in files:
+        suffix = path.suffix.lower()
+        if suffix in (".mhtml", ".mht"):
+            message = email.message_from_bytes(path.read_bytes(), policy=policy.default)
+            url = (message["Snapshot-Content-Location"] or "").strip()
+            html = next((part.get_content() for part in message.walk() if part.get_content_type() == "text/html"), None)
+            if not url or html is None:
+                raise SynergyError(f"{path.name}: not a saved web page (no address or HTML inside)")
+            out[normal_url(url)] = html.encode("utf-8")
+        elif suffix == ".pdf" and "debs" in path.name.lower():
+            out[normal_url(DEBS_URL)] = path.read_bytes()
+    return out
+
+
+def normal_url(url: str) -> str:
+    return url.split("#")[0].split("?")[0].rstrip("/").lower()
+
+
+def from_saved(pages: dict[str, bytes]):
+    def get(url: str) -> bytes:
+        if normal_url(url) not in pages:
+            raise SynergyError(f"no saved copy of {url}")
+        return pages[normal_url(url)]
+    return get
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--summary", type=Path)
+    parser.add_argument("--from", dest="saved", nargs="+", type=Path,
+                        help="read saved pages (.mhtml) and the DEBS PDF instead of fetching")
     args = parser.parse_args()
     try:
-        changes = run(http_get, date.today(), write=not args.dry_run)
+        get = from_saved(saved_pages(args.saved)) if args.saved else http_get
+        changes = run(get, date.today(), write=not args.dry_run)
     except SynergyError as err:
         print(f"::error::{err}")
         return 1

@@ -51,13 +51,11 @@ Suggest the user's distributor and plans from Home Assistant's Home zone, **as a
 - **First task:** check how many EME plans fill in `includedPostcodes` / `excludedPostcodes` (diagnostic run on
   GitHub). If coverage is poor, the table needs distributor boundaries instead.
 
-### WA scrapers: first live run blocked (2026-11-21)
-Synergy plans (WA): synergy.net.au answered the DEBS PDF with **HTTP 403** from GitHub's runners (nothing
-written). Horizon Power not tried yet. Next: a diagnostic run logging status codes for the DEBS PDF, a plan page
-and Horizon's page with (1) the current headers, (2) the honest User-Agent + browser Accept/Accept-Language,
-(3) a browser User-Agent (only with the maintainer's OK). All 403 = GitHub's addresses blocked: run the scrapers
-elsewhere (maintainer's machine on a schedule, or from HA on a home connection). Also: catch HTTP errors so the
-run prints `::error::` with the address and status, not a traceback.
+### WA scrapers (2026-11-21)
+Horizon Power: works from GitHub; 75 plans merged (#26). Synergy: synergy.net.au answers GitHub's runners with
+HTTP 403 for every header set (Fetch check), so it's run from home or with `--from` saved pages; Horizon's run
+opens an issue when A2/K2 stop matching the library's A1/K1. First Synergy plans: from the maintainer's saved
+pages, waiting on the DEBS PDF.
 
 ### Validating plans (design agreed 2026-11-21, after the importer)
 Statuses, shown as badges in the plan browser (and later in HA's library steps): **not checked** → **matches

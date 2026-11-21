@@ -5,6 +5,9 @@ name: Horizon Power plans (WA)
 # request when prices changed (normally each 1 July). Anything unexpected fails the run with
 # the reason and changes nothing. Regional WA isn't on Energy Made Easy.
 # Checks on the pull request start after "Approve and run workflows" (it's opened by the bot).
+# A2/K2 are the WA Government's uniform tariffs, the same as Synergy's A1/K1: when they no longer
+# match the library's Synergy plans, it opens one issue asking for a Synergy run from home
+# (synergy.net.au refuses GitHub's runners).
 on:
   schedule:
     - cron: "47 21 * * 2"  # Tuesdays 21:47 UTC (Wednesday morning in Perth and Sydney)
@@ -23,6 +26,7 @@ jobs:
     permissions:
       contents: write  # push the update branch
       pull-requests: write  # open the pull request
+      issues: write  # one issue when Synergy's plans need a run from home
     steps:
       - name: Check out the default branch
         # zizmor: ignore[artipacked] this job pushes the update branch, so it keeps the token
@@ -38,8 +42,21 @@ jobs:
 
       - name: Read Horizon Power's pricing page
         run: |
-          python scripts/fetch_horizon_plans.py --summary "$RUNNER_TEMP/summary.md"
+          python scripts/fetch_horizon_plans.py --summary "$RUNNER_TEMP/summary.md" --alarm "$RUNNER_TEMP/synergy.md"
           cat "$RUNNER_TEMP/summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Ask for a Synergy update if WA tariffs changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: "WA tariffs changed: update the Synergy plans"
+        run: |
+          [ -f "$RUNNER_TEMP/synergy.md" ] || exit 0
+          open="$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq 'length')"
+          if [ "$open" = "0" ]; then
+            gh issue create --title "$TITLE" --body-file "$RUNNER_TEMP/synergy.md" --label enhancement
+          else
+            echo "An issue is already open."
+          fi
 
       - name: Validate and rebuild the index
         run: |

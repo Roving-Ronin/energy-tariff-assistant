@@ -28,7 +28,8 @@ pip install zizmor actionlint-py && zizmor . && actionlint   # workflow security
 python scripts/validate_plans.py && python scripts/build_index.py --check   # plan library; Plans workflow runs both
 python scripts/build_site.py --out /tmp/site && python -m http.server -d /tmp/site   # plan browser, locally
 python scripts/import_eme_plans.py --dnsp Ausgrid --dry-run   # convert EME plans (needs internet; the Import plans workflow runs it)
-python scripts/fetch_synergy_plans.py --dry-run   # Synergy (WA) plans (needs internet + pypdf; weekly workflow)
+python scripts/fetch_synergy_plans.py --dry-run   # Synergy (WA) plans (home connection + pypdf; GitHub is refused)
+python scripts/fetch_synergy_plans.py --from DIR  # ...or from saved .mhtml pages + the DEBS PDF
 python scripts/fetch_horizon_plans.py --dry-run   # Horizon Power (regional WA) plans (needs internet; weekly workflow)
 ```
 
@@ -175,7 +176,12 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   repo needs "Allow GitHub Actions to create and approve pull requests"; checks on a PR the bot opens need
   **Approve and run workflows** (GitHub, since 2026-06; not settable for the bot). Retailer names come from the CDR `brandName` (`CovaU`, while the
   hand-made library plan says `Covau`).
-- **Synergy plans (WA)** (weekly workflow, `scripts/fetch_synergy_plans.py`): WA isn't on EME. Reads **only the
+- **Synergy plans (WA)** (by-hand workflow, `scripts/fetch_synergy_plans.py`): WA isn't on EME. **synergy.net.au
+  answers GitHub's runners with HTTP 403 whatever the headers** (Fetch check, 2026-11-21), so it isn't scheduled:
+  run it from home, or `--from <folder>` with the plan pages saved as `.mhtml` (their URL is inside) and the DEBS
+  PDF (name contains "debs"); a missing saved page stops the run. Horizon's weekly run is the alarm: A2/K2 =
+  A1/K1, and a mismatch with the library's current Synergy plans opens one issue ("WA tariffs changed: update
+  the Synergy plans", only if none is open). Reads **only the
   "Item / Price inc. GST" tables** on Synergy's four plan pages (descriptions are ignored: K1's text disagrees with
   its table) and the stated times ("Peak (3pm to 9pm)"), against fixed per-plan label → period maps (`PLANS`).
   Feed-in: DEBS schedule PDF, the **Residential customers** table only, GST-free (2026-07-01: 10c 3pm-9pm, 2c

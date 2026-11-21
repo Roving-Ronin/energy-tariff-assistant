@@ -1,13 +1,14 @@
 name: Synergy plans (WA)
 
-# Weekly: reads Synergy's four plan pages (price tables only) and its DEBS pricing schedule,
+# By hand: reads Synergy's four plan pages (price tables only) and its DEBS pricing schedule,
 # checks every rate label and stated time against what each plan expects, and opens a pull
 # request when prices changed (normally each 1 July). Anything unexpected fails the run with
 # the reason and changes nothing. WA isn't on Energy Made Easy.
 # Checks on the pull request start after "Approve and run workflows" (it's opened by the bot).
+# Not scheduled: synergy.net.au answers GitHub's runners with HTTP 403 whatever the headers (Fetch check,
+# 2026-11-21). Run scripts/fetch_synergy_plans.py from home, or with --from on saved pages; the Horizon Power
+# workflow opens an issue when WA's uniform tariffs change. Kept by hand in case the block is lifted.
 on:
-  schedule:
-    - cron: "17 21 * * 2"  # Tuesdays 21:17 UTC (Wednesday morning in Perth and Sydney)
   workflow_dispatch:
 
 permissions: {}

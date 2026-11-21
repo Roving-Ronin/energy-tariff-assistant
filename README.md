@@ -233,10 +233,22 @@ before running checks on a pull request opened by the bot: click **Approve and r
 
 ### Synergy plans (WA)
 
-WA isn't on Energy Made Easy. The **Synergy plans (WA)** workflow runs weekly: it reads the price tables on Synergy's
-four plan pages (Home Plan A1, Midday Saver, EV Add On, Home Business Plan K1) and the DEBS feed-in schedule, and
-opens a pull request when prices change (normally each 1 July). Every rate label and stated time is checked against
-what the plan expects; anything unexpected fails the run with the reason and changes nothing.
+WA isn't on Energy Made Easy. `scripts/fetch_synergy_plans.py` reads the price tables on Synergy's four plan pages
+(Home Plan A1, Midday Saver, EV Add On, Home Business Plan K1) and the DEBS feed-in schedule. Every rate label and
+stated time is checked against what the plan expects; anything unexpected stops it with the reason and changes
+nothing.
+
+synergy.net.au refuses GitHub's servers, so it isn't scheduled. Run it from a home connection when prices change
+(normally 1 July; the Horizon Power workflow opens an issue when WA's tariffs change):
+
+```bash
+pip install -r requirements_test.txt pypdf
+python scripts/fetch_synergy_plans.py                    # fetch from Synergy's site and write the plans
+python scripts/fetch_synergy_plans.py --from ~/synergy   # or: pages saved from a browser
+```
+
+For `--from`, save each of the four plan pages with your browser's **Save page as… → Webpage, single file
+(.mhtml)**, plus the DEBS pricing schedule PDF, into one folder. Then open a pull request with the new plan files.
 
 ### Horizon Power plans (regional WA)
 
@@ -244,6 +256,8 @@ The **Horizon Power plans (WA)** workflow runs weekly on Horizon Power's pricing
 Government's uniform tariffs, but feed-in depends on the town, so each of the 37 towns gets an **A2 Residential**
 plan with DEBS (solar up to 5 kW) and one with **Buyback Bonus** (over 5 kW, Community Wave members, summer and
 winter rates), plus one **K2 Combined Use** plan (no feed-in). REBS (closed) and the other tariffs are left out.
+A2 and K2 are the same government tariffs as Synergy's A1 and K1, so when they change the workflow opens one issue
+asking for the Synergy plans to be updated.
 
 ### Plan browser
 
