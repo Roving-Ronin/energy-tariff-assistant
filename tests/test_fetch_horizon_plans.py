@@ -102,3 +102,44 @@ def test_anything_unexpected_stops_the_run_and_writes_nothing(library, kwargs, m
     with pytest.raises(hp.HorizonError, match=message):
         hp.run(lambda url: page(**kwargs), TODAY, log=lambda _: None)
     assert not list(library.rglob("*.json"))
+
+
+def synergy_library(library, a1_unit="33.2621 cents per unit"):
+    pages = dict(syn_pages())
+    pages["Home-Plan-A1"] = pages["Home-Plan-A1"].replace(b"33.2621 cents per unit", a1_unit.encode())
+    from test_fetch_synergy_plans import DEBS_TEXT, fake_get
+
+    syn.pdf_text = lambda data: DEBS_TEXT
+    syn.run(fake_get(pages), TODAY, log=lambda _: None)
+
+
+def syn_pages():
+    from test_fetch_synergy_plans import PAGES
+
+    return PAGES
+
+
+def test_no_synergy_plans_means_nothing_to_compare(library):
+    logged = []
+    hp.run(lambda url: page(), TODAY, log=logged.append, write=False)
+    assert any("No Synergy plans in the library yet" in line for line in logged)
+
+
+def test_matching_synergy_plans_raise_no_alarm(library, tmp_path, monkeypatch):
+    monkeypatch.setattr(syn, "pdf_text", syn.pdf_text)
+    synergy_library(library)
+    alarm = tmp_path / "alarm.md"
+    hp.run(lambda url: page(), TODAY, log=lambda _: None, write=False, alarm=alarm)
+    assert not alarm.exists()
+
+
+def test_changed_uniform_tariffs_ask_for_a_synergy_update(library, tmp_path, monkeypatch):
+    monkeypatch.setattr(syn, "pdf_text", syn.pdf_text)
+    synergy_library(library, a1_unit="32.0000 cents per unit")  # the library's A1 is out of date
+    alarm = tmp_path / "alarm.md"
+    logged = []
+    hp.run(lambda url: page(), TODAY, log=logged.append, write=False, alarm=alarm)
+    assert any("Synergy's plans need updating" in line for line in logged)
+    text = alarm.read_text()
+    assert "A2 is $1.1924/day and 33.2621c; Synergy A1 in the library is $1.1924 and 32.0000c" in text
+    assert "--from <folder>" in text

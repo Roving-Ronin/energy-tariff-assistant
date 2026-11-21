@@ -1,0 +1,64 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "WA",
+  "dnsp": "Western Power",
+  "retailer": "Synergy",
+  "plan": "Home Business Plan (K1)",
+  "plan_id": "K1",
+  "customer_type": "business",
+  "effective_from": "2026-07-01",
+  "effective_to": null,
+  "source": {
+    "type": "retailer_factsheet",
+    "url": "https://www.synergy.net.au/Your-home/Energy-plans/Home-Business-Plan-K1-Resi",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Perth",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.104115,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "anytime",
+        "name": "Anytime",
+        "tiers": [
+          {
+            "up_to_kwh": 20,
+            "rate": 0.347481
+          },
+          {
+            "up_to_kwh": 1650,
+            "rate": 0.327455
+          },
+          {
+            "rate": 0.369194
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "From Synergy's price table at https://www.synergy.net.au/Your-home/Energy-plans/Home-Business-Plan-K1-Resi (prices include GST). Not eligible for DEBS feed-in (stated on the plan's page): feed-in set to 0."
+}

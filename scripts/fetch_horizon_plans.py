@@ -25,6 +25,7 @@ import urllib.error
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import fetch_synergy_plans as synergy  # noqa: E402
 from fetch_synergy_plans import SynergyError, _Text, _w, http_get, page_lines, place_plan  # noqa: E402
 
 from engine import validate_plan  # noqa: E402
@@ -204,8 +205,55 @@ def build_plans(page: dict[str, Any], today: date) -> list[tuple[dict[str, Any],
     return out
 
 
-def run(get, today: date, write: bool = True, log=print) -> list[str]:
+def synergy_differences(page: dict[str, Any]) -> list[str] | None:
+    """Where Horizon's A2/K2 (the WA Government's uniform tariffs) differ from the library's current Synergy
+    A1/K1. Synergy can't be read from GitHub, so this is the sign its plans need a run from home.
+    None if the library has no Synergy plans yet."""
+    import json
+
+    latest: dict[str, dict[str, Any]] = {}
+    for path in synergy.plan_files():
+        if path.parent.name != "WA":
+            continue
+        plan = json.loads(path.read_text(encoding="utf-8"))
+        if plan.get("retailer") == "Synergy" and plan.get("plan_id") in ("A1", "K1") and not plan.get("effective_to"):
+            latest[plan["plan_id"]] = plan
+    if not latest:
+        return None
+    out = []
+    supply, _additional, unit = page["a2"]
+    if "A1" in latest:
+        a1 = latest["A1"]
+        mine = (round(a1["supply_charge"]["rate"], 4), round(a1["import"]["periods"][0]["rate"] * 100, 4))
+        if mine != (round(supply, 4), round(unit, 4)):
+            out.append(f"A2 is ${supply:.4f}/day and {unit:.4f}c; Synergy A1 in the library is ${mine[0]:.4f} and {mine[1]:.4f}c")
+    if "K1" in latest:
+        k1 = latest["K1"]
+        tiers = [round(t["rate"] * 100, 4) for t in k1["import"]["periods"][0]["tiers"]]
+        k2_supply, *k2_steps = page["k2"]
+        if (round(k1["supply_charge"]["rate"], 4), tiers) != (round(k2_supply, 4), [round(x, 4) for x in k2_steps]):
+            out.append(f"K2 is ${k2_supply:.4f}/day and {k2_steps}c; Synergy K1 in the library is "
+                       f"${k1['supply_charge']['rate']:.4f} and {tiers}c")
+    return out
+
+
+def run(get, today: date, write: bool = True, log=print, alarm: Path | None = None) -> list[str]:
     page = read_page(page_lines(get(URL).decode("utf-8", "replace"), BLOCKS))
+    differences = synergy_differences(page)
+    if differences is None:
+        log("No Synergy plans in the library yet: nothing to compare A2/K2 with")
+    elif differences:
+        log("::warning::WA uniform tariffs changed; Synergy's plans need updating: " + "; ".join(differences))
+        if alarm is not None:
+            alarm.write_text(
+                "Horizon Power's A2/K2 prices (the WA Government's uniform tariffs) no longer match the library's "
+                "Synergy A1/K1, so Synergy's prices have probably changed too:\n\n"
+                + "".join(f"- {d}\n" for d in differences)
+                + "\nsynergy.net.au refuses GitHub's runners, so update the Synergy plans from home: "
+                "`python scripts/fetch_synergy_plans.py` (needs `pypdf`), or save the four plan pages as .mhtml and "
+                "the DEBS schedule PDF and run `python scripts/fetch_synergy_plans.py --from <folder>`. "
+                "Then open a PR with the new plan files.\n",
+                encoding="utf-8")
     log(f"Horizon Power: {len(page['debs'])} towns, prices from {page['effective']}")
     plans = build_plans(page, today)
     for plan, _ in plans:
@@ -225,9 +273,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--summary", type=Path)
+    parser.add_argument("--alarm", type=Path, help="write the Synergy-needs-updating issue text here if A2/K2 changed")
     args = parser.parse_args()
     try:
-        changes = run(http_get, date.today(), write=not args.dry_run)
+        changes = run(http_get, date.today(), write=not args.dry_run, alarm=args.alarm)
     except SynergyError as err:
         print(f"::error::{err}")
         return 1

@@ -1,0 +1,99 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "WA",
+  "dnsp": "Western Power",
+  "retailer": "Synergy",
+  "plan": "EV Add On",
+  "plan_id": null,
+  "customer_type": "residential",
+  "effective_from": "2026-07-01",
+  "effective_to": null,
+  "source": {
+    "type": "retailer_factsheet",
+    "url": "https://www.synergy.net.au/Your-home/Energy-plans/Electric-Vehicle-Add-On",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Perth",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.327806,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "super_off_peak",
+        "name": "Super Off Peak",
+        "rate": 0.08852,
+        "windows": [
+          {
+            "days": "all",
+            "start": "09:00",
+            "end": "15:00"
+          }
+        ]
+      },
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.553253,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "overnight",
+        "name": "Overnight",
+        "rate": 0.199172,
+        "windows": [
+          {
+            "days": "all",
+            "start": "23:00",
+            "end": "06:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.243431,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "DEBS Peak",
+        "rate": 0.1,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "DEBS Off Peak",
+        "rate": 0.02,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "From Synergy's price table at https://www.synergy.net.au/Your-home/Energy-plans/Electric-Vehicle-Add-On (prices include GST). Feed-in is the Distributed Energy Buyback Scheme (DEBS), from Synergy's DEBS pricing schedule (correct as at 2026-07-01)."
+}
