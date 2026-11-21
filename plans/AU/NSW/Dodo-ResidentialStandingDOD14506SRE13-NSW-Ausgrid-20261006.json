@@ -50,7 +50,7 @@
     "periods": [
       {
         "id": "peak_jun_aug_nov_mar",
-        "name": "Peak (Jun-Aug, Nov-Mar)",
+        "name": "Peak (Jun – Aug, Nov – Mar)",
         "rate": 0.601966,
         "windows": [
           {
@@ -66,7 +66,7 @@
       },
       {
         "id": "peak_apr_may_sep_oct",
-        "name": "Peak (Apr-May, Sep-Oct)",
+        "name": "Peak (Apr – May, Sep – Oct)",
         "rate": 0.240387,
         "windows": [
           {
@@ -91,8 +91,8 @@
   "export": {
     "periods": [
       {
-        "id": "tou_rate_solar_fit",
-        "name": "TOU Rate Solar FiT",
+        "id": "solar_fit",
+        "name": "Solar FiT",
         "rate": 0.01,
         "default": true
       }

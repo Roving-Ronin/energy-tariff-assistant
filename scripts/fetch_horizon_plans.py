@@ -159,13 +159,13 @@ def bonus_feed_in(rates: list[float]) -> tuple[list[dict[str, Any]], dict[str, l
     (and the meters) don't change when a town's summer and winter rates start or stop differing."""
     s_off, s_peak, w_off, w_peak = rates
     periods = [
-        {"id": "peak_nov_mar", "name": "Peak (Nov-Mar)", "rate": cents(s_peak),
+        {"id": "peak_nov_mar", "name": "Peak (Nov – Mar)", "rate": cents(s_peak),
          "windows": [{**_w("15:00", "21:00"), "seasons": ["nov_mar"]}]},
-        {"id": "peak_apr_oct", "name": "Peak (Apr-Oct)", "rate": cents(w_peak),
+        {"id": "peak_apr_oct", "name": "Peak (Apr – Oct)", "rate": cents(w_peak),
          "windows": [{**_w("15:00", "21:00"), "seasons": ["apr_oct"]}]},
-        {"id": "off_peak_nov_mar", "name": "Off Peak (Nov-Mar)", "rate": cents(s_off),
+        {"id": "off_peak_nov_mar", "name": "Off Peak (Nov – Mar)", "rate": cents(s_off),
          "windows": [{**_w("21:00", "15:00"), "seasons": ["nov_mar"]}]},
-        {"id": "off_peak_apr_oct", "name": "Off Peak (Apr-Oct)", "rate": cents(w_off), "default": True},
+        {"id": "off_peak_apr_oct", "name": "Off Peak (Apr – Oct)", "rate": cents(w_off), "default": True},
     ]
     return periods, {"nov_mar": SUMMER, "apr_oct": WINTER}
 

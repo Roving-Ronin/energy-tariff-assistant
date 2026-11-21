@@ -118,11 +118,13 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   month boundaries, per-year steps, differing supply charges) is skipped with a reason in `Conversion.skipped`;
   parts left out of a converted plan go in its `notes`. Converted plans are `needs_review: true`.
 - Period ids come from the plan's own rate names (`free`, `peak`), so meters and entity ids read naturally.
+  `rate_name` drops the network and tariff words retailers put first ("Ausgrid Solar Sharer Peak" → "Peak",
+  "TOU Rate Solar FiT" → "Solar FiT"); season labels read "Peak (Nov – Mar)".
   EME lists each season's rates separately: the same name and price in several seasons is **one period** with
   each season's windows (Amber Solar Sharer: 10 CDR rates → peak, off_peak, free_period). Seasons take the plan's
   names when they tell them apart, else their months (`nov_mar`; also when the names have digits: "Season 1 (1 Nov
   to 31 Mar)"). The same name at different prices by season (high/low season peak) is named **by its seasons,
-  never its price** (`peak_nov_mar`, "Peak (Nov-Mar)"): ids key the meters and prices change every year. Several CDR distributor names for one network
+  never its price** (`peak_nov_mar`, "Peak (Nov – Mar)"): ids key the meters and prices change every year. Several CDR distributor names for one network
   ("Essential Energy", "... Far West") give one plan; retailer names are trimmed ("GEE Energy ").
 
 ### Building plans
@@ -167,7 +169,10 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   re-validates) and `data/coverage.json` (a slim `retailers.json`). Plan files are contributor text: the page
   builds the DOM with text nodes only (`h()`), never `innerHTML`, and links only `http(s)` source URLs. Its
   timeline mirrors `Window.segments`/`covers` and `Resolver._period` (first non-default match wins): change them
-  together. Its **Report a problem** link uses the same form field ids as `share.py`. Only the library goes on
+  together. Its **Report a problem** link uses the same form field ids as `share.py`. Rates show in dollars
+  under "Rate ($/kWh)"; the period id is a hover title only; seasons show as month ranges ("Nov – Mar") from
+  `seasons`. The library's same-plan check (`validate_plans`) treats different plan IDs as different plans
+  (EME gives a retailer's variants one name). Only the library goes on
   the site: never raw CDR data or unchecked conversions.
 - **Import plans** (manual workflow, `scripts/import_eme_plans.py`): converts Energy Made Easy plans for chosen
   DNSPs, customer type and pricing, validates them and opens a PR with the summary. **EME lists only current plans
@@ -181,9 +186,13 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   replacement. New files end the old one the day before and **keep its period ids** (`keep_ids`: same name, else
   same times; tier `use_period` follows), so meters carry on. **Reviewed plans** (`needs_review: false`) **and
   plans not made by the importer** (source not `EME`, e.g. the hand-made CovaU plan) are never changed: their
-  differences are listed in the PR. `--per-retailer` limits new plans only. **Wholesale-linked plans are skipped** (`WHOLESALE`: "estimate",
+  differences are listed in the PR. `--per-retailer` counts library plans too (a re-run with the same limit adds nothing). **Wholesale-linked plans are skipped** (`WHOLESALE`: "estimate",
   "wholesale", "spot price", "variable prices" in the name or description; EME shows only the retailer's estimate,
-  e.g. GloBird WHOLESAVE, Flow Power Variable Prices): as fixed rates they'd price meters wrongly. HA's library steps and the plan
+  e.g. GloBird WHOLESAVE, Flow Power Variable Prices, Ezi Market): as fixed rates they'd price meters wrongly.
+  **Wholesale retailers** (`WHOLESALE_RETAILERS`: Amber, Flow Power, Localvolts; maintainer 2026-11-21) keep only
+  their standing offers (plan ID with `S`, e.g. `AMB1127895SRE1`: DMO and Solar Sharer, fixed prices); their market
+  offers show a guide price (Flow Power's TOU "estimates" have one price in every period). EziPower and GloBird
+  also sell fixed plans, so only their named wholesale plans go. HA's library steps and the plan
   browser offer only plans that haven't ended (`wizard.current`). The repo needs "Allow GitHub Actions to create
   and approve pull requests"; checks on a PR the bot opens need **Approve and run workflows** (GitHub, since
   2026-06; not settable for the bot). Retailer names come from the CDR `brandName`.

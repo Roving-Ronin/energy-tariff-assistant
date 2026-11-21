@@ -74,7 +74,7 @@
       },
       {
         "id": "off_peak",
-        "name": "off-peak",
+        "name": "Off-peak",
         "rate": 0.03,
         "default": true
       }

@@ -56,9 +56,6 @@ function decimals(value) {
   const text = String(value);
   return text.includes(".") ? text.split(".")[1].length : 0;
 }
-function cents(value) {
-  return typeof value === "number" ? `${+(value * 100).toFixed(3)}c` : "";
-}
 function today() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -70,6 +67,23 @@ function minutesOf(text) {
   const [hours, mins] = String(text).split(":").map(Number);
   return hours * 60 + mins;
 }
+// "Nov – Mar", or "Apr – May, Sep – Oct" for months that aren't one run (December wraps to January)
+function monthRange(months) {
+  const set = new Set(months);
+  if (set.size === 12) return "All year";
+  const starts = [...set].filter((m) => !set.has(m === 1 ? 12 : m - 1)).sort((a, b) => a - b);
+  return starts.map((start) => {
+    let end = start;
+    while (set.has(end === 12 ? 1 : end + 1)) end = end === 12 ? 1 : end + 1;
+    return start === end ? MONTHS[start - 1] : `${MONTHS[start - 1]}\u00a0–\u00a0${MONTHS[end - 1]}`;
+  }).join(", ");
+}
+
+function seasonName(season, seasons) {
+  const months = (seasons || {})[season];
+  return months && months.length ? monthRange(months) : title(season.replace(/_/g, " "));
+}
+
 function title(text) {
   return text ? text.charAt(0).toUpperCase() + text.slice(1) : "";
 }
@@ -198,8 +212,7 @@ function timelineRows(plan, periods) {
     }
     for (const group of groups) {
       const label = dayGroupLabel(group.days);
-      const monthList = months ? ` (${months.map((m) => MONTHS[m - 1]).join(", ")})` : "";
-      const seasonLabel = months ? `${season ? title(season) : "Other months"}${monthList}` : null;
+      const seasonLabel = months ? (season ? seasonName(season, plan.seasons) : `Other months (${monthRange(months)})`) : null;
       rows.push({ label, seasonLabel, runs: group.runs });
     }
   }
@@ -228,12 +241,12 @@ function colourMap(periods, scale) {
 }
 
 function rateText(period, periods) {
-  if (!period.tiers) return [dollars(period.rate), h("span", { class: "muted" }, ` /kWh · ${cents(period.rate)}`)];
+  if (!period.tiers) return [dollars(period.rate)];
   let previous = 0;
   const parts = period.tiers.map((tier) => {
     const price = tier.use_period
       ? `${(periods.find((p) => p.id === tier.use_period) || { name: tier.use_period }).name} rate`
-      : `${dollars(tier.rate)}/kWh`;
+      : dollars(tier.rate);
     if (tier.up_to_kwh === undefined) return `then ${price}`;
     const range = previous === 0 ? `first ${tier.up_to_kwh} kWh` : `${previous}–${tier.up_to_kwh} kWh`;
     previous = tier.up_to_kwh;
@@ -243,13 +256,13 @@ function rateText(period, periods) {
   return [parts.join(", "), h("span", { class: "muted" }, ` (caps ${reset})`)];
 }
 
-function windowText(win) {
+function windowText(win, seasons) {
   const days = typeof win.days === "string" || win.days === undefined
     ? title(win.days || "all") === "All" ? "All days" : title(win.days)
     : win.days.map((d) => title(d)).join(", ");
   const time = win.all_day ? "all day" : `${win.start}–${win.end}`;
-  const seasons = win.seasons && win.seasons.length ? ` (${win.seasons.map(title).join(", ")})` : "";
-  return `${days} ${time}${seasons}`;
+  const when = win.seasons && win.seasons.length ? ` (${win.seasons.map((s) => seasonName(s, seasons)).join(", ")})` : "";
+  return `${days} ${time}${when}`;
 }
 
 // ---------- views ----------
@@ -385,13 +398,13 @@ function timelineView(plan, periods, scale) {
   return [wrap, legend];
 }
 
-function ratesTable(periods) {
+function ratesTable(periods, seasons) {
   return h("div", { class: "table-wrap" }, h("table", {},
-    h("thead", {}, h("tr", {}, h("th", {}, "Period"), h("th", {}, "Rate"), h("th", {}, "When"))),
+    h("thead", {}, h("tr", {}, h("th", {}, "Period"), h("th", {}, "Rate ", h("span", { style: "text-transform:none" }, "($/kWh)")), h("th", {}, "When"))),
     h("tbody", {}, periods.map((p) => h("tr", {},
-      h("td", {}, p.name, h("span", { class: "muted" }, ` (${p.id})`)),
+      h("td", { title: `Meter id: ${p.id}` }, p.name),
       h("td", {}, rateText(p, periods)),
-      h("td", {}, p.default ? "All other times" : (p.windows || []).map((w) => h("div", {}, windowText(w)))),
+      h("td", {}, p.default ? "All other times" : (p.windows || []).map((w) => h("div", {}, windowText(w, seasons)))),
     )))));
 }
 
@@ -400,7 +413,7 @@ function streamCard(plan, label, periods, extra, scale = "buy") {
     h("h2", { style: "margin-top:0" }, label),
     extra || null,
     timelineView(plan, periods, scale),
-    ratesTable(periods));
+    ratesTable(periods, plan.seasons));
 }
 
 function reportLink(plan, entry) {
@@ -499,7 +512,7 @@ async function renderPlan(file) {
       h("thead", {}, h("tr", {}, h("th", {}, "Charge"), h("th", {}, "Rate"), h("th", {}, "When"))),
       h("tbody", {}, plan.demand.map((d) => h("tr", {},
         h("td", {}, d.name), h("td", {}, `${dollars(d.rate)} ${d.unit === "per_kw_per_month" ? "per kW per month" : "per kW per day"}`),
-        h("td", {}, d.windows.map((w) => h("div", {}, windowText(w))))))))));
+        h("td", {}, d.windows.map((w) => h("div", {}, windowText(w, plan.seasons))))))))));
   }
 
   view.append(h("details", {}, h("summary", {}, "Plan JSON"), h("pre", { class: "json" }, text)));

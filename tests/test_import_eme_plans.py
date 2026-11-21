@@ -277,6 +277,7 @@ def test_an_empty_list_doesnt_end_the_library(eme, library):
     ("WHOLESAVE Resi (Two Rate) estimate-Ausgrid", ""),
     ("Flow Home Battery+Solar+EV: Variable Prices (estimate)", ""),
     ("Smart Saver", "Prices follow the wholesale market every five minutes."),
+    ("Ezi Market", ""),
 ])
 def test_wholesale_and_estimate_plans_are_skipped(eme, library, name, description):
     detail = offer(eme, "GLO1220399MRE1@EME", name=name)
@@ -289,3 +290,30 @@ def test_ordinary_plan_names_are_not_mistaken_for_wholesale(eme, library):
     detail = offer(eme, "COV1@EME", name="Variable rate Everyday Saver")
     detail["data"]["description"] = "Our variable-rate plan with no exit fees."
     assert len(run(eme).written) == 1
+
+
+@pytest.mark.parametrize("brand, plan_id, kept", [
+    ("Amber", "AMB1100001MRE1@EME", False),  # market offer: wholesale prices
+    ("Amber", "AMB1127895SRE1@EME", True),  # standing offer (Solar Sharer, DMO): fixed prices
+    ("Flow Power", "FP11198935MRE1@EME", False),
+    ("Localvolts", "LOC1000001MRE1@EME", False),
+    ("Ezi Power", "SLV1213507MRE1@EME", True),  # Ezi Peak is fixed; only Ezi Market is skipped (by name)
+])
+def test_wholesale_retailers_keep_only_standing_offers(eme, library, brand, plan_id, kept):
+    detail = offer(eme, plan_id)
+    detail["data"]["brandName"] = brand
+    report = run(eme)
+    assert bool(report.written) is kept
+    if not kept:
+        assert "market offers follow wholesale prices" in report.skipped[0]
+
+
+def test_the_per_retailer_limit_counts_library_plans(eme, library):
+    for n in range(3):
+        offer(eme, f"COV{n}1@EME", name=f"Plan {n}")
+    assert len(run(eme).written) == 3
+    for n in range(3, 5):
+        offer(eme, f"COV{n}1@EME", name=f"Plan {n}")
+    report = run(eme)
+    assert not report.written and len(report.already) == 3  # the same limit adds nothing
+    assert len(run(eme, per_retailer=0).written) == 2

@@ -42,7 +42,25 @@ SLUG_LENGTH = 40
 # Plans whose prices follow the wholesale market: EME shows the retailer's estimate (GloBird WHOLESAVE
 # "estimate", Flow Power "Variable Prices (estimate)"), so as fixed rates they'd price meters wrongly.
 # They wait for a live price source (CLAUDE-TODO: wholesale-priced retailers).
-WHOLESALE = re.compile(r"\bestimated?\b|\bwholesale\b|\bspot prices?\b|\bvariable prices\b", re.IGNORECASE)
+WHOLESALE = re.compile(r"\bestimated?\b|\bwholesale\b|\bwholesave\b|\bspot prices?\b|\bvariable prices\b|\bezi market\b",
+                       re.IGNORECASE)
+# Retailers whose market offers follow the wholesale market (maintainer, 2026-11-21): EME shows a guide price,
+# not what's billed (Flow Power's TOU "estimates" have one price in every period). Their standing offers
+# (Default Market Offer, Solar Sharer: plan IDs with S, e.g. AMB1127895SRE1) are fixed prices and are kept.
+# By CDR brand, lower case. EziPower and GloBird sell fixed plans too, so only their named plans are skipped
+# (Ezi Market, WHOLESAVE: WHOLESALE above).
+WHOLESALE_RETAILERS = frozenset({"amber", "amber electric", "flow power", "localvolts"})
+OFFER_KIND = re.compile(r"([MS])[RB]E\d*(?:@\w+)?$")
+
+
+def wholesale_reason(plan_id: str, brand: str, text: str) -> str | None:
+    """Why a plan follows wholesale prices (so it can't be priced as fixed rates), or None."""
+    if WHOLESALE.search(text):
+        return "follows wholesale prices (EME shows an estimate)"
+    kind = OFFER_KIND.search(plan_id)
+    if brand.strip().lower() in WHOLESALE_RETAILERS and not (kind and kind.group(1) == "S"):
+        return f"{brand.strip()} market offers follow wholesale prices (EME shows a guide price)"
+    return None
 
 
 def base_id(plan_id: str) -> str:
@@ -242,7 +260,12 @@ def run(
         summaries = [p for p in (listing.get("data") or {}).get("plans") or []
                      if (p.get("fuelType") or "").upper() in ("ELECTRICITY", "DUAL")]
         summaries.sort(key=lambda p: str(p.get("lastUpdated") or ""), reverse=True)  # newest first
+        # The limit is per retailer per DNSP, library plans included: a run with the same limit adds nothing
         counts: dict[str, int] = {}
+        for summary in summaries:
+            for d in wanted(summary, wanted_dnsps, customer):
+                if (family(summary.get("planId", "")), d) in by_family:
+                    counts[d] = counts.get(d, 0) + 1
         for summary in summaries:
             plan_id = summary.get("planId", "")
             on = wanted(summary, wanted_dnsps, customer)
@@ -262,9 +285,10 @@ def run(
                 report.other_pricing += 1
                 continue
             data = detail.get("data") or {}
-            if WHOLESALE.search(f"{data.get('displayName') or ''} {data.get('description') or ''}"):
-                report.skipped.append(f"{plan_id}: {data.get('displayName')!r} follows wholesale prices (EME shows "
-                                      "an estimate): not a fixed-rate plan")
+            why = wholesale_reason(plan_id, data.get("brandName") or "",
+                                   f"{data.get('displayName') or ''} {data.get('description') or ''}")
+            if why:
+                report.skipped.append(f"{plan_id}: {data.get('displayName')!r} {why}: not a fixed-rate plan")
                 listed.update((family(plan_id), d) for d in on)
                 continue
             try:

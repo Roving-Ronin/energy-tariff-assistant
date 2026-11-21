@@ -46,7 +46,7 @@
     "periods": [
       {
         "id": "peak_nov_mar",
-        "name": "Peak (Nov-Mar)",
+        "name": "Peak (Nov – Mar)",
         "rate": 0.42845,
         "windows": [
           {
@@ -73,7 +73,7 @@
       },
       {
         "id": "peak_apr_oct",
-        "name": "Peak (Apr-Oct)",
+        "name": "Peak (Apr – Oct)",
         "rate": 0.43362,
         "windows": [
           {

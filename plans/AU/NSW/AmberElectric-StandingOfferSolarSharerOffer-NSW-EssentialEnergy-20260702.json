@@ -27,8 +27,8 @@
   "import": {
     "periods": [
       {
-        "id": "essential_energy_solar_sharer_peak",
-        "name": "Essential Energy Solar Sharer Peak",
+        "id": "peak",
+        "name": "Peak",
         "rate": 0.455698,
         "windows": [
           {
@@ -44,8 +44,8 @@
         ]
       },
       {
-        "id": "essential_energy_solar_sharer_free_period",
-        "name": "Essential Energy Solar Sharer Free Period",
+        "id": "free_period",
+        "name": "Free Period",
         "tiers": [
           {
             "up_to_kwh": 24.0,
@@ -65,8 +65,8 @@
         ]
       },
       {
-        "id": "essential_energy_solar_sharer_off_peak",
-        "name": "Essential Energy Solar Sharer Off Peak",
+        "id": "off_peak",
+        "name": "Off Peak",
         "rate": 0.275958,
         "default": true
       }

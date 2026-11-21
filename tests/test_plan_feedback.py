@@ -5,7 +5,6 @@ from __future__ import annotations
 from datetime import date
 import json
 from pathlib import Path
-import shutil
 import sys
 
 import pytest
@@ -26,7 +25,10 @@ def root(tmp_path):
     source = next(p for p in plan_files() if p.name == Path(REL).name)
     target = tmp_path / REL
     target.parent.mkdir(parents=True)
-    shutil.copyfile(source, target)
+    plan = json.loads(source.read_text(encoding="utf-8"))
+    for key in ("confirmations", "problems"):  # start clean, whatever the library plan has had
+        plan.pop(key, None)
+    target.write_text(json.dumps(plan), encoding="utf-8")
     return tmp_path
 
 

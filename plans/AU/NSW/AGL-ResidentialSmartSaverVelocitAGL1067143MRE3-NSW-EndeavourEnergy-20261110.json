@@ -45,8 +45,8 @@
   "import": {
     "periods": [
       {
-        "id": "time_of_use_peak_nov_mar",
-        "name": "Time of Use Peak (Nov-Mar)",
+        "id": "peak_nov_mar",
+        "name": "Peak (Nov – Mar)",
         "rate": 0.419144,
         "windows": [
           {
@@ -72,8 +72,8 @@
         ]
       },
       {
-        "id": "time_of_use_peak_apr_oct",
-        "name": "Time of Use Peak (Apr-Oct)",
+        "id": "peak_apr_oct",
+        "name": "Peak (Apr – Oct)",
         "rate": 0.424237,
         "windows": [
           {
@@ -87,8 +87,8 @@
         ]
       },
       {
-        "id": "time_of_use_off_peak",
-        "name": "Time of Use Off Peak",
+        "id": "off_peak",
+        "name": "Off Peak",
         "rate": 0.321211,
         "default": true
       }

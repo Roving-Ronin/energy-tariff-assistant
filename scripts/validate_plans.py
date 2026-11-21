@@ -60,6 +60,10 @@ def check_files(paths: list[Path], today: date | None = None) -> list[FileResult
     for i, a in enumerate(valid):
         for b in valid[i + 1:]:
             same = all(a.plan.get(k) == b.plan.get(k) for k in ("country", "region", "retailer", "plan", "dnsp"))
+            # EME gives a retailer's variants (with or without controlled load...) one name: different
+            # plan IDs are different plans
+            if a.plan.get("plan_id") and b.plan.get("plan_id") and a.plan["plan_id"] != b.plan["plan_id"]:
+                same = False
             if same and _overlaps(a.plan, b.plan):
                 message = "same plan as {} with overlapping effective dates"
                 a.warnings.append(message.format(b.path.name))
