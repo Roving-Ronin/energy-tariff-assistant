@@ -804,3 +804,14 @@ def test_feed_in_options_partly_labelled_are_skipped(solarmax_cdr):
     solarmax_cdr["data"]["electricityContract"]["solarFeedInTariff"] = entries
     result = convert(solarmax_cdr, TODAY)
     assert not result.plans and "labelled as options and some aren't" in result.skipped[0]
+
+
+@pytest.mark.parametrize(("text", "name"), [
+    ("Qantas Red Saver (Bundled)(Demand)", "Qantas Red Saver Bundled Demand"),
+    ("Qantas Red Saver (Demand)", "Qantas Red Saver Demand"),
+    ("GEE Smart Value  ESSNR  Time of Use + CL2", "GEE Smart Value ESSNR Time of Use + CL2"),
+    ("Home Plan (Smart)", "Home Plan (Smart)"),  # only plan-type words lose their brackets
+])
+def test_plan_names(solarmax_cdr, text, name):
+    solarmax_cdr["data"]["displayName"] = text
+    assert convert(solarmax_cdr, TODAY).plans[0]["plan"] == name

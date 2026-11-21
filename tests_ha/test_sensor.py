@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 import pytest
 
 from homeassistant.config_entries import ConfigEntryState
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 
@@ -26,6 +27,8 @@ from custom_components.energy_tariff_assistant.const import (
     SOURCE_PASTE,
 )
 
+from custom_components.energy_tariff_assistant import sensor as sensor_module
+
 from .conftest import EXPORT, IMPORT, SLUG
 
 pytest.importorskip("pytest_homeassistant_custom_component")
@@ -35,6 +38,12 @@ from pytest_homeassistant_custom_component.common import (  # noqa: E402
 )
 
 SYD = ZoneInfo("Australia/Sydney")
+
+
+@pytest.fixture(autouse=True)
+def write_totals_at_once(monkeypatch):
+    """Totals normally write at most every 30 s; these tests read them straight after each reading."""
+    monkeypatch.setattr(sensor_module, "TOTAL_WRITE_INTERVAL", 0.0)
 KWH = {"unit_of_measurement": "kWh", "device_class": "energy", "state_class": "total_increasing"}
 
 
@@ -356,3 +365,43 @@ async def test_demand_needs_the_import_sensor(hass, sydney, entry, hub, demand_e
     await hass.async_block_till_done()
     assert hass.states.get("sensor.eta_peakco_demand_demand_residential_demand_peak").state == "unavailable"
     assert hass.states.get("sensor.eta_grid_demand_charge_total").state == "unavailable"
+
+
+async def test_totals_write_at_most_every_30_seconds(hass, sydney, entry, hub, freezer, monkeypatch):
+    monkeypatch.setattr(sensor_module, "TOTAL_WRITE_INTERVAL", 30.0)
+    await _setup(hass, freezer, "2026-11-04 15:00", entry, hub)
+    await _at(hass, freezer, "2026-11-04 15:10", imp="1001.0")
+    await _at(hass, freezer, "2026-11-04 15:10:05", imp="1002.0")  # counted at once, written within 30 s
+    await _at(hass, freezer, "2026-11-04 15:10:10", imp="1003.0")
+    assert num(hass, "sensor.eta_grid_import_cost_total") < 3 * 0.45331 - 1e-4
+    await _at(hass, freezer, "2026-11-04 15:11:00")  # the last change is written when the 30 s are up
+    assert num(hass, "sensor.eta_grid_import_cost_total") == pytest.approx(3 * 0.45331, abs=1e-4)
+
+
+async def test_calibrate_a_total(hass, sydney, entry, hub, freezer):
+    await _setup(hass, freezer, "2026-11-04 15:00", entry, hub)
+    await _at(hass, freezer, "2026-11-04 15:10", imp="1001.0")
+    state = hass.states.get("sensor.eta_grid_import_cost_total")
+    assert state.attributes["energy_kwh"] == pytest.approx(1.0)
+    assert state.attributes["average_rate"] == pytest.approx(0.45331)
+    assert state.attributes["source"] == IMPORT
+    assert state.attributes.get("last_reset") is None
+
+    await hass.services.async_call(DOMAIN, "calibrate", {"entity_id": "sensor.eta_grid_import_cost_total",
+                                                          "value": 100}, blocking=True)
+    state = hass.states.get("sensor.eta_grid_import_cost_total")
+    assert float(state.state) == 100
+    assert datetime.fromisoformat(state.attributes["last_reset"]) == syd("2026-11-04 15:10")  # statistics restart
+    assert state.attributes["energy_kwh"] == 0 and state.attributes["average_rate"] is None
+    await _at(hass, freezer, "2026-11-04 15:20", imp="1002.0")  # carries on counting from 100
+    state = hass.states.get("sensor.eta_grid_import_cost_total")
+    assert float(state.state) == pytest.approx(100.45331, abs=1e-4)
+    assert state.attributes["average_rate"] == pytest.approx(0.45331)
+
+    # Survives a restart; price sensors can't be set
+    assert await hass.config_entries.async_reload(hub.entry_id)
+    await hass.async_block_till_done()
+    assert float(hass.states.get("sensor.eta_grid_import_cost_total").state) == pytest.approx(100.45331, abs=1e-4)
+    with pytest.raises(ServiceValidationError):
+        await hass.services.async_call(DOMAIN, "calibrate", {"entity_id": "sensor.eta_grid_import_price",
+                                                              "value": 1}, blocking=True)

@@ -97,7 +97,10 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   no plan and a repair (`no_active_plan`); it never switches on its own.
 - Totals (`active.py`): cost/compensation add each change in the active plan's ledger `total_cost` (a switch
   starts from the new plan's figure); demand adds each change in the plan's `demand_total()` (also at midnight: a new
-  day adds a day's charge); supply charge adds whole days at 00:00, missed days at start.
+  day adds a day's charge); supply charge adds whole days at 00:00, missed days at start. Cost and compensation
+  also keep the kWh behind them (`energy`, since the last calibration) for `energy_kwh` / `average_rate`
+  (unrecorded). Totals write at most every `TOTAL_WRITE_INTERVAL` (30 s; tests set it to 0, one test checks it).
+  `calibrate` (entity action on the totals) sets a total and moves its `last_reset` to now (statistics restart).
 - The chosen plan is **copied into the entry's options** (pinned). Library changes never reach an entry silently;
   the user replaces the plan in the options flow.
 - Ledgers are keyed by period `id`. Keep ids stable across plan versions (`peak`, `shoulder`, `offpeak`...):
@@ -178,7 +181,10 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   names when they tell them apart, else their months (`nov_mar`; also when the names have digits: "Season 1 (1 Nov
   to 31 Mar)"). The same name at different prices by season (high/low season peak) is named **by its seasons,
   never its price** (`peak_nov_mar`, "Peak (Nov – Mar)"): ids key the meters and prices change every year. Several CDR distributor names for one network
-  ("Essential Energy", "... Far West") give one plan; retailer names are trimmed ("GEE Energy ").
+  ("Essential Energy", "... Far West") give one plan; retailer names are trimmed ("GEE Energy "). Plan names
+  (`plan_name`, maintainer 2026-11-22): runs of spaces collapse, and Red Energy's bracketed plan-type words lose their
+  brackets but stay ("Qantas Red Saver (Bundled)(Demand)" → "Qantas Red Saver Bundled Demand", so it still differs
+  from "Qantas Red Saver Demand"). The importer updates a plan in place when only its name changed.
 
 ### Building plans
 - Wizard output goes through `check_plan` like any other plan; the wizard never writes a plan the validator rejects.

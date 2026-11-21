@@ -167,6 +167,23 @@ as soon as the cap is used up. Without grid energy sensors, a capped rate is ass
 A drop of under 1% in a source reading is ignored as sensor jitter; a bigger drop is taken as the meter
 resetting to zero.
 
+The cost and compensation totals show the kWh behind them (`energy_kwh`) and the average rate paid (`average_rate`),
+and which grid sensor they count (`source`). Totals are written at most every 30 seconds (every reading still
+counts), so a meter that reports every few seconds doesn't fill the history database.
+
+**Set total** (`energy_tariff_assistant.calibrate`) sets one of the totals, e.g. to match a bill:
+
+```yaml
+action: energy_tariff_assistant.calibrate
+target:
+  entity_id: sensor.eta_grid_import_cost_total
+data:
+  value: 412.37
+```
+
+It carries on counting from that value. Its `last_reset` moves to that moment, so the Energy dashboard starts a new
+cycle there instead of counting the jump as cost.
+
 The supply charge total adds each day at midnight at the rate of the plan in use then, from the day Active Tariff
 was set up. Controlled-load supply charges, discounts and concessions aren't included yet.
 

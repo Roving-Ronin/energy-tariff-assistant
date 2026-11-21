@@ -10,3 +10,19 @@ set_active_plan:
       selector:
         device:
           integration: energy_tariff_assistant
+
+calibrate:
+  target:
+    entity:
+      integration: energy_tariff_assistant
+      domain: sensor
+  fields:
+    value:
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          step: 0.01
+          mode: box
+          unit_of_measurement: "$"

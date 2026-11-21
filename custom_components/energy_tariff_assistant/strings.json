@@ -692,6 +692,16 @@
     }
   },
   "services": {
+    "calibrate": {
+      "name": "Set total",
+      "description": "Set one of Active Tariff's totals, e.g. to match a bill. It carries on counting from this value; the Energy dashboard doesn't count the jump.",
+      "fields": {
+        "value": {
+          "name": "Value",
+          "description": "The total's new value, in dollars."
+        }
+      }
+    },
     "set_active_plan": {
       "name": "Set active plan",
       "description": "Make an imported plan the one you're on: `sensor.eta_grid_import_price` and `sensor.eta_grid_export_price` follow it from now.",
@@ -708,6 +718,9 @@
     }
   },
   "exceptions": {
+    "not_a_total": {
+      "message": "Only Active Tariff's totals can be set (Grid - Import Cost - Total, Export Compensation, Supply Charge, Demand Charge)."
+    },
     "invalid_plan": {
       "message": "The stored tariff plan is invalid: {detail}"
     },

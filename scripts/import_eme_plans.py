@@ -420,7 +420,7 @@ def run(
         same_id = base_id(old.plan["plan_id"]) == plan["plan_id"]
         candidate = json.loads(json.dumps(plan))
         keep_ids(old.plan, candidate)
-        if same_id and same_pricing(old.plan, candidate):
+        if same_id and same_pricing(old.plan, candidate) and old.plan.get("plan") == candidate.get("plan"):
             report.already.append(label)
         elif old.reviewed:
             report.reviewed_differs.append(f"{label}: Energy Made Easy now differs from the reviewed plan "

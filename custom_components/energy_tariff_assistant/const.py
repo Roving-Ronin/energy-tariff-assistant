@@ -51,6 +51,8 @@ STORAGE_VERSION = 1
 SAVE_DELAY = 30
 
 SERVICE_SET_ACTIVE_PLAN = "set_active_plan"
+SERVICE_CALIBRATE = "calibrate"
+ATTR_VALUE = "value"
 ATTR_CONFIG_ENTRY = "config_entry"
 
 ENERGY_UNIT_FACTORS = {"Wh": 0.001, "kWh": 1.0, "MWh": 1000.0}
