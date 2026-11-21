@@ -14,13 +14,10 @@ they're released. Newest decisions win: date each status line.
   Tariff. Charge = month's peak kW x rate x days; a new peak re-prices the period's earlier days, so the total adds
   the difference (stays monotonic); switches carry over like the cost total.
 
-### Export default period that covers no time (found 2026-11-22)
-**Status (2026-11-22):** waiting on the maintainer. Red Energy Qantas Red Saver Bundled Demand (RED552428MRE21,
-Essential): EME lists a flat "Solar feed-in tariffs (FIT)" 2.5c beside a time-of-use export ("Solar Export Tariff
-(BLNREX2)": 2.5c/1.6c 10:00-15:00 capped 7.5 kWh, 15.4c 17:00-20:00, 2.5c the rest) that already covers the whole
-day, so the flat rate (the default period) never applies. Can't tell from the data whether the flat rate replaces
-the TOU rates, adds to them, or is a leftover. Options: skip such plans with a reason, or drop the flat entry with a
-note. The validator needs a default, so dropping means making the TOU period covering most time the default.
+### Feed-in options (decided 2026-11-22)
+**Status (2026-11-22):** in PR #44 (after #42). Each "OPTION A / B" feed-in becomes its own plan, "<plan> (FIT
+Option A)", `feed_in_option`; identity plan ID + DNSP + option. After merging, run Import plans for the demand
+DNSPs (Ausgrid, Essential, Endeavour, Energex, Ergon) so the library gets demand charges and the option split.
 
 ### v0.1.0: first release
 **Status (2026-11-20):** v0.1.0b1 released (pre-release) for the maintainer to test; v0.1.0b2 adds Share this plan, Build a plan step by step and the filtered library.
