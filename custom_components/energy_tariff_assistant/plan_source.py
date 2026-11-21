@@ -46,11 +46,19 @@ async def async_fetch_index(hass: HomeAssistant) -> list[dict[str, Any]]:
     return plans
 
 
-async def async_fetch_library_plan(hass: HomeAssistant, file: str) -> dict[str, Any]:
-    """A plan file from the library, by its index `file` path."""
+# The library's own fields: who confirmed a plan, problems reported, the plan that replaced a withdrawn one
+LIBRARY_ONLY_FIELDS = ("confirmations", "problems", "replaced_by")
+
+
+async def async_fetch_library_plan(hass: HomeAssistant, file: str, keep_feedback: bool = False) -> dict[str, Any]:
+    """A plan file from the library, by its index `file` path, without the library's own fields (unless asked)."""
     if not file.startswith("plans/") or ".." in file:
         raise PlanError("invalid_plan", "not a library path")
-    return await _fetch_json(hass, file)
+    plan = await _fetch_json(hass, file)
+    if isinstance(plan, dict) and not keep_feedback:
+        for key in LIBRARY_ONLY_FIELDS:  # the library's, not the entry's
+            plan.pop(key, None)
+    return plan
 
 
 def library_label(entry: dict[str, Any]) -> str:

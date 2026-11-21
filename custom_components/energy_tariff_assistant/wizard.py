@@ -258,13 +258,63 @@ def plans_newest_first(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def plan_label(entry: dict[str, Any]) -> str:
-    label = f"{entry.get('plan', '?')} · from {entry.get('effective_from', '?')}"
-    if entry.get("plan_id"):
-        label += f" · {entry['plan_id']}"
-    return label
+    """'SolarMax Residential TOU · COV1117612MRE3 · from 2026-07-01' (the plan ID tells same-named variants apart)."""
+    plan_id = f" · {entry['plan_id']}" if entry.get("plan_id") else ""
+    return f"{entry.get('plan', '?')}{plan_id} · from {entry.get('effective_from', '?')}"
 
 
 def pick_default(options: list[str], preferred: str | None) -> str | None:
     if preferred in options:
         return preferred
     return options[0] if options else None
+
+
+# ----- names in Home Assistant ------------------------------------------
+
+# Words a user already knows about their own supply: customer type, state, network. Left out of plan names so
+# they stay short ("CovaU · SolarMax Residential TOU (Essential Energy)" -> "CovaU - SolarMax TOU").
+_STATES = ("NSW", "QLD", "VIC", "SA", "ACT", "TAS", "WA", "NT")
+_KNOWN_WORDS = ("Small Business", "Residential", "Resi", "Business")
+# Networks as retailers shorten them in plan names ("Endeavour - RESI Time of Use")
+_NETWORK_SHORT = ("Endeavour", "Essential", "Ergon", "AusNet", "Ausgrid", "Energex", "Evoenergy", "TasNetworks")
+
+
+def _known_words() -> list[str]:
+    from .engine.importers.cdr import DISTRIBUTORS  # pure; imported late to keep this module light
+
+    networks = {dnsp for _, dnsp, _ in DISTRIBUTORS}
+    return sorted(networks | set(_KNOWN_WORDS) | set(_STATES) | set(_NETWORK_SHORT), key=len, reverse=True)
+
+
+def short_plan_name(plan: dict[str, Any]) -> str:
+    """The plan's name without customer type, state, network or a repeated retailer name."""
+    name = str(plan.get("plan") or "")
+    words = "|".join(re.escape(w) for w in _known_words())
+    name = re.sub(rf"(?<![A-Za-z0-9])(?:{words})(?![A-Za-z0-9])", " ", name, flags=re.IGNORECASE)
+    name = re.sub(r"(?<=\s)-(?=[A-Za-z])", "", " " + name).strip()  # "ENGIE -Home" -> "ENGIE Home"
+    retailer = str(plan.get("retailer") or "").strip()
+    for prefix in [p for p in (retailer, retailer.split(" ")[0]) if p]:  # full name first; "GEE" of GEE Energy
+        if name.lower().startswith(prefix.lower() + " "):
+            name = name[len(prefix) + 1:]
+            break
+    name = re.sub(r"\(\s*\)", " ", name)  # "()" left by a network in brackets
+    name = re.sub(r"\s*-\s*(?=[-)]|$)", " ", name)  # a dash left dangling
+    name = re.sub(r"^[\s\-–·,:]+|[\s\-–·,:]+$", "", name)
+    name = re.sub(r"\s+", " ", name).strip()
+    return name or str(plan.get("plan") or "Plan")
+
+
+def display_name(plan: dict[str, Any]) -> str:
+    """'CovaU - SolarMax TOU': what the plan is called in Home Assistant (the entry title; renamable)."""
+    retailer = str(plan.get("retailer") or "").strip()
+    short = short_plan_name(plan)
+    return f"{retailer} - {short}" if retailer else short
+
+
+def entity_slug(plan: dict[str, Any]) -> str:
+    """'eta_covau_solarmaxtou': the start of the plan's entity IDs, fixed when the entry is created."""
+    def compact(text: str) -> str:
+        return re.sub(r"[^a-z0-9]", "", text.lower())
+
+    retailer = compact(str(plan.get("retailer") or "")) or "plan"
+    return f"eta_{retailer}_{compact(short_plan_name(plan))[:32] or 'plan'}"

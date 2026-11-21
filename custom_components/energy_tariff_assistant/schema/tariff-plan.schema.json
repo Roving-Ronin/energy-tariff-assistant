@@ -92,6 +92,11 @@
         }
       }
     },
+    "replaced_by": {
+      "description": "Library only: the plan file that replaced this one when the retailer withdrew it and listed a new plan ID (set by the importer). Home Assistant offers it as this plan's update.",
+      "type": "string",
+      "pattern": "^plans/[A-Z]{2}/[A-Z]{2,3}/[A-Za-z0-9-]+\\.json$"
+    },
     "notes": { "type": ["string", "null"] }
   },
   "$defs": {

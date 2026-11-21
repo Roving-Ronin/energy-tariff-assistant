@@ -30,7 +30,7 @@ TOP_LEVEL_FIELDS = {
     "format", "version", "country", "region", "dnsp", "retailer", "plan", "plan_id",
     "customer_type", "effective_from", "effective_to", "source", "currency", "timezone",
     "holidays", "seasons", "supply_charge", "import", "export", "demand",
-    "controlled_load", "needs_review", "confirmations", "problems", "notes",
+    "controlled_load", "needs_review", "confirmations", "problems", "replaced_by", "notes",
 }
 HIGH_RATE_WARNING = 2.0
 STALE_DAYS = 365
@@ -335,9 +335,12 @@ def validate_plan(data: Any, today: date | None = None) -> ValidationResult:
         result.error("$", "plan must be a JSON object")
         return result
 
+    # Top-level fields this version doesn't know are reported, not refused: the library gains information fields
+    # (confirmations, problems) that older releases must still load. A change to how prices work bumps `version`,
+    # which older releases do refuse. The library's JSON Schema check (CI) still rejects unknown fields.
     unknown = set(data) - TOP_LEVEL_FIELDS
     if unknown:
-        result.error("$", f"unknown fields {sorted(unknown)}")
+        result.warn("$", f"unknown fields {sorted(unknown)} (ignored)")
     if data.get("format") != FORMAT:
         result.error("format", f"must be {FORMAT!r}")
     if data.get("version") != VERSION:

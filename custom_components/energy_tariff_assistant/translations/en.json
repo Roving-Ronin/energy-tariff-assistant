@@ -2,14 +2,12 @@
   "config": {
     "step": {
       "user": {
-        "title": "Energy Tariff Assistant",
-        "description": "One entry per metering point (e.g. your main meter, or a controlled-load circuit). Choose where the tariff plan comes from.",
+        "title": "Add a tariff plan",
+        "description": "Import a tariff plan. Each plan you add appears under Energy Tariff Assistant with its own import and export price sensors; Active Tariff chooses the one you're on, and `sensor.eta_grid_import_price` / `sensor.eta_grid_export_price` follow it.",
         "data": {
-          "name": "Name",
           "source": "Plan source"
         },
         "data_description": {
-          "name": "Used for the device and entity names.",
           "source": "The library and Share need internet access during setup only; the plan is stored locally afterwards."
         }
       },
@@ -36,20 +34,6 @@
         "description": "Path to a plan file, relative to your Home Assistant config folder (e.g. tariffs/my-plan.json).\n\n{detail}",
         "data": {
           "plan_path": "File path"
-        }
-      },
-      "meters": {
-        "title": "Energy meters",
-        "description": "Plan: {plan}\n\nChoose the cumulative energy sensors (kWh) to meter against this plan. Leave a sensor empty to get prices only for that side.",
-        "data": {
-          "import_sensor": "Grid import energy sensor",
-          "export_sensor": "Grid export energy sensor",
-          "billing_day": "Billing cycle start day"
-        },
-        "data_description": {
-          "import_sensor": "A total or total-increasing energy sensor for energy bought from the grid.",
-          "export_sensor": "A total or total-increasing energy sensor for energy fed into the grid.",
-          "billing_day": "Day of the month your bill period starts (1-28)."
         }
       },
       "library_region": {
@@ -312,7 +296,8 @@
     "abort": {
       "cannot_connect": "Could not reach the plan library: {detail}",
       "library_empty": "The plan library has no plans yet.",
-      "library_no_plans": "The plan library has no plans for this customer type yet."
+      "library_no_plans": "The plan library has no plans for this customer type yet.",
+      "already_configured": "Active Tariff is already set up."
     }
   },
   "options": {
@@ -320,20 +305,8 @@
       "init": {
         "title": "Energy Tariff Assistant",
         "menu_options": {
-          "meters": "Change energy meters or billing day",
           "plan": "Replace the tariff plan",
           "share": "Share this plan with the plan library"
-        }
-      },
-      "meters": {
-        "title": "Energy meters",
-        "data": {
-          "import_sensor": "Grid import energy sensor",
-          "export_sensor": "Grid export energy sensor",
-          "billing_day": "Billing cycle start day"
-        },
-        "data_description": {
-          "billing_day": "A new day takes effect from the next reading; the current cycle may end early."
         }
       },
       "plan": {
@@ -623,6 +596,22 @@
         "data": {
           "action": "Next"
         }
+      },
+      "active": {
+        "title": "Active Tariff",
+        "description": "Choose the plan you're on, and the grid energy sensors every plan counts toward its capped rates (\"first 50 kWh free\", \"first 10 kWh at 15c\") and Active Tariff costs toward its totals.",
+        "data": {
+          "active_entry": "Active plan",
+          "import_sensor": "Grid import energy sensor",
+          "export_sensor": "Grid export energy sensor",
+          "billing_day": "Billing cycle start day"
+        },
+        "data_description": {
+          "active_entry": "`sensor.eta_grid_import_price` and `sensor.eta_grid_export_price` follow this plan. You can also change it with `select.eta_grid_active_tariff_plan` or the Set active plan action.",
+          "import_sensor": "A total or total-increasing energy sensor for energy bought from the grid. Without it, capped rates last their whole window and the import cost total isn't available.",
+          "export_sensor": "A total or total-increasing energy sensor for energy fed into the grid. Without it, capped feed-in rates last their whole window and the export compensation total isn't available.",
+          "billing_day": "Day of the month your bill period starts (1-28), for caps that reset each billing cycle."
+        }
       }
     },
     "error": {
@@ -650,12 +639,6 @@
         "paste": "Paste plan JSON",
         "file": "Plan file in my config folder",
         "build": "Build a plan step by step"
-      }
-    },
-    "bucket": {
-      "options": {
-        "day": "Today",
-        "cycle": "Billing cycle"
       }
     },
     "country": {
@@ -709,31 +692,17 @@
     }
   },
   "services": {
-    "calibrate": {
-      "name": "Calibrate",
-      "description": "Set a per-period energy meter to a value, e.g. to match your bill.",
-      "fields": {
-        "energy": {
-          "name": "Energy",
-          "description": "New value in kWh."
-        },
-        "cost": {
-          "name": "Cost",
-          "description": "New cost for this period. Leave empty to keep the same average rate."
-        }
-      }
-    },
-    "reset_meters": {
-      "name": "Reset meters",
-      "description": "Start a new day or billing cycle now for every meter of an entry.",
+    "set_active_plan": {
+      "name": "Set active plan",
+      "description": "Make an imported plan the one you're on: `sensor.eta_grid_import_price` and `sensor.eta_grid_export_price` follow it from now.",
       "fields": {
         "config_entry": {
-          "name": "Entry",
-          "description": "The tariff entry to reset."
+          "name": "Plan",
+          "description": "The plan entry to use."
         },
-        "bucket": {
-          "name": "Period",
-          "description": "Which meters to reset."
+        "device_id": {
+          "name": "Plan device",
+          "description": "Or the plan's device."
         }
       }
     }
@@ -742,17 +711,20 @@
     "invalid_plan": {
       "message": "The stored tariff plan is invalid: {detail}"
     },
-    "unknown_entry": {
-      "message": "That isn't an Energy Tariff Assistant entry."
+    "unknown_plan": {
+      "message": "That isn't an imported tariff plan."
     },
-    "entry_not_loaded": {
-      "message": "That entry isn't loaded."
+    "no_active_tariff": {
+      "message": "Active Tariff isn't set up or isn't loaded."
     },
-    "not_calibratable": {
-      "message": "Only per-period energy meters can be calibrated."
-    },
-    "calibrate_total": {
-      "message": "Totals can't be calibrated; calibrate a per-period meter instead."
+    "choose_a_plan": {
+      "message": "Choose one of your imported plans."
+    }
+  },
+  "issues": {
+    "no_active_plan": {
+      "title": "No active tariff plan",
+      "description": "The plan Active Tariff was using has been removed, so `sensor.eta_grid_import_price`, `sensor.eta_grid_export_price` and the totals have nothing to follow. Choose the plan you're on with `select.eta_grid_active_tariff_plan` (or Active Tariff → Configure)."
     }
   }
 }

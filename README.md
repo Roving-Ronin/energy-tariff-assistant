@@ -19,21 +19,23 @@ ___
 > Entities, settings and stored meter totals may change or be reset between versions without a migration.
 > Watch or star the repository to hear when the first stable release is out.
 
-A Home Assistant custom integration for Australian electricity tariff plans, **with metering built in**.
-Pick your plan once (from the shared library, a file, or pasted JSON), choose your grid import and export
-energy sensors, and get:
+A Home Assistant custom integration for Australian electricity tariff plans. Import the plans you're on (or
+considering) from the shared library, a file or pasted JSON, choose the one you're on, and get **price sensors
+with forecasts** that the Energy dashboard, HAEO, EMHASS and Nimbus read directly:
 
-- the **price and period in force** now, and a **price forecast** in the format HAEO and EMHASS use,
-- **kWh and $ per rate** (peak, shoulder, off-peak, free...), today and this billing cycle,
-- the **supply charge** accrued, and an **estimated bill** for the cycle, after feed-in credits.
+- `sensor.eta_grid_import_price` and `sensor.eta_grid_export_price`: the price now and the next 48 hours, for
+  the plan you're on. Switch plans and these keep their names and history.
+- **Capped rates** ("first 50 kWh free", "first 10 kWh at 15c") tracked against your grid energy sensors, so
+  the price changes when the cap is used.
+- Running **totals** for import cost, export compensation and the daily supply charge, kept across plan switches.
+- Each imported plan's own price sensors, and **library updates** under Settings → Updates.
 
-It replaces the usual pile of `input_number` rates, time helpers, a template price sensor, a `utility_meter`
-with tariffs, and the automations that switch them at every period boundary. Change plans and you pick a new
-plan; the meters carry on.
+It replaces the usual pile of `input_number` rates, time helpers, a template price sensor with a hand-written
+forecast, and the automations that switch them at every period boundary.
 
-> **Status: v0.1.** Time-of-use import, feed-in (flat, time-of-use or capped), daily supply charge,
-> public holidays, and per-rate metering are working and tested. Demand charges and controlled-load
-> circuits are in the plan format and the rate engine, but don't have entities yet.
+> **Status: v0.1 (test builds).** Time-of-use import, feed-in (flat, time-of-use or capped), daily supply charge
+> and public holidays are working and tested. Demand charges and controlled-load circuits are in the plan format
+> and the rate engine, but don't have entities yet.
 
 ## Installation
 
@@ -65,64 +67,85 @@ Needs Home Assistant 2026.2 or newer.
 
 ## Setup
 
-Add one entry per metering point: usually just your main meter. (Controlled load gets its own entry once it's
-supported.)
-
-1. **Name and plan source.** The name is used for the device and entity names (`Electricity` gives
-   `sensor.electricity_import_price`). Then choose where the plan comes from:
-   - **Shared plan library:** browse it first in the [plan browser][plan-browser] if you like. Then narrow it down step by step (customer type and country, state, distributor (DNSP),
-     retailer) and pick the plan, newest first. Residential, Australia and NSW are picked to start with; plans
-     that don't say whether they're residential or business are shown for both. Internet is needed only during
-     setup; the plan is stored with the entry.
+1. **Add a plan:** Settings → Devices & services → Add integration → **Energy Tariff Assistant**, then choose
+   where the plan comes from:
+   - **Shared plan library:** browse it first in the [plan browser][plan-browser] if you like. Then narrow it down
+     step by step (customer type and country, state, distributor (DNSP), retailer) and pick the plan, newest
+     first. Plans that have ended aren't offered. Internet is needed only during setup; the plan is stored with
+     the entry.
    - **Build a plan step by step:** enter it from your bill or the plan's fact sheet (BPID): state, distributor,
-     retailer, plan name, start date, daily supply charge and customer type (residential or business); then import and feed-in, each either one rate all
-     the time or time of use. For time of use you enter the rate for *all other times* first (often Shoulder),
-     then each timed period (e.g. Peak, weekdays 15:00-21:00), with more than one time per period if needed.
-     Any rate can have a cap ("first 50 kWh a day free, then Shoulder"; "first 10 kWh at 12c, then 4c"), resetting
-     each day, month or billing cycle. You check a summary before saving. The plan is saved to
-     `energy_tariff_assistant/plans/` in your config folder (never overwriting a file) and can be shared with the
-     library afterwards.
-   - **Paste plan JSON:** paste a plan file (see *Plan format* below).
-   - **Plan file in my config folder:** a path relative to your config folder, e.g. `tariffs/my-plan.json`.
-2. **Energy meters.** Choose the cumulative energy sensors for **grid import** and **grid export**
-   (kWh, Wh or MWh; `total` or `total_increasing`, the same ones you'd give the Energy dashboard), and the
-   **day of the month your billing cycle starts** (1-28). Leave a sensor empty to get prices only for that side.
+     retailer, plan name, start date, daily supply charge and customer type; then import and feed-in, each one
+     rate all the time or time of use, with caps if the plan has them ("first 50 kWh a day free, then
+     Shoulder"). You check a summary before saving. The plan is saved to `energy_tariff_assistant/plans/` in your
+     config folder and can be shared with the library afterwards.
+   - **Paste plan JSON** or a **plan file in my config folder** (see *Plan format* below).
 
-To change sensors or the billing day, or to switch plans: **Settings → Devices & services → Energy Tariff
-Assistant → Configure**. Switching plans keeps the meters: periods with the same id (e.g. `peak`) carry on, and
-new periods get new entities.
+   The plan is added as **"Retailer - Plan"** (e.g. *CovaU - SolarMax TOU*: customer type, state and network are
+   left out, since you know them). Rename it in Home Assistant if you like.
+2. **Active Tariff** is created with your first plan, with that plan in use. Open it (**Configure**) to choose
+   your **grid import and export energy sensors** (kWh, Wh or MWh; `total` or `total_increasing`, the same ones
+   the Energy dashboard uses) and the day your billing cycle starts. They're set once: every plan counts the same
+   readings toward its own caps.
+3. **Add more plans** the same way (a plan you're switching to, or comparing). They're added alongside; the plan
+   in use only changes when you choose another.
 
 ## What you get
 
-With a device named `Electricity` (entity IDs follow your name and the plan's period names):
+### Active Tariff: the plan you're on
 
 | Entity | What it is |
 | --- | --- |
-| `sensor.electricity_import_price` | Price now, `AUD/kWh`. Use it as the Energy dashboard price entity. Attributes: period, tier, and `forecast` (next 2 days) |
-| `sensor.electricity_export_price` | Feed-in price now |
-| `sensor.electricity_import_period` / `_export_period` | Period in force now, e.g. `Peak` |
-| `sensor.electricity_import_next_period_change` / `_export_…` | When the period next changes, and to what |
-| `sensor.electricity_daily_supply_charge` | The plan's daily supply charge |
-| `sensor.electricity_import_energy_today` / `_this_billing_cycle` | kWh bought, all periods |
-| `sensor.electricity_import_cost_today` / `_this_billing_cycle` | What that energy cost |
-| `sensor.electricity_import_<period>_energy_today` / `_this_billing_cycle` | kWh bought in one period, e.g. `…_import_peak_energy_today` |
-| `sensor.electricity_import_<period>_cost_today` / `_this_billing_cycle` | What that period's energy cost (attribute `average_rate`) |
-| `sensor.electricity_export_…_energy_…` / `…_credit_…` | The same for feed-in: kWh exported and the credit earned |
-| `sensor.electricity_supply_charge_today` / `_this_billing_cycle` | Supply charge for the days so far |
-| `sensor.electricity_estimated_bill_this_billing_cycle` | Import cost + supply charge − feed-in credit. Attributes show the three parts |
+| `select.eta_grid_active_tariff_plan` | The plan you're on, from your imported plans |
+| `sensor.eta_grid_import_price` | Price now, `AUD/kWh`, with forecasts (below). **Energy dashboard:** Grid consumption → *Use an entity with current price*. **HAEO, Nimbus:** the import price sensor |
+| `sensor.eta_grid_export_price` | Feed-in price now (positive: what you're paid), with forecasts |
+| `sensor.eta_grid_import_cost_total` | $ for energy bought, ever-increasing. **Energy dashboard:** *Use an entity tracking the total costs* (instead of the price entity) |
+| `sensor.eta_grid_export_compensation_total` | $ earned for energy fed in, ever-increasing. **Energy dashboard:** Return to grid → total compensation |
+| `sensor.eta_grid_supply_charge` | The active plan's daily supply charge |
+| `sensor.eta_grid_supply_charge_total` | Supply charges so far, a whole day at a time (attribute `days_counted`) |
 
-Every meter also shows `last_period` (the value when the previous day or cycle ended), `source` and
-`source_available`. The meters are `state_class: total` with `last_reset` at the start of the day or cycle,
-so long-term statistics work.
+**Price sensor attributes** (laid out as [Amber Express](https://github.com/hass-energy/amber-express) publishes
+them, so tools built for it work):
 
-### Actions
+| Attribute | |
+| --- | --- |
+| `start_time`, `end_time` | When the current period started and when it next changes |
+| `period`, `period_name`, `tier`, `charged_as` | e.g. `free`, `Free`, `0`; `charged_as` is the period whose rate applies once a cap is used |
+| `active_plan`, `source_entity`, `retailer`, `plan`, `plan_id` | Which plan the price comes from |
+| `interpolation_mode` | `previous`: each price holds until the next point (HAEO needs this) |
+| `forecast` | `[{time, value}]`: now, then every :00 and :30 for 48 hours, plus any change in between. Read by Nimbus and HAEO |
+| `forecasts` | `[{start_time, end_time, per_kwh}]` in fixed 30-minute slots for 48 hours: Amber Electric's layout. Read by HAEO, and by EMHASS templates written for Amber |
 
-- **`energy_tariff_assistant.calibrate`**: set a per-period meter (e.g. *Import Peak energy this billing cycle*)
-  to a value, to line up with your bill. Give `cost` too, or it's scaled to keep the same average rate.
-- **`energy_tariff_assistant.reset_meters`**: start a new day or billing cycle now, for every meter of an entry.
-  Useful when your bill period moves.
+The forecasts aren't recorded in history. For EMHASS, for example:
 
-To share your plan with the library, see *Adding a plan to the library* below.
+```yaml
+"load_cost_forecast": {{ (state_attr('sensor.eta_grid_import_price', 'forecasts') | map(attribute='per_kwh') | list)[:48] }}
+"prod_price_forecast": {{ (state_attr('sensor.eta_grid_export_price', 'forecasts') | map(attribute='per_kwh') | list)[:48] }}
+```
+
+**Switching plans:** choose another in `select.eta_grid_active_tariff_plan`, in Active Tariff → Configure, or with the
+**Set active plan** action (`energy_tariff_assistant.set_active_plan`, by plan entry or device), e.g. from an
+automation on the day you change retailer. From that moment the grid sensors follow the new plan; their names,
+history and the totals carry on. If you remove the plan in use, Active Tariff shows *No active plan* (and a
+repair) until you choose one: it never picks another on its own.
+
+### Each imported plan
+
+With a plan named *CovaU - SolarMax TOU*:
+
+| Entity | What it is |
+| --- | --- |
+| `sensor.eta_covau_solarmaxtou_import_price` / `_export_price` | This plan's prices and forecasts (same attributes as above), whether or not it's the plan in use: handy for comparing |
+| `sensor.eta_covau_solarmaxtou_import_free_used` | One per capped rate: kWh counted toward the cap since it last reset. Attributes `cap_kwh`, `remaining_kwh`, `resets`, `over_cap_rate_from`, `rate_now` |
+| `update.eta_covau_solarmaxtou_plan` | Library plans only: on when the library has newer prices or a new version of this plan. It shows what changes (e.g. *Import Peak: 0.45331 → 0.4621*); **Install** replaces the plan in place |
+
+Entity IDs come from the plan when you add it and never change after: installing an update, or replacing the plan
+(**Configure → Replace the tariff plan**), keeps every name, ID and history.
+
+### Plan files for other tools
+
+Each plan's JSON is written to `energy_tariff_assistant/active/<entity prefix>.json` in your config folder, and
+the plan in use to `energy_tariff_assistant/active/active.json`, kept up to date when you switch or update. Other
+tools (Energy Manager, scripts) can read them; see [docs/using-plans.md](docs/using-plans.md).
 
 ## What the numbers mean (and don't)
 
@@ -132,20 +155,19 @@ intervals and the retailer rounds per line item; your inverter or CT clamp measu
 
 How energy is shared between periods: the energy between two readings is taken as used evenly over the time
 between them. When a period boundary (or midnight) falls in between, the energy is split in proportion to the
-time either side, and each part is priced at its own rate. `utility_meter` with tariffs instead gives the whole
-increase to whichever tariff is selected when the reading arrives, so a slow-updating sensor can put minutes of
-shoulder energy into peak. If Home Assistant was stopped, the energy used meanwhile is spread over the time it
-was down.
+time either side, and each part is priced at its own rate. (The Energy dashboard's price-entity method prices
+each reading at the price when it arrives; the cost totals don't have that lag.) If Home Assistant was stopped,
+the energy used meanwhile is spread over the time it was down.
 
 Caps are split exactly: with "first 50 kWh/day free from 11:00 to 14:00, then shoulder", the 50th kWh is free and
-the 51st is charged at shoulder, both counted in the *Free* period's kWh. The price sensor changes to the
-shoulder rate as soon as the cap is used up.
+the 51st is charged at shoulder, both counted toward the *Free* cap. The price sensor changes to the shoulder rate
+as soon as the cap is used up. Without grid energy sensors, a capped rate is assumed to last its whole window.
 
 A drop of under 1% in a source reading is ignored as sensor jitter; a bigger drop is taken as the meter
 resetting to zero.
 
-The supply charge counts whole days, including today. The bill sensor doesn't include demand charges,
-discounts, concessions or controlled load yet.
+The supply charge total adds each day at midnight at the rate of the plan in use then, from the day Active Tariff
+was set up. Controlled-load supply charges, demand charges, discounts and concessions aren't included yet.
 
 ## Plan format in brief
 

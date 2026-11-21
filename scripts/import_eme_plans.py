@@ -363,7 +363,7 @@ def run(
         writes[target] = plan
         return target
 
-    def supersede(old: LibraryPlan, new: dict[str, Any], why: str, bucket: list[str]) -> None:
+    def supersede(old: LibraryPlan, new: dict[str, Any], why: str, bucket: list[str], link: bool = False) -> None:
         fresh = keep_ids(old.plan, new)
         old.plan["effective_to"] = day_before(new["effective_from"]) if new["effective_from"] > old.plan[
             "effective_from"] else today.isoformat()
@@ -371,6 +371,9 @@ def run(
         if fresh:
             new["notes"] = f"{new['notes']} New meters (no matching period in the previous plan): {', '.join(fresh)}."
         target = add(new)
+        if link:
+            # A new plan ID isn't the same family: tell Home Assistant entries on the old plan where it went
+            old.plan["replaced_by"] = str(target.relative_to(PLANS_DIR.parent))
         bucket.append(f"{new['retailer']} {new['plan']} ({new['dnsp']}): {why}, from {new['effective_from']} "
                       f"→ {target.name}" + (f"; new meters: {', '.join(fresh)}" if fresh else ""))
 
@@ -418,7 +421,8 @@ def run(
             continue
         if replacement is not None:
             unmatched.remove(replacement)
-            supersede(old, replacement, f"replaces {old.plan['plan_id']} (same name, new plan ID)", report.replaced)
+            supersede(old, replacement, f"replaces {old.plan['plan_id']} (same name, new plan ID)", report.replaced,
+                      link=True)
             continue
         old.plan["effective_to"] = today.isoformat()
         old.plan["notes"] = (f"{old.plan.get('notes') or ''} Not on Energy Made Easy any more "

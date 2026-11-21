@@ -193,3 +193,21 @@ def test_late_reading_after_rollover_goes_to_previous_day(import_ledger):
     feed(import_ledger, ("2026-11-05 01:00", 2.0))
     assert import_ledger.previous["day"].kwh == {"shoulder": pytest.approx(1.0)}
     assert import_ledger.buckets["day"].kwh == {"offpeak": pytest.approx(1.0)}
+
+
+def test_totals_count_everything_and_survive_bucket_rolls(import_ledger, solarmax):
+    feed(
+        import_ledger,
+        ("2026-11-04 23:00", 0.0),
+        ("2026-11-05 01:00", 2.0),   # 1 kWh Shoulder (23-24), 1 kWh Off-peak (00-01)
+        ("2026-11-06 01:00", 3.0),   # next day: the day bucket rolls, the totals don't
+    )
+    assert import_ledger.total_kwh == pytest.approx(3.0)
+    cycle = import_ledger.buckets["cycle"]  # 15 Oct - 14 Nov holds everything so far
+    assert import_ledger.total_cost == pytest.approx(cycle.total_cost)
+    assert import_ledger.buckets["day"].total_kwh == pytest.approx(1 / 24)  # today only: 00:00-01:00 of 24 h
+    saved = import_ledger.to_dict()
+    old = {k: v for k, v in saved.items() if k not in ("total_kwh", "total_cost")}
+    restored = Ledger(solarmax, "import", billing_day=15)
+    restored.restore(old)  # saved before totals existed
+    assert restored.total_kwh == 0.0 and restored.total_cost == 0.0

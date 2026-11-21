@@ -181,6 +181,10 @@ def test_a_new_id_with_the_same_name_replaces_the_one_that_went(eme, library):
     assert not report.written and not report.withdrawn
     old, new = sorted(plans_in(library).values(), key=lambda p: p["effective_from"])
     assert old["effective_to"] == "2026-12-31" and new["plan_id"] == "COV8888"
+    # Home Assistant entries on the old plan follow the link to its replacement
+    new_file = next(p for p in library.rglob("*.json") if json.loads(p.read_text())["plan_id"] == "COV8888")
+    assert old["replaced_by"] == f"plans/{new_file.relative_to(library).as_posix()}"
+    assert validate_plan(old, today=date(2027, 1, 2)).ok
 
 
 def test_reviewed_and_hand_made_plans_are_never_changed(eme, library):
