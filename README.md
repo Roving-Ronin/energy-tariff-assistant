@@ -170,7 +170,7 @@ any time no other window claims.
 - **Seasons**, **demand charges** and **controlled load** are supported in the format; see
   [`schema/tariff-plan.schema.json`](custom_components/energy_tariff_assistant/schema/tariff-plan.schema.json).
 
-See [`plans/AU/NSW/Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json`](plans/AU/NSW/Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json)
+See [`plans/AU/NSW/CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json`](plans/AU/NSW/CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json)
 for a complete example.
 
 ## Adding a plan to the library

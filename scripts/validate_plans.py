@@ -6,7 +6,7 @@ looks for two files describing the same plan over overlapping dates.
 Exits 1 if any error is found; warnings are printed but do not fail.
 
     python scripts/validate_plans.py
-    python scripts/validate_plans.py plans/AU/NSW/Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json
+    python scripts/validate_plans.py plans/AU/NSW/CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json
 """
 
 from __future__ import annotations

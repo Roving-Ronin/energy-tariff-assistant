@@ -319,6 +319,7 @@ def _import_periods(
                 })
         else:
             raise CdrImportError(f"tariff period type {kind!r} isn't a usage rate")
+    periods = _merge_seasonal(periods, {s for s in season_names if s})
     if len(periods) == 1 and len(single_rate_periods) == 1:
         only = periods[0]
         only.pop("windows")
@@ -326,6 +327,62 @@ def _import_periods(
         return periods
     _make_default(periods)
     return periods
+
+
+def _merge_seasonal(periods: list[dict[str, Any]], all_seasons: set[str]) -> list[dict[str, Any]]:
+    """One period per rate: the same name and price in several seasons (EME lists each season's rates
+    separately) become one period with each season's windows, so meters aren't split by season.
+
+    Its id is then its name alone; a window set that's the same in every season loses its seasons.
+    """
+    if not all_seasons:
+        return periods
+    merged: list[dict[str, Any]] = []
+    keys: list[tuple[str, str]] = []
+    for period in periods:
+        key = (period["name"], json.dumps({k: period[k] for k in ("rate", "tiers", "tier_reset") if k in period}))
+        if key in keys:
+            merged[keys.index(key)]["windows"] += period["windows"]
+        else:
+            keys.append(key)
+            merged.append({**period, "windows": list(period["windows"])})
+    taken: set[str] = set()
+    for period in merged:
+        by_season: dict[str, list[str]] = {}
+        for window in period["windows"]:
+            plain = json.dumps({k: v for k, v in window.items() if k != "seasons"}, sort_keys=True)
+            for season in window.get("seasons") or sorted(all_seasons):
+                by_season.setdefault(season, []).append(plain)
+        same = {json.dumps(sorted(v)) for v in by_season.values()}
+        if set(by_season) == all_seasons and len(same) == 1:
+            period["windows"] = [json.loads(w) for w in sorted(set(next(iter(by_season.values()))))]
+        else:
+            period["windows"] = _combine_window_seasons(period["windows"])
+    names = [p["name"] for p in merged]
+    for period in merged:
+        base = period["name"] if names.count(period["name"]) == 1 else f"{period['name']} {_rate_label(period)}"
+        period["id"] = _unique(_slug(base), taken)
+    return merged
+
+
+def _combine_window_seasons(windows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Windows that differ only in their seasons become one window listing them all."""
+    out: list[dict[str, Any]] = []
+    plains: list[str] = []
+    for window in windows:
+        plain = json.dumps({k: v for k, v in window.items() if k != "seasons"}, sort_keys=True)
+        if plain in plains and "seasons" in window and "seasons" in out[plains.index(plain)]:
+            target = out[plains.index(plain)]
+            target["seasons"] = sorted(set(target["seasons"]) | set(window["seasons"]))
+        else:
+            plains.append(plain)
+            out.append(dict(window))
+    return out
+
+
+def _rate_label(period: dict[str, Any]) -> str:
+    rate = period.get("rate", (period.get("tiers") or [{}])[0].get("rate"))
+    return f"{rate * 100:g}c" if isinstance(rate, (int, float)) else "rate"
 
 
 def _clock(clock: dict[str, Any], dnsp: str, state: str, brand: str) -> tuple[str, str | None]:
@@ -664,6 +721,8 @@ def convert(detail: dict[str, Any], today: date) -> Conversion:
             out.skipped.append(f"{label}: unknown distributor {raw!r}")
             continue
         dnsp, state = mapped
+        if any(p["dnsp"] == dnsp for p in out.plans):
+            continue  # several CDR distributor names for one network ("Essential Energy", "... Far West")
         plan = dict(built)
         plan["region"] = state
         plan["dnsp"] = dnsp
@@ -696,6 +755,7 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
 
     seasons: dict[str, list[int]] = {}
     season_names: list[str | None] = []
+    season_months: list[list[int]] = []
     if len(usage) == 1:
         season_names = [None]
     else:
@@ -706,7 +766,14 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
                     f"tariff period {t.get('displayName')!r} ({t.get('startDate')} to {t.get('endDate')}) "
                     "doesn't follow month boundaries"
                 )
-            name = _unique(_slug(t.get("displayName") or "season"), set(seasons))
+            season_months.append(months)
+        labels = [_slug(t.get("displayName") or "") for t in usage]
+        # The plan's names ("summer") when they tell the seasons apart; else the months ("nov_mar")
+        if len(set(labels)) < len(labels) or any(not lab or "tariff_period" in lab for lab in labels):
+            labels = [f"{MONTH_NAMES[ms[0] - 1]}_{MONTH_NAMES[ms[-1] - 1]}" if len(ms) > 1 else MONTH_NAMES[ms[0] - 1]
+                      for ms in season_months]
+        for label, months in zip(labels, season_months, strict=True):
+            name = _unique(label, set(seasons))
             seasons[name] = months
             season_names.append(name)
         if sorted(m for ms in seasons.values() for m in ms) != list(range(1, 13)):
@@ -735,7 +802,7 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
         "format": FORMAT,
         "version": VERSION,
         "country": "AU",
-        "retailer": data.get("brandName") or data.get("brand"),
+        "retailer": (data.get("brandName") or data.get("brand") or "").strip(),
         "plan": data.get("displayName") or data["planId"],
         "plan_id": data["planId"],
         "effective_from": effective_from,

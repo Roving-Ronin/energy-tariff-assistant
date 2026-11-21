@@ -74,11 +74,11 @@ async def test_paste_invalid_plan(hass, sydney, plan_data):
 
 INDEX = {
     "plans": [
-        {"file": "plans/AU/NSW/Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json", "country": "AU",
-         "region": "NSW", "dnsp": "Essential Energy", "retailer": "Covau", "plan": "SolarMax Residential TOU",
+        {"file": "plans/AU/NSW/CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json", "country": "AU",
+         "region": "NSW", "dnsp": "Essential Energy", "retailer": "CovaU", "plan": "SolarMax Residential TOU",
          "plan_id": "COV1117612MRE3", "effective_from": "2026-07-01"},
-        {"file": "plans/AU/NSW/Covau-SolarMaxTOU-NSW-EssentialEnergy-20250701.json", "country": "AU",
-         "region": "NSW", "dnsp": "Essential Energy", "retailer": "Covau", "plan": "SolarMax Residential TOU",
+        {"file": "plans/AU/NSW/CovaU-SolarMaxTOU-NSW-EssentialEnergy-20250701.json", "country": "AU",
+         "region": "NSW", "dnsp": "Essential Energy", "retailer": "CovaU", "plan": "SolarMax Residential TOU",
          "effective_from": "2025-07-01"},
         {"file": "plans/AU/NSW/Other-Plan-NSW-Ausgrid-20260701.json", "country": "AU", "region": "NSW",
          "dnsp": "Ausgrid", "retailer": "Other", "plan": "Plan", "effective_from": "2026-07-01"},
@@ -117,8 +117,8 @@ async def test_library_flow(hass, sydney, aioclient_mock):
     assert _options(result, "dnsp") == ["Ausgrid", "Essential Energy"]
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"dnsp": "Essential Energy"})
     assert result["step_id"] == "library_retailer"
-    assert _options(result, "retailer") == ["Covau"]
-    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"retailer": "Covau"})
+    assert _options(result, "retailer") == ["CovaU"]
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"retailer": "CovaU"})
     assert result["step_id"] == "library_plan"
     # Newest first
     assert _options(result, CONF_LIBRARY_FILE) == [file, INDEX["plans"][1]["file"]]
@@ -158,7 +158,7 @@ async def test_options_change_meters(hass, sydney, entry):
     await hass.async_block_till_done()
     assert entry.options[CONF_BILLING_DAY] == 3
     assert entry.options["export_sensor"] is None
-    assert entry.options[CONF_PLAN]["retailer"] == "Covau"
+    assert entry.options[CONF_PLAN]["retailer"] == "CovaU"
 
 
 async def test_library_business_filter(hass, sydney, aioclient_mock):

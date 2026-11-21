@@ -18,7 +18,7 @@ sys.path.insert(0, str(REPO_ROOT / "custom_components" / "energy_tariff_assistan
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 PLANS = REPO_ROOT / "plans"
-SOLARMAX = PLANS / "AU" / "NSW" / "Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json"
+SOLARMAX = PLANS / "AU" / "NSW" / "CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json"
 
 
 def read_json(path: Path):

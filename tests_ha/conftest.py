@@ -24,7 +24,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry  # noqa
 
 PLAN_FILE = (
     Path(__file__).resolve().parent.parent
-    / "plans/AU/NSW/Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json"
+    / "plans/AU/NSW/CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json"
 )
 IMPORT = "sensor.grid_import"
 EXPORT = "sensor.grid_export"
