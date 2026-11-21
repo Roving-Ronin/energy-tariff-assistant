@@ -22,15 +22,22 @@ Repo topics are set (HACS Validate passes). Before releasing v0.1.0:
 **Status (2026-11-20):** `needs_review: true` (converted from energy-manager-tariffs). Check against EME: supply
 charge 2.29999 (probably 2.30), whether the 30 kWh super FiT cap resets daily, public holidays.
 
-### Validating plans (agreed design 2026-11-21, after the importer)
-Three layers: needs review → matches Energy Made Easy → confirmed by a customer.
-1. Weekly library check against EME for every plan with a plan ID; badge on the plan browser, issue on a difference
-   (also catches price changes). A match is "matches EME", not "confirmed" (EME can be wrong: Covau's AEST).
-2. **Confirm this plan** on the plan browser and in HA's Configure menu: pre-filled form (plan file, checked against
-   bill / fact sheet / EME, its date, yes/no per part). Nothing sent from HA; no meter data or IDs.
-3. Workflow reads confirmation issues (`github-script`), opens a PR setting `needs_review: false` and adding the
-   check to an optional `checks` list on the plan (schema addition). "Wrong" answers stay issues. Same workflow can
-   validate Plan JSON on plan-submission issues and comment the errors.
+### Validating plans (design agreed 2026-11-21, after the importer)
+Statuses, shown as badges in the plan browser (and later in HA's library steps): **not checked** → **matches
+Energy Made Easy** (or **differs from EME**) → **confirmed by N customers**. **Never one issue per plan**: the
+library could hold thousands of plans.
+1. **Automatic, weekly:** the library check (as proven on Covau) for every library plan with a plan ID. Results
+   go in a generated `plans/checks.json` (per file: status matches / differs / not on EME any more, date,
+   number of differing time ranges; no CDR plan text), committed like `retailers.json`; the plan browser reads it
+   for the badges and a "Differs from EME" filter. Differences are fixed in batches by the maintainer (or a
+   re-import), not by issues. "Matches EME" isn't "confirmed": EME can be wrong (Covau's AEST).
+2. **People:** **Confirm this plan** on each plan page and in HA's Configure menu (next to Share this plan) opens a
+   short pre-filled GitHub form: plan file, checked against (bill / fact sheet / EME) and its date, yes or no per
+   part (rates, times, caps, supply, feed-in). A "no" is a correction, like Report a problem. Nothing sent from HA;
+   no meter data or IDs.
+3. **Recording confirmations:** a workflow reads the form (`github-script` only), checks the plan file exists, and
+   adds the confirmation to an optional `checks` list on the plan (schema addition) in a PR the maintainer
+   approves, batching confirmations so it isn't one PR each. One confirmation clears `needs_review`.
 
 ### Plan browser (GitHub Pages)
 **Status (2026-11-21):** built (`site/`, `scripts/build_site.py`, Plan browser workflow); PR open. Needs the
