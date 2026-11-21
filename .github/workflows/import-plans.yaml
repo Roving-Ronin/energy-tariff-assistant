@@ -4,7 +4,7 @@ name: Import plans
 # opens a pull request adding the ones that pass to the library, all `needs_review: true`.
 # Plans already in the library (same plan ID and distributor) are left alone.
 # Needs Settings -> Actions -> General -> "Allow GitHub Actions to create and approve pull requests".
-# CI doesn't start on a pull request opened with GITHUB_TOKEN: close and reopen it to run the checks.
+# Checks on the pull request start after "Approve and run workflows" (GitHub asks for bot-opened PRs).
 on:
   workflow_dispatch:
     inputs:
