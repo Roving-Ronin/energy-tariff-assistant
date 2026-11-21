@@ -8,5 +8,5 @@ contact_links:
     url: https://github.com/Roving-Ronin/energy-tariff-assistant/blob/main/README.md
     about: Setup, sensors, the plan format, and what the numbers mean.
   - name: Browse the plan library
-    url: https://github.com/Roving-Ronin/energy-tariff-assistant/tree/main/plans
-    about: Plans currently in the library, by state.
+    url: https://roving-ronin.github.io/energy-tariff-assistant/
+    about: The plan browser - every library plan with its times, rates and checks. Confirm or report a plan from its page.

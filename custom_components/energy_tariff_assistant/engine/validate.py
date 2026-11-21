@@ -30,7 +30,7 @@ TOP_LEVEL_FIELDS = {
     "format", "version", "country", "region", "dnsp", "retailer", "plan", "plan_id",
     "customer_type", "effective_from", "effective_to", "source", "currency", "timezone",
     "holidays", "seasons", "supply_charge", "import", "export", "demand",
-    "controlled_load", "needs_review", "notes",
+    "controlled_load", "needs_review", "confirmations", "notes",
 }
 HIGH_RATE_WARNING = 2.0
 STALE_DAYS = 365

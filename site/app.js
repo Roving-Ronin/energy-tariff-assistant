@@ -97,9 +97,17 @@ function badges(entry) {
   const out = [];
   if (entry.errors.length) out.push(h("span", { class: "badge err" }, `${entry.errors.length} error${entry.errors.length > 1 ? "s" : ""}`));
   if (entry.warnings.length) out.push(h("span", { class: "badge warn" }, `${entry.warnings.length} warning${entry.warnings.length > 1 ? "s" : ""}`));
-  if (entry.needs_review) out.push(h("span", { class: "badge review", title: "Not yet checked against Energy Made Easy or the BPID" }, "needs review"));
+  const confirmed = entry.confirmations || 0;
+  if (entry.needs_review) {
+    out.push(h("span", { class: "badge review", title: confirmed
+      ? "A problem was reported after it was confirmed: being checked again"
+      : "Not yet confirmed by someone on the plan, or checked against the retailer's fact sheet" }, "Needs review"));
+  } else if (confirmed) {
+    out.push(h("span", { class: "badge confirmed", title: "Confirmed to match their bill by people on this plan" },
+      confirmed > 1 ? `Confirmed by ${confirmed}` : "Confirmed"));
+  }
   const when = status(entry);
-  out.push(h("span", { class: when === "current" ? "badge ok" : "badge plain" }, when));
+  out.push(h("span", { class: when === "current" ? "badge ok" : "badge plain" }, title(when)));
   return out;
 }
 
@@ -412,6 +420,16 @@ function reportLink(plan, entry) {
   return withPlan.length <= MAX_URL_LENGTH ? withPlan : `${ISSUE_FORM}?${new URLSearchParams(fields)}`;
 }
 
+// A GitHub issue with everything filled in: the person only presses Submit; Plan feedback records it.
+function confirmLink(plan, entry) {
+  return `${ISSUE_FORM}?${new URLSearchParams({
+    template: "plan_confirmation.yml",
+    title: `[Confirm] ${plan.retailer} ${plan.plan} (${plan.region}${plan.dnsp ? `, ${plan.dnsp}` : ""})`,
+    "plan-file": entry.file,
+    "plan-id": plan.plan_id || "",
+  })}`;
+}
+
 async function renderPlan(file) {
   setNav("list");
   const entry = state.library.plans.find((e) => e.file === file);
@@ -444,6 +462,9 @@ async function renderPlan(file) {
         h("h1", {}, `${plan.retailer} · ${plan.plan}`),
         h("div", {}, badges(entry))),
       h("div", { class: "actions" }, copyButton, download,
+        h("a", { class: "btn", href: confirmLink(plan, entry),
+          title: "I'm on this plan and it matches my bill (opens a filled-in GitHub issue: just press Submit)" },
+          "Confirm this plan"),
         h("a", { class: "btn", href: reportLink(plan, entry) }, "Report a problem"),
         h("a", { class: "btn", href: `${REPO}/blob/main/${entry.file}` }, "View on GitHub"))),
     h("div", { class: "facts card" },
@@ -459,7 +480,7 @@ async function renderPlan(file) {
 
   if (entry.errors.length) view.append(h("div", { class: "notice err" }, "The validator found errors:", h("ul", {}, entry.errors.map((e) => h("li", {}, e)))));
   if (entry.warnings.length) view.append(h("div", { class: "notice warn" }, "Warnings:", h("ul", {}, entry.warnings.map((w) => h("li", {}, w)))));
-  if (entry.needs_review) view.append(h("div", { class: "notice warn" }, "Needs review: this plan hasn't been checked against Energy Made Easy or the retailer's BPID yet. If you're on it, comparing it with your bill and reporting what you find helps."));
+  if (entry.needs_review) view.append(h("div", { class: "notice warn" }, "Needs review: nobody on this plan has confirmed it yet. If you're on it, compare it with your bill: press Confirm this plan if it matches, or Report a problem if it doesn't."));
   if (plan.notes) view.append(h("div", { class: "card", style: "margin-top:12px" }, h("strong", {}, "Notes: "), plan.notes));
 
   const streams = h("div", { class: "grid-2", style: "margin-top:16px" });

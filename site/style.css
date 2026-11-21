@@ -87,6 +87,7 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; }
 .badge.warn { background: var(--warn-bg); color: var(--warn); }
 .badge.err { background: var(--err-bg); color: var(--err); }
 .badge.ok { color: var(--ok); border: 1px solid currentColor; }
+.badge.confirmed { background: var(--ok); color: #fff; }
 .badge.plain { border: 1px solid var(--line); color: var(--muted); }
 
 /* Plan page */

@@ -1,0 +1,24 @@
+name: Confirm a plan
+description: "I'm on this library plan and it matches my bill (opened from the plan browser's Confirm this plan)"
+title: "[Confirm] <Retailer> <Plan> (<State>, <DNSP>)"
+labels: ['plan']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! Just press **Submit new issue**: the plan is filled in. It's then recorded automatically and the plan shows as **Confirmed** in the plan browser.
+
+        If something on the plan *doesn't* match your bill, use **Report a problem** on the plan's page instead.
+  - type: input
+    id: plan-file
+    attributes:
+      label: Plan file
+      description: Filled in by the plan browser.
+      placeholder: plans/AU/NSW/CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json
+    validations:
+      required: true
+  - type: input
+    id: plan-id
+    attributes:
+      label: Plan ID
+      description: Filled in by the plan browser.

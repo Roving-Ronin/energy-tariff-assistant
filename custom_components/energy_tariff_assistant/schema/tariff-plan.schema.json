@@ -65,6 +65,20 @@
     "demand": { "type": "array", "items": { "$ref": "#/$defs/demand" } },
     "controlled_load": { "type": "array", "items": { "$ref": "#/$defs/controlled_load" } },
     "needs_review": { "type": "boolean" },
+    "confirmations": {
+      "description": "People on this plan who confirmed it matches their bill (Confirm this plan in the plan browser), recorded by the Plan feedback workflow.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "by", "issue"],
+        "additionalProperties": false,
+        "properties": {
+          "date": { "$ref": "#/$defs/date" },
+          "by": { "type": "string" },
+          "issue": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
     "notes": { "type": ["string", "null"] }
   },
   "$defs": {

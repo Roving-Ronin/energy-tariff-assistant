@@ -176,7 +176,9 @@ for a complete example.
 ## Adding a plan to the library
 
 The [plan browser][plan-browser] shows every library plan with its times on a 24-hour timeline, its rates and
-caps, and anything the validator found; **Report a problem** on a plan opens a correction with the plan filled in.
+caps, and anything the validator found. If you're on a plan, check it against your bill: **Confirm this plan**
+opens a filled-in GitHub issue (just press Submit) and the plan then shows as **Confirmed**; **Report a problem**
+opens a correction with the plan filled in, and the plan goes back to **Needs review** until it's fixed.
 Its **Coverage** page shows which distributors have no library plans yet.
 
 **From Home Assistant:** Settings → Devices & services → Energy Tariff Assistant → **Configure** → **Share this
