@@ -19,6 +19,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
+from plan_feedback import CONFIRMATIONS_NEEDED, current_confirmations
 from _common import INTEGRATION_DIR, PLANS_DIR, REPO_ROOT, dump_json, load_json, plan_files
 from validate_plans import check_files
 
@@ -38,7 +39,7 @@ def library(results) -> dict:
             file=result.rel,
             source_checked=(plan.get("source") or {}).get("checked"),
             needs_review=bool(plan.get("needs_review")),
-            confirmations=len(plan.get("confirmations") or []),
+            confirmations=len(current_confirmations(plan)),
             errors=result.errors,
             warnings=result.warnings,
         )
@@ -47,6 +48,7 @@ def library(results) -> dict:
         "format": "ha_tariff_site",
         "version": 1,
         "built_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "confirmations_needed": CONFIRMATIONS_NEEDED,
         "plans": plans,
     }
 

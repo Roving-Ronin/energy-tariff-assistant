@@ -58,8 +58,8 @@ pages, waiting on the DEBS PDF.
 
 ### Validating plans (design agreed 2026-11-21, after the importer)
 **Status (2026-11-21):** 2 and 3 built as one-click: Confirm this plan → pre-filled issue → Plan feedback
-workflow records it (no review PR, maintainer's choice: HACS users have GitHub accounts); 1 confirmation =
-Confirmed (assumed; not answered). Still to do: 1 (weekly EME check + badges), and Confirm this plan in HA's
+workflow records it (no review PR, maintainer's choice: HACS users have GitHub accounts); 2 confirmations =
+Confirmed (maintainer, 2026-11-21). Still to do: 1 (weekly EME check + badges), and Confirm this plan in HA's
 Configure menu.
 Statuses, shown as badges in the plan browser (and later in HA's library steps): **not checked** → **matches
 Energy Made Easy** (or **differs from EME**) → **confirmed by N customers**. **Never one issue per plan**: the

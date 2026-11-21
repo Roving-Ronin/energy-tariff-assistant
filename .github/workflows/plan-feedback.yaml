@@ -2,7 +2,7 @@ name: Plan feedback
 
 # Records feedback from the plan browser on a library plan:
 # - "[Confirm] ..." issues (Confirm this plan): the plan gets the person in `confirmations` and shows as
-#   Confirmed; the issue is closed with thanks.
+#   Confirmed once 2 people have (CONFIRMATIONS_NEEDED); the issue is closed with thanks.
 # - "Report a problem" corrections (plan submission, "Correction to a library plan", whose Source names the
 #   library file): the plan goes back to Needs review until it's fixed; the issue stays open.
 # Issue text is attacker-controlled: it's read only in github-script, and only a plan path matching the
@@ -114,8 +114,11 @@ jobs:
           if [ "$ACTION" = "confirm" ] && [ -z "$CHANGED" ]; then
             gh issue comment "$NUMBER" --body "Thanks! You've already confirmed this plan, so nothing changed."
             gh issue close "$NUMBER" --reason completed
-          elif [ "$ACTION" = "confirm" ]; then
+          elif [ "$ACTION" = "confirm" ] && [ "$(jq -r .needs_review "$PLAN_FILE")" = "false" ]; then
             gh issue comment "$NUMBER" --body "Thanks for confirming! It's recorded on the plan, which now shows as **Confirmed** in the plan browser (give it a few minutes to update)."
+            gh issue close "$NUMBER" --reason completed
+          elif [ "$ACTION" = "confirm" ]; then
+            gh issue comment "$NUMBER" --body "Thanks for confirming! It's recorded on the plan. It shows as **Confirmed** once someone else on the plan confirms it too."
             gh issue close "$NUMBER" --reason completed
           else
             gh issue comment "$NUMBER" --body "Thanks. The plan is marked **Needs review** in the plan browser until this is fixed."

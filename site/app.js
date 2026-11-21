@@ -98,10 +98,11 @@ function badges(entry) {
   if (entry.errors.length) out.push(h("span", { class: "badge err" }, `${entry.errors.length} error${entry.errors.length > 1 ? "s" : ""}`));
   if (entry.warnings.length) out.push(h("span", { class: "badge warn" }, `${entry.warnings.length} warning${entry.warnings.length > 1 ? "s" : ""}`));
   const confirmed = entry.confirmations || 0;
+  const needed = state.library.confirmations_needed || 2;
   if (entry.needs_review) {
-    out.push(h("span", { class: "badge review", title: confirmed
-      ? "A problem was reported after it was confirmed: being checked again"
-      : "Not yet confirmed by someone on the plan, or checked against the retailer's fact sheet" }, "Needs review"));
+    out.push(h("span", { class: "badge review", title: `Not yet confirmed by ${needed} people on the plan, or a problem was reported` }, "Needs review"));
+    if (confirmed) out.push(h("span", { class: "badge plain", title: "People on this plan who confirmed it matches their bill" },
+      `${confirmed} of ${needed} confirmations`));
   } else if (confirmed) {
     out.push(h("span", { class: "badge confirmed", title: "Confirmed to match their bill by people on this plan" },
       confirmed > 1 ? `Confirmed by ${confirmed}` : "Confirmed"));
@@ -480,7 +481,7 @@ async function renderPlan(file) {
 
   if (entry.errors.length) view.append(h("div", { class: "notice err" }, "The validator found errors:", h("ul", {}, entry.errors.map((e) => h("li", {}, e)))));
   if (entry.warnings.length) view.append(h("div", { class: "notice warn" }, "Warnings:", h("ul", {}, entry.warnings.map((w) => h("li", {}, w)))));
-  if (entry.needs_review) view.append(h("div", { class: "notice warn" }, "Needs review: nobody on this plan has confirmed it yet. If you're on it, compare it with your bill: press Confirm this plan if it matches, or Report a problem if it doesn't."));
+  if (entry.needs_review) view.append(h("div", { class: "notice warn" }, `Needs review: it shows as Confirmed once ${state.library.confirmations_needed || 2} people on the plan have confirmed it. If you're on it, compare it with your bill: press Confirm this plan if it matches, or Report a problem if it doesn't.`));
   if (plan.notes) view.append(h("div", { class: "card", style: "margin-top:12px" }, h("strong", {}, "Notes: "), plan.notes));
 
   const streams = h("div", { class: "grid-2", style: "margin-top:16px" });
