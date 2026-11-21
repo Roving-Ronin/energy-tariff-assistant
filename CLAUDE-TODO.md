@@ -27,7 +27,15 @@ Replaces the per-entry meters. Two entry kinds:
   the plan in place. Period ids kept (`keep_ids`); added/removed capped periods add/remove their `_used` sensor.
 - **Energy Manager**: the active plan's JSON at `/config/energy_tariff_assistant/active/active.json` (and per plan).
   EM writes its own converter later; document our format for other tools (library URLs, index, schema, versioning).
-- Meters, supply charge and estimated bill: removed for now; decide later which come back.
+- **Totals on Active tariff** (agreed 2026-11-22): `sensor.eta_grid_import_cost_total` and
+  `sensor.eta_grid_export_compensation_total` ($, `state_class: total`, for the Energy dashboard's "entity tracking
+  the total costs"): each kWh costed when counted at the active plan's real rate (caps, boundary split), continuous
+  across plan switches; unavailable without the grid energy sensors. `sensor.eta_grid_supply_charge` ($/d, active
+  plan) and `sensor.eta_grid_supply_charge_total` (each day added at 00:00 at the plan active then; missed days added
+  at start; from the day Active tariff is set up). "Supply charge", as bills and EME say (not "connection fee").
+  Controlled load supply charges left out until a setting says the home has CL circuits.
+- No period meters (today/week/month/quarter/year): the Energy dashboard and HA's Utility Meter helper (quarterly
+  cycle + offset) already do that from the totals. Per-period meters and estimated bill: decide later.
 
 ### v0.1.0: first release
 **Status (2026-11-20):** v0.1.0b1 released (pre-release) for the maintainer to test; v0.1.0b2 adds Share this plan, Build a plan step by step and the filtered library.
