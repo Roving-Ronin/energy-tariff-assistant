@@ -26,11 +26,13 @@ python -m pytest -q                      # tests/ (engine) + tests_ha/ (real in-
 pip install ruff && ruff check .        # lint incl. security rules (ruff.toml); Tests workflow runs it
 pip install zizmor actionlint-py && zizmor . && actionlint   # workflow security + syntax; Security workflow runs both
 python scripts/validate_plans.py && python scripts/build_index.py --check   # plan library; Plans workflow runs both
+python scripts/build_site.py --out /tmp/site && python -m http.server -d /tmp/site   # plan browser, locally
 ```
 
 CI on every push and PR: Tests (Ruff, pytest), Pull Requests (compile, strings = en.json, engine has no HA
-imports, manifest), Security (zizmor, actionlint, CodeQL; also weekly), Plans (when plans/engine/scripts change),
-hassfest and the HACS validator.
+imports, manifest), Security (zizmor, actionlint, CodeQL; also weekly), Plans (when plans/site/engine/scripts
+change; also builds the plan browser), hassfest and the HACS validator. Plan browser publishes to GitHub Pages on
+main.
 
 Tests in `tests_ha/` run against a real test Home Assistant (pytest-homeassistant-custom-component), never a
 `MagicMock` hass: a mock accepts calls real HA rejects. The library is mocked with `aioclient_mock`; tests never
@@ -134,6 +136,14 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   prices. Unknown distributor names show as `unmapped_distributors`: add them to `DISTRIBUTORS` (in
   `engine/importers/cdr.py`, shared with the converter). The Register's brand summary has no `productBaseUri`, so
   paths come from `scripts/eme_brands.json`; Register brands missing from it show as `register_brands_not_in_list`.
+- **Plan browser** (`site/`, GitHub Pages, `https://roving-ronin.github.io/energy-tariff-assistant/`): plain
+  HTML/CSS/JS, no framework or build tools. `scripts/build_site.py` copies it with the library plans,
+  `data/library.json` (index fields + `validate_plans.check_files` errors and warnings, so the page never
+  re-validates) and `data/coverage.json` (a slim `retailers.json`). Plan files are contributor text: the page
+  builds the DOM with text nodes only (`h()`), never `innerHTML`, and links only `http(s)` source URLs. Its
+  timeline mirrors `Window.segments`/`covers` and `Resolver._period` (first non-default match wins): change them
+  together. Its **Report a problem** link uses the same form field ids as `share.py`. Only the library goes on
+  the site: never raw CDR data or unchecked conversions.
 - **CDR conversion check** (manual workflow, `scripts/check_cdr_conversion.py`): real plan details are an uploaded
   artifact only, never committed. Tests use hand-written or trimmed samples.
 

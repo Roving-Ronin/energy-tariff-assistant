@@ -15,7 +15,7 @@
       },
       "library": {
         "title": "Plan library: country",
-        "description": "Choose the customer type and country. Only countries with plans in the library are listed.",
+        "description": "Choose the customer type and country. Only countries with plans in the library are listed. To look through the plans first, with their times and rates, see the [plan browser]({browser_url}).",
         "data": {
           "country": "Country",
           "customer_type": "Customer type"

@@ -22,6 +22,12 @@ Repo topics are set (HACS Validate passes). Before releasing v0.1.0:
 **Status (2026-11-20):** `needs_review: true` (converted from energy-manager-tariffs). Check against EME: supply
 charge 2.29999 (probably 2.30), whether the 30 kWh super FiT cap resets daily, public holidays.
 
+### Plan browser (GitHub Pages)
+**Status (2026-11-21):** built (`site/`, `scripts/build_site.py`, Plan browser workflow); PR open. Needs the
+maintainer to set Settings → Pages → Source: **GitHub Actions** before the first deploy, then run the Plan browser
+workflow once (or merge). Later: a plan comparison (two plans' cost for a typical day), and listing plans
+converted from Energy Made Easy separately once the library importer exists.
+
 ## Next (v0.2)
 - **Demand charges:** in the format and `model.py` (`DemandCharge`), not in the resolver or ledger yet. Needs:
   interval kW from the import meter (`interval_minutes`, default 30), max or mean-of-top-n over month / bill /

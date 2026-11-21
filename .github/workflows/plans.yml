@@ -6,9 +6,9 @@ permissions:
 on:
   push:
     branches: [main]
-    paths: ["plans/**", "custom_components/energy_tariff_assistant/engine/**", "custom_components/energy_tariff_assistant/schema/**", "scripts/**"]
+    paths: ["plans/**", "site/**", "custom_components/energy_tariff_assistant/engine/**", "custom_components/energy_tariff_assistant/schema/**", "scripts/**"]
   pull_request:
-    paths: ["plans/**", "custom_components/energy_tariff_assistant/engine/**", "custom_components/energy_tariff_assistant/schema/**", "scripts/**"]
+    paths: ["plans/**", "site/**", "custom_components/energy_tariff_assistant/engine/**", "custom_components/energy_tariff_assistant/schema/**", "scripts/**"]
 
 jobs:
   validate:
@@ -25,3 +25,7 @@ jobs:
         run: python scripts/validate_plans.py
       - name: Check plans/index.json is current
         run: python scripts/build_index.py --check
+      - name: Build the plan browser
+        run: |
+          node --check site/app.js
+          python scripts/build_site.py --out "$RUNNER_TEMP/site"

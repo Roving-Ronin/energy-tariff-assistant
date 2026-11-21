@@ -70,7 +70,7 @@ supported.)
 
 1. **Name and plan source.** The name is used for the device and entity names (`Electricity` gives
    `sensor.electricity_import_price`). Then choose where the plan comes from:
-   - **Shared plan library:** narrow it down step by step (customer type and country, state, distributor (DNSP),
+   - **Shared plan library:** browse it first in the [plan browser][plan-browser] if you like. Then narrow it down step by step (customer type and country, state, distributor (DNSP),
      retailer) and pick the plan, newest first. Residential, Australia and NSW are picked to start with; plans
      that don't say whether they're residential or business are shown for both. Internet is needed only during
      setup; the plan is stored with the entry.
@@ -175,6 +175,10 @@ for a complete example.
 
 ## Adding a plan to the library
 
+The [plan browser][plan-browser] shows every library plan with its times on a 24-hour timeline, its rates and
+caps, and anything the validator found; **Report a problem** on a plan opens a correction with the plan filled in.
+Its **Coverage** page shows which distributors have no library plans yet.
+
 **From Home Assistant:** Settings → Devices & services → Energy Tariff Assistant → **Configure** → **Share this
 plan with the plan library**. It opens the [plan submission form][plan-form] on GitHub with the plan filled in
 (rates, times, retailer and region only; nothing about your home, meters or usage). Nothing is sent from Home
@@ -219,6 +223,13 @@ AER's [Energy Product Reference Data](https://www.aer.gov.au/energy-product-refe
 Consumer Data Right; Victorian plans come from DEECA), and commits it when it changes. Only derived facts are
 stored: retailer, distributor, state and counts, no plan text or prices. WA and the NT aren't in that data.
 
+### Plan browser
+
+The [plan browser][plan-browser] is a static page in `site/` (plain HTML, CSS and JavaScript). The **Plan browser**
+workflow builds it with `scripts/build_site.py` (the page, the library plans, their validation results and the
+retailer coverage) and publishes it to GitHub Pages whenever `plans/`, `site/` or the scripts change on `main`.
+To try it locally: `python scripts/build_site.py --out /tmp/site && python -m http.server -d /tmp/site`.
+
 ### Releasing
 
 Merge a PR titled with its version (e.g. `v0.2.0: demand charges`) and with a `## v0.2.0 (YYYY-MM-DD)` section in
@@ -257,3 +268,4 @@ GPL-3.0. See `LICENSE`.
 [tests-url]: https://github.com/Roving-Ronin/energy-tariff-assistant/actions/workflows/tests.yaml
 [license-url]: https://github.com/Roving-Ronin/energy-tariff-assistant/blob/main/LICENSE
 [plan-form]: https://github.com/Roving-Ronin/energy-tariff-assistant/issues/new?template=plan_submission.yml
+[plan-browser]: https://roving-ronin.github.io/energy-tariff-assistant/

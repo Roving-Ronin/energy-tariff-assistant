@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 
@@ -26,44 +27,60 @@ def _overlaps(a: dict, b: dict) -> bool:
     return date.fromisoformat(a["effective_from"]) <= b_end and date.fromisoformat(b["effective_from"]) <= a_end
 
 
+@dataclass
+class FileResult:
+    path: Path
+    rel: str
+    plan: dict | None = None
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+
+
+def check_files(paths: list[Path], today: date | None = None) -> list[FileResult]:
+    """Validate each file: its contents, folder and name, and overlaps with other plans."""
+    today = today or date.today()
+    results: list[FileResult] = []
+    for path in paths:
+        rel = str(path.relative_to(PLANS_DIR.parent) if path.is_relative_to(PLANS_DIR.parent) else path)
+        result = FileResult(path, rel)
+        results.append(result)
+        try:
+            plan = load_json(path)
+        except (OSError, json.JSONDecodeError) as err:
+            result.errors.append(f"cannot read: {err}")
+            continue
+        result.plan = plan
+        checked = validate_plan(plan, today=today)
+        result.errors += list(checked.errors)
+        if checked.ok and path.is_relative_to(PLANS_DIR):
+            result.errors += [f"name: {p}" for p in filename_problems(path, plan)]
+        result.warnings += list(checked.warnings)
+
+    valid = [r for r in results if r.plan is not None and not r.errors]
+    for i, a in enumerate(valid):
+        for b in valid[i + 1:]:
+            same = all(a.plan.get(k) == b.plan.get(k) for k in ("country", "region", "retailer", "plan", "dnsp"))
+            if same and _overlaps(a.plan, b.plan):
+                message = "same plan as {} with overlapping effective dates"
+                a.warnings.append(message.format(b.path.name))
+                b.warnings.append(message.format(a.path.name))
+    return results
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("files", nargs="*", type=Path)
     args = parser.parse_args()
 
     paths = [p.resolve() for p in args.files] or plan_files()
-    errors = warnings = 0
-    valid: list[tuple[Path, dict]] = []
-    today = date.today()
-
-    for path in paths:
-        rel = path.relative_to(PLANS_DIR.parent) if path.is_relative_to(PLANS_DIR.parent) else path
-        try:
-            plan = load_json(path)
-        except (OSError, json.JSONDecodeError) as err:
-            print(f"ERROR {rel}: cannot read: {err}")
-            errors += 1
-            continue
-        result = validate_plan(plan, today=today)
-        problems = list(result.errors)
-        if result.ok and path.is_relative_to(PLANS_DIR):
-            problems += [f"name: {p}" for p in filename_problems(path, plan)]
-        for problem in problems:
-            print(f"ERROR {rel}: {problem}")
+    results = check_files(paths)
+    for result in results:
+        for problem in result.errors:
+            print(f"ERROR {result.rel}: {problem}")
         for warning in result.warnings:
-            print(f"WARN  {rel}: {warning}")
-        errors += len(problems)
-        warnings += len(result.warnings)
-        if not problems:
-            valid.append((path, plan))
-
-    for i, (path_a, a) in enumerate(valid):
-        for path_b, b in valid[i + 1:]:
-            same = all(a.get(k) == b.get(k) for k in ("country", "region", "retailer", "plan", "dnsp"))
-            if same and _overlaps(a, b):
-                print(f"WARN  {path_a.name} and {path_b.name}: same plan with overlapping effective dates")
-                warnings += 1
-
+            print(f"WARN  {result.rel}: {warning}")
+    errors = sum(len(r.errors) for r in results)
+    warnings = sum(len(r.warnings) for r in results)
     print(f"{len(paths)} plan(s) checked: {errors} error(s), {warnings} warning(s)")
     return 1 if errors else 0
 
