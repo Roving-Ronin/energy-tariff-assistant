@@ -114,8 +114,8 @@ async def test_plan_price_sensors(hass, sydney, entry, hub, freezer):
     assert num(hass, f"sensor.{SLUG}_export_price") == pytest.approx(0.05)
     # Meters, period and bill sensors are gone
     assert hass.states.get(f"sensor.{SLUG}_import_peak_energy_today") is None
-    # 2 energy sources + the plan's 2 prices and 2 capped-rate "used" sensors (Free, Super FiT) + Active tariff's 6
-    assert len(hass.states.async_entity_ids("sensor")) == 2 + 4 + 6
+    # 2 energy sources + the plan's 2 prices and 2 capped-rate "used" sensors (Free, Super FiT) + Active tariff's 7
+    assert len(hass.states.async_entity_ids("sensor")) == 2 + 4 + 7
 
 
 async def test_grid_sensors_follow_the_active_plan(hass, sydney, entry, hub, flat_entry, freezer):
@@ -299,3 +299,60 @@ async def test_diagnostics(hass, sydney, entry, hub, freezer):
     assert plan["plan"]["plan_id"] == "COV1117612MRE3" and set(plan["ledgers"]) == {"import", "export"}
     active = await async_get_config_entry_diagnostics(hass, hub)
     assert active["active_plan"] == "CovaU - SolarMax TOU" and active["days_counted"] == 1
+
+
+@pytest.fixture
+def demand_entry(hass, plan_data) -> MockConfigEntry:
+    plan = flat_plan(plan_data, 0.30, 0.04, 1.0)
+    plan.update(retailer="Peak Co", plan="Residential Demand", plan_id="PKC1000001MRE1")
+    plan["demand"] = [{"id": "residential_demand", "name": "Residential Demand", "rate": 0.2,
+                       "unit": "per_kw_per_day", "windows": [{"days": "weekdays", "start": "17:00", "end": "20:00"}],
+                       "measure": {"interval_minutes": 30, "method": "max", "over": "month"}}]
+    entry = MockConfigEntry(
+        domain=DOMAIN, version=2, title="Peak Co - Demand",
+        data={CONF_KIND: KIND_PLAN, CONF_SLUG: "eta_peakco_demand"},
+        options={CONF_PLAN: plan, CONF_PLAN_SOURCE: {CONF_SOURCE: SOURCE_PASTE}},
+    )
+    entry.add_to_hass(hass)
+    return entry
+
+
+async def test_demand_peak_and_charge_total(hass, sydney, entry, hub, demand_entry, freezer):
+    await _setup(hass, freezer, "2026-11-04 16:00", entry, demand_entry, hub)
+    hub.runtime_data.async_set_active(demand_entry.entry_id)
+    await hass.async_block_till_done()
+    peak_id = "sensor.eta_peakco_demand_demand_residential_demand_peak"
+    assert num(hass, peak_id) == 0
+    assert num(hass, "sensor.eta_grid_demand_charge_total") == 0
+    assert hass.states.get("sensor.eta_grid_demand_charge_total").attributes["friendly_name"] == (
+        "Grid - Demand Charge - Total"
+    )
+
+    await _at(hass, freezer, "2026-11-04 17:00", imp="1000.5")  # before the window: not demand
+    await _at(hass, freezer, "2026-11-04 17:30", imp="1002.0")  # 1.5 kWh in 17:00-17:30: 3 kW
+    peak = hass.states.get(peak_id)
+    assert float(peak.state) == pytest.approx(3.0)
+    assert peak.attributes["friendly_name"] == "Peak Co - Demand Residential Demand Peak"
+    assert peak.attributes["unit_of_measurement"] == "kW"
+    assert peak.attributes["peak_at"] == syd("2026-11-04 17:00").isoformat()
+    assert peak.attributes["days_counted"] == 4 and peak.attributes["measured_over"] == "month"
+    # 3 kW x $0.20 x 4 days (1-4 November): earlier days re-priced at the new peak
+    assert num(hass, "sensor.eta_grid_demand_charge_total") == pytest.approx(2.4, abs=1e-4)
+
+    await _at(hass, freezer, "2026-11-05 00:00:02")  # a new day adds a day's charge
+    assert num(hass, "sensor.eta_grid_demand_charge_total") == pytest.approx(3.0, abs=1e-4)
+
+    # The meter survives a restart
+    assert await hass.config_entries.async_reload(demand_entry.entry_id)
+    await hass.async_block_till_done()
+    assert num(hass, peak_id) == pytest.approx(3.0)
+    assert num(hass, "sensor.eta_grid_demand_charge_total") == pytest.approx(3.0, abs=1e-4)
+
+
+async def test_demand_needs_the_import_sensor(hass, sydney, entry, hub, demand_entry, freezer):
+    hass.config_entries.async_update_entry(hub, options={**hub.options, "import_sensor": None})
+    await _setup(hass, freezer, "2026-11-04 16:00", entry, demand_entry, hub)
+    hub.runtime_data.async_set_active(demand_entry.entry_id)
+    await hass.async_block_till_done()
+    assert hass.states.get("sensor.eta_peakco_demand_demand_residential_demand_peak").state == "unavailable"
+    assert hass.states.get("sensor.eta_grid_demand_charge_total").state == "unavailable"

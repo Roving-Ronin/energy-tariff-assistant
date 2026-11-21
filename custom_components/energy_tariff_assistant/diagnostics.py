@@ -31,4 +31,5 @@ async def async_get_config_entry_diagnostics(
         "sources": runtime.sources,
         "source_ok": runtime.source_ok,
         "ledgers": {s: ledger.to_dict() for s, ledger in runtime.ledgers.items()},
+        "demand": {c: meter.to_dict() for c, meter in runtime.demand.items()},
     }

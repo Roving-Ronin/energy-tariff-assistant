@@ -167,6 +167,7 @@ def _remove_retired_entities(hass: HomeAssistant, entry: ConfigEntry, runtime: T
     keep |= {
         f"{entry.entry_id}_{s}_{p.id}_used" for s in (STREAM_IMPORT, STREAM_EXPORT) for p in runtime.capped_periods(s)
     }
+    keep |= {f"{entry.entry_id}_demand_{c.id}_peak" for c in runtime.demand_charges()}
     for item in er.async_entries_for_config_entry(registry, entry.entry_id):
         if item.unique_id not in keep:
             registry.async_remove(item.entity_id)

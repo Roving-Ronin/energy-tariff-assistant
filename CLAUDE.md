@@ -52,6 +52,7 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
 | `engine/validate.py` | Plan validation (errors block, warnings report). Runs without third-party packages. Pure |
 | `engine/resolver.py` | **Moment → period and rate**, tiers (`used_kwh`), holidays, plan versions, `boundaries`, `next_change`. Pure |
 | `engine/forecast.py` | `build_forecast` (`{time, value}`: now, every :00/:30, changes) and `build_intervals` (Amber's `{start_time, end_time, per_kwh}`, 30-min slots). Pure |
+| `engine/demand.py` | **`DemandMeter`: demand charges**: 30-min intervals on the local clock, peak per month / bill / rolling 12 months, charge = peak x rate x days (re-prices earlier days on a new peak), locked per period. Pure |
 | `engine/meter.py` | **`Ledger`: all per-period kWh and cost maths**, day/month/cycle buckets, boundary split, tier split. Pure, unit-tested directly. Never re-implement this elsewhere |
 | `engine/importers/` | Converters from other formats: `energy_manager.py` (energy-manager-tariffs), `cdr.py` (Energy Made Easy / CDR plan detail; also the shared CDR distributor → DNSP/state map). Pure |
 | `schema/tariff-plan.schema.json` | JSON Schema for editors and CI; `validate.py` adds the cross-field rules |
@@ -79,6 +80,8 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   from disk: run them via `hass.async_add_executor_job` (`check_plan`, `prewarm_holidays`).
   `test_plan_loads_off_event_loop` checks the thread directly, because HA's blocking-call detector doesn't fire in
   the test harness.
+- Demand meters (`runtime.demand`, one per demand charge, fed by grid import only) settle an interval only when a
+  reading arrives after its end, never at a tick (same reason as below).
 - **Never re-read an unchanged source value at a timer tick.** It moves the ledger's baseline and puts the next
   increase entirely in the new period instead of splitting it by time. Ticks only roll buckets.
 - `dt_util` for times, never `datetime.now()`. Readings are timed by `state.last_updated`.
@@ -93,7 +96,8 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   entry's setup (state `SETUP_IN_PROGRESS` counts: entries set up concurrently). Removing the plan in use leaves
   no plan and a repair (`no_active_plan`); it never switches on its own.
 - Totals (`active.py`): cost/compensation add each change in the active plan's ledger `total_cost` (a switch
-  starts from the new plan's figure); supply charge adds whole days at 00:00, missed days at start.
+  starts from the new plan's figure); demand adds each change in the plan's `demand_total()` (also at midnight: a new
+  day adds a day's charge); supply charge adds whole days at 00:00, missed days at start.
 - The chosen plan is **copied into the entry's options** (pinned). Library changes never reach an entry silently;
   the user replaces the plan in the options flow.
 - Ledgers are keyed by period `id`. Keep ids stable across plan versions (`peak`, `shoulder`, `offpeak`...):
@@ -108,10 +112,10 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
 
 ### Entities
 - Entity IDs come from the entry, never the plan's content: plan entries `sensor.<slug>_import_price` /
-  `_export_price`, `sensor.<slug>_<stream>_<period>_used`, `update.<slug>_plan`, where `slug` (`data.slug`,
+  `_export_price`, `sensor.<slug>_<stream>_<period>_used`, `sensor.<slug>_demand_<charge>_peak`, `update.<slug>_plan`, where `slug` (`data.slug`,
   `wizard.entity_slug`: `eta_covau_solarmaxtou`) is fixed at creation. Active tariff: `sensor.eta_grid_import_price`
-  / `_export_price`, `…_import_cost_total`, `…_export_compensation_total`, `…_supply_charge`(`_total`),
-  `select.eta_grid_active_tariff_plan`. Unique IDs `{entry_id}_{stream}_price`, `{entry_id}_{stream}_{period}_used`,
+  / `_export_price`, `…_import_cost_total`, `…_export_compensation_total`, `…_supply_charge`(`_total`), `…_demand_charge_total`,
+  `select.eta_grid_active_tariff_plan`. Unique IDs `{entry_id}_{stream}_price`, `{entry_id}_{stream}_{period}_used`, `{entry_id}_demand_{charge}_peak`,
   `{entry_id}_plan_update`, `active_tariff_<key>`. **Renaming a key breaks users' dashboards and history**: avoid
   it, or migrate the registry entry (`_remove_retired_entities` drops what a version no longer makes and moves
   old price entity IDs).

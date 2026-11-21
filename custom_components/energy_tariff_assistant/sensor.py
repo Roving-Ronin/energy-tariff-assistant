@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -9,7 +10,8 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
-from homeassistant.const import UnitOfEnergy
+from homeassistant.const import UnitOfEnergy, UnitOfPower
+from homeassistant.util import dt as dt_util
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
@@ -29,7 +31,7 @@ from .const import (
     STREAM_IMPORT,
     signal_active,
 )
-from .engine import Period
+from .engine import DemandCharge, Period
 from .runtime import TariffRuntime
 
 PARALLEL_UPDATES = 0
@@ -53,6 +55,7 @@ async def async_setup_entry(
                 TotalSensor(runtime, "export_compensation", "Grid - Export Compensation - Total", "mdi:cash-plus"),
                 SupplyChargeSensor(runtime),
                 TotalSensor(runtime, "supply_charge", "Grid - Supply Charge - Total", "mdi:transmission-tower"),
+                TotalSensor(runtime, "demand_charge", "Grid - Demand Charge - Total", "mdi:flash-alert"),
             ]
         )
         return
@@ -61,6 +64,7 @@ async def async_setup_entry(
     entities: list[SensorEntity] = [PlanPriceSensor(plan_runtime, s) for s in (STREAM_IMPORT, STREAM_EXPORT)]
     for stream in (STREAM_IMPORT, STREAM_EXPORT):
         entities += [CapUsedSensor(plan_runtime, stream, p) for p in plan_runtime.capped_periods(stream)]
+    entities += [DemandPeakSensor(plan_runtime, c) for c in plan_runtime.demand_charges()]
     async_add_entities(entities)
 
 
@@ -186,6 +190,57 @@ class CapUsedSensor(PlanEntity):
         }
 
 
+DEMAND_OVER = {"month": "month", "bill": "bill", "rolling_12_months": "rolling 12 months"}
+
+
+class DemandPeakSensor(PlanEntity):
+    """A demand charge's measured demand (kW): the peak 30-minute reading in its windows this month (or bill, or
+    12 months), and what the charge comes to so far."""
+
+    _attr_device_class = SensorDeviceClass.POWER
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = UnitOfPower.KILO_WATT
+    _attr_suggested_display_precision = 2
+    _attr_icon = "mdi:flash-alert"
+
+    def __init__(self, runtime: TariffRuntime, charge: DemandCharge) -> None:
+        super().__init__(runtime, f"demand_{charge.id}_peak", f"demand_{charge.id}_peak")
+        self.charge = charge
+        self._attr_name = f"{charge.name} Peak"
+
+    @property
+    def available(self) -> bool:
+        return self.charge.id in self.runtime.demand
+
+    def _update(self) -> None:
+        meter = self.runtime.demand.get(self.charge.id)
+        if meter is None:
+            self._attr_native_value = None
+            self._attr_extra_state_attributes = {"source": None}
+            return
+        now = dt_util.utcnow()
+        today = self.runtime.resolver.local(now).date()
+        current = meter.applies_on(today) or self.charge
+        peak = meter.peak(today)
+        start, end = meter.period_bounds(today)
+        charge_so_far, days = meter.period_charge(today, today)
+        self._attr_native_value = round(meter.demand_kw(today), 3)
+        self._attr_extra_state_attributes = {
+            "peak_at": self.runtime.resolver.local(peak.at).isoformat() if peak else None,
+            "measured_over": DEMAND_OVER.get(meter.over, meter.over),
+            "minimum_kw": current.measure.minimum_kw,
+            "billable_kw": round(max(meter.demand_kw(today), current.measure.minimum_kw or 0.0), 3),
+            "rate": current.rate,
+            "unit": current.unit,
+            "applies_today": meter.applies_on(today) is not None,
+            "period_start": start.isoformat(),
+            "period_end": (end - timedelta(days=1)).isoformat(),
+            "days_counted": days,
+            "charge_so_far": round(charge_so_far, 4),
+            "source": self.runtime.sources.get(STREAM_IMPORT),
+        }
+
+
 # ----- Active tariff ----------------------------------------------------------
 
 
@@ -278,6 +333,8 @@ class TotalSensor(ActiveEntity):
             return True
         # Cost and compensation need the grid energy sensors: without them there's nothing counted
         plan_runtime = self.runtime.plan_runtime
+        if self.key == "demand_charge":
+            return plan_runtime is not None and STREAM_IMPORT in plan_runtime.ledgers
         stream = STREAM_IMPORT if self.key == "import_cost" else STREAM_EXPORT
         return plan_runtime is not None and stream in plan_runtime.ledgers
 

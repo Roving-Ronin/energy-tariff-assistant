@@ -6,6 +6,8 @@ export compensation, supply charge) are kept here, so they carry on across plan 
 
 - cost and compensation: each kWh the active plan's ledger counts adds what it cost under that plan (its own
   rate at that moment: caps, boundary splits). A switch starts from the new plan's ledger as it stands.
+- demand charge: what the active plan's demand meters come to so far (peak kW x rate x days); a new peak re-prices
+  the period's earlier days, so the total takes the difference. Like cost, a switch starts from the new plan's figure.
 - supply charge: each day is added at 00:00 at the rate of the plan in use then; days missed while Home
   Assistant was off are added at start; counting starts the day Active tariff was set up.
 """
@@ -81,7 +83,7 @@ class ActiveRuntime:
         self.hass = hass
         self.entry = entry
         self._store: Store[dict[str, Any]] = Store(hass, STORE_VERSION, f"{DOMAIN}.active")
-        self.totals = {"import_cost": 0.0, "export_compensation": 0.0, "supply_charge": 0.0}
+        self.totals = {"import_cost": 0.0, "export_compensation": 0.0, "supply_charge": 0.0, "demand_charge": 0.0}
         self.days_counted = 0
         self._supply_last_day: date | None = None
         self._seen: dict[str, dict[str, float]] = {}  # entry id -> stream -> ledger total_cost last counted
@@ -207,6 +209,13 @@ class ActiveRuntime:
                 if last is not None and ledger.total_cost >= last:
                     self.totals[key] += ledger.total_cost - last
                 seen[stream] = ledger.total_cost
+            # Demand: the plan's charge so far (a new peak re-prices earlier days; each day adds a day's charge)
+            demand = runtime.demand_total()
+            if demand is not None:
+                last = seen.get("demand")
+                if last is not None and demand >= last:
+                    self.totals["demand_charge"] += demand - last
+                seen["demand"] = demand
             self._store.async_delay_save(self._data, SAVE_DELAY)
         async_dispatcher_send(self.hass, signal_active())
 
@@ -254,4 +263,5 @@ class ActiveRuntime:
     async def _async_midnight(self, _now: datetime) -> None:
         self._unsub_midnight = None
         self._count_supply()
+        self._async_plan_changed()  # a new day adds a day's demand charge
         self._schedule_midnight()

@@ -49,7 +49,12 @@ The essentials (the schema has every field and its rules):
   `day`, `month` or `cycle` (the customer's billing cycle).
 - `holidays.treat_as`: `none` (public holidays priced like any day), `saturday` or `sunday`.
 - `effective_from` / `effective_to`: when the plan applies (a later version is a separate file).
-- `controlled_load` and `demand`: in the format, not yet used by the Home Assistant entities.
+- `demand`: `[{"id", "name", "rate", "unit": "per_kw_per_day" | "per_kw_per_month", "windows": [...],
+  "measure": {"interval_minutes": 30, "method": "max" | "mean_of_top_n", "n", "over": "month" | "bill" |
+  "rolling_12_months", "minimum_kw"}}]`. Demand is the highest interval reading (kWh x 60 / interval minutes)
+  starting inside the windows over the `over` period; the charge is max(demand, `minimum_kw`) x `rate` x days (a
+  monthly rate counts each day as a share of the month). Home Assistant measures it from the grid import sensor.
+- `controlled_load`: in the format, not yet used by the Home Assistant entities.
 - `notes`: anything the format couldn't express exactly, and where the plan came from.
 
 ## Keeping up with changes
