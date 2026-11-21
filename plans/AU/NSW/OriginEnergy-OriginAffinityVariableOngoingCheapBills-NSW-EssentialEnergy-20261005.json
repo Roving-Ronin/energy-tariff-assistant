@@ -1,0 +1,85 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Origin Energy",
+  "plan": "Origin Affinity Variable Ongoing - Cheap Bills",
+  "plan_id": "ORI1202309MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-05",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ORI1202309MRE1",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.50437,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.38753,
+        "windows": [
+          {
+            "days": "all",
+            "start": "07:00",
+            "end": "10:00"
+          },
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off peak",
+        "rate": 0.22209,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled load 2",
+      "supply_charge": {
+        "rate": 0.1441,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled load 2",
+          "rate": 0.22066,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ORI1202309MRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in is called 'Solar FIT' on Energy Made Easy. Incentive: Account Credit. Fees: RECONNECTION, DISCONNECTION, DISCONNECT_NON_PAY, LATE_PAYMENT."
+}

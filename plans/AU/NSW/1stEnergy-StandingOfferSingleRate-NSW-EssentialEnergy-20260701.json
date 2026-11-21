@@ -1,0 +1,60 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "1st Energy",
+  "plan": "Standing Offer - Single Rate",
+  "plan_id": "1ST1122873SRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-07-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=1ST1122873SRE1",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.72206,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "general_usage",
+        "name": "General usage",
+        "rate": 0.350053,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "tiers": [
+          {
+            "up_to_kwh": 5.0,
+            "rate": 0.01
+          },
+          {
+            "rate": 0.001
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan 1ST1122873SRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Feed-in tariff (GST exempt)': the data gives its 5 kWh limit per P1Y, but its text says per day: per day was used. Feed-in is called 'Feed-in tariff (GST exempt)' on Energy Made Easy. Fees: CONNECTION, DISCONNECTION, CHEQUE_DISHONOUR, DD_DISHONOUR."
+}

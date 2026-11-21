@@ -1,0 +1,121 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Momentum Energy",
+  "plan": "Suit Yourself Electricity",
+  "plan_id": "MOM1151297MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=MOM1151297MRE2",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.8787,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.2827,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "09:00"
+          },
+          {
+            "days": "weekdays",
+            "start": "17:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.242,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "09:00",
+            "end": "17:00"
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-Peak",
+        "rate": 0.2057,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [
+    {
+      "id": "peak_demand",
+      "name": "Peak Demand",
+      "rate": 5.71175,
+      "unit": "per_kw_per_month",
+      "windows": [
+        {
+          "days": "weekdays",
+          "start": "17:00",
+          "end": "20:00"
+        }
+      ],
+      "measure": {
+        "interval_minutes": 30,
+        "method": "max",
+        "over": "month"
+      }
+    }
+  ],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.1991,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan MOM1151297MRE2@EME; charges include GST (CDR ex GST x1.1). Demand charge 'Peak Demand': times read from its description. Demand charge 'Peak Demand' is per kVA; counted as kW (power factor 1). Feed-in is called 'Single Rate Solar FiT' on Energy Made Easy. Incentive: 30% GreenPower included. Fees: DISCONNECTION, RECONNECTION, CONNECTION."
+}

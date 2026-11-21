@@ -1,0 +1,113 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Globird Energy",
+  "plan": "ZEROHERO VPP Residential (Flexible Rate CTL)-Essential",
+  "plan_id": "GLO1127665MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-07-03",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=GLO1127665MRE2",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.75,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_usage",
+        "name": "Peak Usage",
+        "rate": 0.583,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "23:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak_usage",
+        "name": "Off Peak Usage",
+        "tiers": [
+          {
+            "up_to_kwh": 50.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.308
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "12:00",
+            "end": "15:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder_usage",
+        "name": "Shoulder Usage",
+        "rate": 0.506,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.02,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "23:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-peak",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load",
+      "name": "Controlled Load",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load",
+          "rate": 0.308,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan GLO1127665MRE2@EME; charges include GST (CDR ex GST x1.1). Discount: ZEROHERO (conditional, fixedAmount 365.00). Incentive: Perfect if you love free stuff. Incentive: ZEROHERO Credit. Incentive: Super Export Credit. Incentive: Critical Peak-Export Credit. Incentive: Critical Peak-Import Credit. Fees: CONNECTION, DISCONNECT_MOVE_OUT."
+}

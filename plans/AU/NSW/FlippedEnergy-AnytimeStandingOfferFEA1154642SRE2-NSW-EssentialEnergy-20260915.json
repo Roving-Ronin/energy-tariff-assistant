@@ -1,0 +1,51 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Flipped Energy",
+  "plan": "Anytime Standing Offer",
+  "plan_id": "FEA1154642SRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-09-15",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=FEA1154642SRE2",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.756919,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "single_rate",
+        "name": "Single Rate",
+        "rate": 0.347333,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.02,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan FEA1154642SRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in is called 'Solar Feed In Tariff' on Energy Made Easy. Discount: Referral Discount (conditional, fixedAmount 30.00). Fees: DISCONNECTION, RECONNECTION, CONNECTION."
+}

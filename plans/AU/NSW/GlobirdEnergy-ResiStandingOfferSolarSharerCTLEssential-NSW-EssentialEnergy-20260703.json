@@ -1,0 +1,106 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Globird Energy",
+  "plan": "Resi Standing Offer (Solar Sharer CTL)-Essential",
+  "plan_id": "GLO1128939SRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-07-03",
+  "effective_to": "2027-06-30",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=GLO1128939SRE2",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.722168,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_usage",
+        "name": "Peak Usage",
+        "rate": 0.455698,
+        "windows": [
+          {
+            "days": "all",
+            "start": "07:00",
+            "end": "10:00"
+          },
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "solar_share_free",
+        "name": "Solar Share Free",
+        "tiers": [
+          {
+            "up_to_kwh": 24.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.275958
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "14:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak_usage",
+        "name": "Off Peak Usage",
+        "rate": 0.275958,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load",
+      "name": "Controlled Load",
+      "supply_charge": {
+        "rate": 0.156605,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load",
+          "rate": 0.198887,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan GLO1128939SRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in is called 'Single Rate Solar FiT' on Energy Made Easy. Fees: CONNECTION, DISCONNECT_MOVE_OUT."
+}

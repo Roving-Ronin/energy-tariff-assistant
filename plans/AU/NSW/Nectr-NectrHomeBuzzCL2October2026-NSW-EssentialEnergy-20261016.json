@@ -1,0 +1,68 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Nectr",
+  "plan": "Nectr Home Buzz + CL 2 - October 2026",
+  "plan_id": "NTR1206857MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-16",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=NTR1206857MRE1",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.815894,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "single_rate_block",
+        "name": "Single Rate Block",
+        "rate": 0.347337,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.159145,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 2",
+          "rate": 0.257575,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan NTR1206857MRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in is called 'FiT' on Energy Made Easy. Discount: Refer a Friend Credit (conditional, fixedAmount 150.00). Fees: DISCONNECTION, RECONNECTION, OTHER."
+}
