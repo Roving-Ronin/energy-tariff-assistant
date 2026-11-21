@@ -271,13 +271,18 @@ function rateText(period, periods) {
 
 const DEMAND_OVER = { month: "each month", bill: "each bill", rolling_12_months: "over the last 12 months" };
 
-// "Highest 30-min reading each month (at least 1.5 kW)"
-function measureText(measure) {
-  const m = measure || {};
-  const what = m.method === "mean_of_top_n" ? `Average of the top ${m.n} ${m.interval_minutes || 30}-min readings`
-    : `Highest ${m.interval_minutes || 30}-min reading`;
+// "Highest 30-min kW reading in the peak window (Weekdays 17:00–20:00) each month (at least 1.5 kW)": demand counts
+// only inside the charge's windows, so say which
+function measureText(charge, seasons) {
+  const m = charge.measure || {};
+  const minutes = m.interval_minutes || 30;
+  const what = m.method === "mean_of_top_n" ? `Average of the top ${m.n} ${minutes}-min kW readings`
+    : `Highest ${minutes}-min kW reading`;
+  const windows = charge.windows || [];
+  const anyTime = windows.every((w) => w.all_day && (w.days === undefined || w.days === "all") && !(w.seasons || []).length);
+  const where = anyTime ? "at any time" : `in the peak window (${windows.map((w) => windowText(w, seasons)).join("; ")})`;
   const floor = m.minimum_kw ? ` (at least ${m.minimum_kw} kW)` : "";
-  return `${what} ${DEMAND_OVER[m.over || "month"] || m.over}${floor}`;
+  return `${what} ${where} ${DEMAND_OVER[m.over || "month"] || m.over}${floor}`;
 }
 
 function windowText(win, seasons) {
@@ -535,12 +540,15 @@ async function renderPlan(file) {
   if (loads.children.length) view.append(loads);
 
   if ((plan.demand || []).length) {
-    view.append(h("h2", {}, "Demand charges"), h("div", { class: "card table-wrap" }, h("table", {},
-      h("thead", {}, h("tr", {}, h("th", {}, "Charge"), h("th", {}, "Rate"), h("th", {}, "When"), h("th", {}, "Measured"))),
-      h("tbody", {}, plan.demand.map((d) => h("tr", {},
-        h("td", {}, d.name), h("td", {}, `${dollars(d.rate)} ${d.unit === "per_kw_per_month" ? "per kW per month" : "per kW per day"}`),
-        h("td", {}, d.windows.map((w) => h("div", {}, windowText(w, plan.seasons)))),
-        h("td", {}, measureText(d.measure))))))));
+    // Its heading sits inside its card, like Import (buying) and Export (selling)
+    view.append(h("div", { class: "card", style: "margin-top:16px" },
+      h("h2", { style: "margin-top:0" }, "Demand charges"),
+      h("div", { class: "table-wrap" }, h("table", {},
+        h("thead", {}, h("tr", {}, h("th", {}, "Charge"), h("th", {}, "Rate"), h("th", {}, "When"), h("th", {}, "Measured"))),
+        h("tbody", {}, plan.demand.map((d) => h("tr", {},
+          h("td", {}, d.name), h("td", {}, `${dollars(d.rate)} ${d.unit === "per_kw_per_month" ? "per kW per month" : "per kW per day"}`),
+          h("td", {}, d.windows.map((w) => h("div", {}, windowText(w, plan.seasons)))),
+          h("td", {}, measureText(d, plan.seasons)))))))));
   }
   if (plan.notes) view.append(h("div", { class: "card", style: "margin-top:16px" }, h("strong", {}, "Notes: "), plan.notes));
 
