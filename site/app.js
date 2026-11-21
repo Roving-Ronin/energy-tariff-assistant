@@ -269,6 +269,17 @@ function rateText(period, periods) {
   return [parts.join(", "), h("span", { class: "muted" }, ` (caps ${reset})`)];
 }
 
+const DEMAND_OVER = { month: "each month", bill: "each bill", rolling_12_months: "over the last 12 months" };
+
+// "Highest 30-min reading each month (at least 1.5 kW)"
+function measureText(measure) {
+  const m = measure || {};
+  const what = m.method === "mean_of_top_n" ? `Average of the top ${m.n} ${m.interval_minutes || 30}-min readings`
+    : `Highest ${m.interval_minutes || 30}-min reading`;
+  const floor = m.minimum_kw ? ` (at least ${m.minimum_kw} kW)` : "";
+  return `${what} ${DEMAND_OVER[m.over || "month"] || m.over}${floor}`;
+}
+
 function windowText(win, seasons) {
   const days = typeof win.days === "string" || win.days === undefined
     ? title(win.days || "all") === "All" ? "All days" : title(win.days)
@@ -525,10 +536,11 @@ async function renderPlan(file) {
 
   if ((plan.demand || []).length) {
     view.append(h("h2", {}, "Demand charges"), h("div", { class: "card table-wrap" }, h("table", {},
-      h("thead", {}, h("tr", {}, h("th", {}, "Charge"), h("th", {}, "Rate"), h("th", {}, "When"))),
+      h("thead", {}, h("tr", {}, h("th", {}, "Charge"), h("th", {}, "Rate"), h("th", {}, "When"), h("th", {}, "Measured"))),
       h("tbody", {}, plan.demand.map((d) => h("tr", {},
         h("td", {}, d.name), h("td", {}, `${dollars(d.rate)} ${d.unit === "per_kw_per_month" ? "per kW per month" : "per kW per day"}`),
-        h("td", {}, d.windows.map((w) => h("div", {}, windowText(w, plan.seasons))))))))));
+        h("td", {}, d.windows.map((w) => h("div", {}, windowText(w, plan.seasons)))),
+        h("td", {}, measureText(d.measure))))))));
   }
   if (plan.notes) view.append(h("div", { class: "card", style: "margin-top:16px" }, h("strong", {}, "Notes: "), plan.notes));
 

@@ -355,3 +355,12 @@ def test_wanted_plans_not_on_eme_are_listed(eme, library):
 def test_the_wanted_list_names_known_distributors():
     known = {d for _, d, _ in imp.DISTRIBUTORS}
     assert all(e["dnsp"] in known for e in imp.load_wanted())
+
+
+def test_summary_fits_a_pull_request():
+    report = imp.Report()
+    report.skipped = [f"Retailer {i} Plan {i} (ABC{i}MRE1): a reason long enough to take some room" for i in range(3000)]
+    full = report.summary(["Ausgrid"], "residential", "tou")
+    short = report.summary(["Ausgrid"], "residential", "tou", max_chars=imp.PR_BODY_MAX)
+    assert len(full) > imp.PR_BODY_MAX >= len(short)
+    assert "Not converted (3000)" in short and "more (the run's summary has the full list)" in short

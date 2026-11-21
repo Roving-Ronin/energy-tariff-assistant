@@ -67,8 +67,9 @@ jobs:
             [ -n "$name" ] && args+=(--dnsp "$name")
           done
           python scripts/import_eme_plans.py "${args[@]}" --customer "$CUSTOMER" --pricing "$PRICING" \
-            --per-retailer "${PER_RETAILER:-3}" --summary "$RUNNER_TEMP/summary.md"
-          cat "$RUNNER_TEMP/summary.md" >> "$GITHUB_STEP_SUMMARY"
+            --per-retailer "${PER_RETAILER:-3}" --summary "$RUNNER_TEMP/summary.md" \
+            --summary-full "$RUNNER_TEMP/summary-full.md"
+          cat "$RUNNER_TEMP/summary-full.md" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Validate and rebuild the index
         run: |
