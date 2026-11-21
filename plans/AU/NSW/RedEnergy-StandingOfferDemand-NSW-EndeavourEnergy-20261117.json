@@ -1,0 +1,188 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Red Energy",
+  "plan": "Standing Offer (Demand)",
+  "plan_id": "RED331546SRE17",
+  "customer_type": "residential",
+  "effective_from": "2026-11-17",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "apr_oct": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "nov_mar": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.562,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.33418,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "13:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.33418,
+        "windows": [
+          {
+            "days": "all",
+            "start": "22:00",
+            "end": "07:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.33418,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "tiers": [
+          {
+            "up_to_kwh": 8.0,
+            "rate": 0.025
+          },
+          {
+            "rate": 0.005
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00"
+          }
+        ]
+      },
+      {
+        "id": "solar_export_tariff_n61_16_00_20_00_nov_mar",
+        "name": "Solar Export Tariff (N61) 16:00-20:00 nov_mar",
+        "rate": 0.154,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "nov_mar"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.025,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "14:00",
+            "end": "16:00"
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "24:00"
+          },
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "10:00"
+          },
+          {
+            "days": "weekends",
+            "start": "14:00",
+            "end": "24:00"
+          }
+        ]
+      },
+      {
+        "id": "solar_export_tariff_n61_16_00_20_00_apr_oct",
+        "name": "Solar Export Tariff (N61) 16:00-20:00 apr_oct",
+        "rate": 0.063,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "apr_oct"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "solar_feed_in_tariffs_fit",
+        "name": "Solar feed-in tariffs (FIT)",
+        "rate": 0.025,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.13882,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.206437,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan RED331546SRE17@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION."
+}

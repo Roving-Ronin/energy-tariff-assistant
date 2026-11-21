@@ -1,0 +1,87 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Nectr",
+  "plan": "Battery Evening Export TOU - November 2026",
+  "plan_id": "NTR1042702MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-11-09",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.037054,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.386888,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.224724,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-peak",
+        "rate": 0.308075,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "evening_fit",
+        "name": "Evening FiT",
+        "rate": 0.14,
+        "windows": [
+          {
+            "days": "all",
+            "start": "18:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "off-peak",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan NTR1042702MRE2@EME; charges include GST (CDR ex GST x1.1). Discount: Refer a Friend (conditional, fixedAmount 150.00). Fees: DISCONNECTION, RECONNECTION, OTHER."
+}

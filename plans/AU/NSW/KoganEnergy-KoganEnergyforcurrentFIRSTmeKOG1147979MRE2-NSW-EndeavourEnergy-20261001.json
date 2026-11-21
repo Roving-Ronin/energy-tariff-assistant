@@ -1,0 +1,144 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Kogan Energy",
+  "plan": "Kogan Energy for current FIRST members",
+  "plan_id": "KOG1147979MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "summer": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "winter": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.054206,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_nov_mar",
+        "name": "Peak (Nov-Mar)",
+        "rate": 0.445112,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "summer"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.118011,
+        "windows": [
+          {
+            "days": "all",
+            "end": "14:00",
+            "start": "10:00"
+          }
+        ]
+      },
+      {
+        "id": "peak_apr_oct",
+        "name": "Peak (Apr-Oct)",
+        "rate": 0.450522,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "winter"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.341114,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "voluntary_fit",
+        "name": "Voluntary FIT",
+        "rate": 0.01,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "single_rate_controlled_load",
+      "name": "Single Rate Controlled Load",
+      "supply_charge": {
+        "rate": 0.138928,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Single Rate Controlled Load",
+          "rate": 0.174071,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "single_rate_controlled_load_2",
+      "name": "Single Rate Controlled Load",
+      "supply_charge": {
+        "rate": 0.138928,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Single Rate Controlled Load",
+          "rate": 0.186232,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan KOG1147979MRE2@EME; charges include GST (CDR ex GST x1.1). Incentive: $100 (incl.GST) Sign-up Credit. Fees: OTHER, DISCONNECTION, DISCONNECTION, CONNECTION, CONNECTION, OTHER, OTHER."
+}

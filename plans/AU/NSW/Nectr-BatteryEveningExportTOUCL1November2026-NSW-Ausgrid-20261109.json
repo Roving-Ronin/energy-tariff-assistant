@@ -1,0 +1,134 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Nectr",
+  "plan": "Battery Evening Export TOU + CL 1 - November 2026",
+  "plan_id": "NTR1042700MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-11-09",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "nov_mar": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "apr_may": [
+      4,
+      5
+    ],
+    "jun_aug": [
+      6,
+      7,
+      8
+    ],
+    "sep_oct": [
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 0.998646,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.54649,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "jun_aug",
+              "nov_mar"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_2",
+        "name": "peak",
+        "rate": 0.232013,
+        "windows": [
+          {
+            "days": "all",
+            "start": "09:00",
+            "end": "15:00",
+            "seasons": [
+              "apr_may",
+              "sep_oct"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-peak",
+        "rate": 0.232013,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "evening_fit",
+        "name": "Evening FiT",
+        "rate": 0.14,
+        "windows": [
+          {
+            "days": "all",
+            "start": "18:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "off-peak",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.017185,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.204324,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan NTR1042700MRE2@EME; charges include GST (CDR ex GST x1.1). Discount: Refer a Friend (conditional, fixedAmount 150.00). Fees: DISCONNECTION, RECONNECTION, OTHER."
+}

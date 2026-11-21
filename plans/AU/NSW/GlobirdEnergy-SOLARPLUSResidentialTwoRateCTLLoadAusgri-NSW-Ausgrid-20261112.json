@@ -1,0 +1,89 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Globird Energy",
+  "plan": "SOLARPLUS Residential (Two Rate CTL Load)-Ausgrid",
+  "plan_id": "GLO1218571MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-11-12",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.331,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_usage",
+        "name": "Peak Usage",
+        "rate": 0.4565,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak_usage",
+        "name": "Off Peak Usage",
+        "rate": 0.2816,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "single_stepped_rate_solar_fit",
+        "name": "Single Stepped Rate Solar FiT",
+        "tiers": [
+          {
+            "up_to_kwh": 8.0,
+            "rate": 0.1
+          },
+          {
+            "rate": 0.03
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load",
+      "name": "Controlled Load",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load",
+          "rate": 0.264,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan GLO1218571MRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Single Stepped Rate Solar FiT': the data gives its 8 kWh limit per P1Y, but its text says per day: per day was used. Discount: $100 Online Signup Bonus (conditional, fixedAmount 100.00). Discount: Direct Debit Discount (conditional, percentOfBill 0.01). Discount: Pay-on-time Discount (conditional, percentOfBill 0.02). Incentive: Generous solar feed-in. Fees: CONNECTION, DISCONNECT_MOVE_OUT."
+}

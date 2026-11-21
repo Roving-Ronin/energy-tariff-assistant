@@ -1,0 +1,121 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "OVO Energy",
+  "plan": "The One Plan",
+  "plan_id": "OVO704484MRE25",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "nov_mar": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "apr_may": [
+      4,
+      5
+    ],
+    "jun_aug": [
+      6,
+      7,
+      8
+    ],
+    "sep_oct": [
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.44727,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_jun_aug_nov_mar",
+        "name": "Peak (Jun-Aug, Nov-Mar)",
+        "rate": 0.5357,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "jun_aug",
+              "nov_mar"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "peak_apr_may_sep_oct",
+        "name": "Peak (Apr-May, Sep-Oct)",
+        "rate": 0.21384,
+        "windows": [
+          {
+            "days": "weekends",
+            "all_day": true,
+            "seasons": [
+              "apr_may",
+              "sep_oct"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.21384,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "fit",
+        "name": "FiT",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.19305,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan OVO704484MRE25@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION, OTHER."
+}

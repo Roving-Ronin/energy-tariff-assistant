@@ -1,0 +1,97 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Sumo",
+  "plan": "Sumo Winter Saver Plus",
+  "plan_id": "SUM1202035MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-11-19",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.61216,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.33715,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "17:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.31845,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "17:00"
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.29029,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "sumo_zero_feed_in_single_rate_feed_in_tariff",
+        "name": "Sumo Zero Feed-In: Single Rate Feed In Tariff",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "general_controlled_load_1_usage",
+      "name": "General Controlled Load 1 Usage",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "General Controlled Load 1 Usage",
+          "rate": 0.16621,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan SUM1202035MRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in rates are listed for 2026-04-01 to 2026-12-31 only; used all year. Discount: $120 (incl.GST) sign-up credit (conditional, fixedAmount 120.00). Incentive: $120 (incl.GST) sign-up credit. Fees: CONNECTION."
+}

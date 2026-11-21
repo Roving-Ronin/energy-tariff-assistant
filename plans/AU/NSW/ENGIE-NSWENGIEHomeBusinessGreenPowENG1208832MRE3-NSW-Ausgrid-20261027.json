@@ -1,0 +1,148 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "ENGIE",
+  "plan": "NSW ENGIE -Home Business GreenPower Elec",
+  "plan_id": "ENG1208832MRE3",
+  "customer_type": "residential",
+  "effective_from": "2026-10-27",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "nov_mar": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "apr_may": [
+      4,
+      5
+    ],
+    "jun_aug": [
+      6,
+      7,
+      8
+    ],
+    "sep_oct": [
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.66221,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "summer_peak",
+        "name": "Summer Peak",
+        "rate": 0.32967,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "nov_mar"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "non_summer_non_winter_off_peak",
+        "name": "Non-Summer Non-Winter Off Peak",
+        "rate": 0.32967,
+        "windows": [
+          {
+            "days": "weekdays",
+            "all_day": true,
+            "seasons": [
+              "apr_may",
+              "sep_oct"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "non_summer_non_winter_shoulder",
+        "name": "Non-Summer Non-Winter Shoulder",
+        "rate": 0.32967,
+        "windows": [
+          {
+            "days": "weekends",
+            "all_day": true,
+            "seasons": [
+              "apr_may",
+              "sep_oct"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "winter_peak",
+        "name": "Winter Peak",
+        "rate": 0.32967,
+        "windows": [
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "21:00",
+            "seasons": [
+              "jun_aug"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "winter_off_peak",
+        "name": "Winter Off Peak",
+        "rate": 0.32967,
+        "windows": [
+          {
+            "days": "all",
+            "start": "21:00",
+            "end": "15:00",
+            "seasons": [
+              "jun_aug"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "summer_off_peak",
+        "name": "Summer Off Peak",
+        "rate": 0.32967,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "single_rate_solar_fit",
+        "name": "Single Rate Solar FiT",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ENG1208832MRE3@EME; charges include GST (CDR ex GST x1.1). Discount: 11% Guaranteed Discount (guaranteed, percentOfBill 0.11). Incentive: ENGIE 100% GreenPower. Incentive: Once Off Join and Stay - $220. Fees: DISCONNECTION, LATE_PAYMENT. The plan gives its times in AEST all year (an hour later on the clock in summer), but Ausgrid's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+}

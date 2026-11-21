@@ -1,0 +1,80 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Indigo Power",
+  "plan": "Indigo Power Retail - Community Energy Hub plan Endeavo",
+  "plan_id": "IPR1205550MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-09",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.1428,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.2035,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00"
+          }
+        ]
+      },
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.2739,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "solar_feed_in_tariff_flat_single_rate_feed_in_tariff",
+        "name": "Solar Feed-in Tariff Flat: Single Rate Feed In Tariff",
+        "rate": 0.007,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.1738,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan IPR1205550MRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DD_DISHONOUR, DISCONNECT_MOVE_OUT, RECONNECTION. The plan gives its times in AEST all year (an hour later on the clock in summer), but Endeavour Energy's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+}

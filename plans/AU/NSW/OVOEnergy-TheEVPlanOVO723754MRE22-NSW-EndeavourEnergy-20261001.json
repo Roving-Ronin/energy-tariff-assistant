@@ -1,0 +1,104 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "OVO Energy",
+  "plan": "The EV Plan",
+  "plan_id": "OVO723754MRE22",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.08978,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.48895,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder_1",
+        "name": "Shoulder 1",
+        "rate": 0.12958,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "14:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder_2",
+        "name": "Shoulder 2",
+        "rate": 0.045,
+        "windows": [
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "06:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.37466,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "fit",
+        "name": "FiT",
+        "rate": 0.01,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.2167,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan OVO723754MRE22@EME; charges include GST (CDR ex GST x1.1). Incentive: EV Off-Peak. Fees: CONNECTION, DISCONNECTION, OTHER."
+}

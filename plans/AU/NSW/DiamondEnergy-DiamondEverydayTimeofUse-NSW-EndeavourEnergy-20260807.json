@@ -1,0 +1,111 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Diamond Energy",
+  "plan": "Diamond Everyday - Time of Use",
+  "plan_id": "DIA1123083MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-08-07",
+  "effective_to": "2027-07-01",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "nov_mar": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "apr_oct": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.817746,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_nov_mar",
+        "name": "Peak (Nov-Mar)",
+        "rate": 0.465719,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "nov_mar"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.117986,
+        "windows": [
+          {
+            "days": "all",
+            "end": "14:00",
+            "start": "10:00"
+          }
+        ]
+      },
+      {
+        "id": "peak_apr_oct",
+        "name": "Peak (Apr-Oct)",
+        "rate": 0.469571,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "apr_oct"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-Peak",
+        "rate": 0.34817,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "diamond_feed_in_credit",
+        "name": "Diamond Feed in Credit",
+        "rate": 0.031,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan DIA1123083MRE2@EME; charges include GST (CDR ex GST x1.1). Fees: CONNECTION, DISCONNECTION."
+}

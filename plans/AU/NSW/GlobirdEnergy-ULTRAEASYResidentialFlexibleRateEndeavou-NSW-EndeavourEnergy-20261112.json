@@ -1,0 +1,80 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Globird Energy",
+  "plan": "ULTRAEASY Residential (Flexible Rate)-Endeavour",
+  "plan_id": "GLO1218589MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-11-12",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.265,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak_usage",
+        "name": "Peak Usage",
+        "rate": 0.341,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "13:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder_usage",
+        "name": "Shoulder Usage",
+        "rate": 0.2541,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "13:00"
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak_usage",
+        "name": "Off Peak Usage",
+        "rate": 0.2541,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "single_rate_solar_fit",
+        "name": "Single Rate Solar FiT",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan GLO1218589MRE1@EME; charges include GST (CDR ex GST x1.1). Discount: $100 Online Signup Bonus (conditional, fixedAmount 100.00). Discount: Direct Debit Discount (conditional, percentOfBill 0.01). Discount: Pay-on-time Discount (conditional, percentOfBill 0.02). Fees: CONNECTION, DISCONNECT_MOVE_OUT."
+}

@@ -1,0 +1,144 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Sumo",
+  "plan": "Sumo Winter Saver Plus",
+  "plan_id": "SUM1202033MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-11-19",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "low_season_peak": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "high_season_peak": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.1517,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "low_season_peak",
+        "name": "Low season peak",
+        "rate": 0.33682,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "low_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "solar_soak",
+        "name": "Solar soak",
+        "rate": 0.28611,
+        "windows": [
+          {
+            "days": "all",
+            "end": "14:00",
+            "start": "10:00"
+          }
+        ]
+      },
+      {
+        "id": "high_season_peak",
+        "name": "High season peak",
+        "rate": 0.33682,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "high_season_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off peak",
+        "rate": 0.26873,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "sumo_zero_feed_in_single_rate_feed_in_tariff",
+        "name": "Sumo Zero Feed-In: Single Rate Feed In Tariff",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "general_controlled_load_1_usage",
+      "name": "General Controlled Load 1 Usage",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "General Controlled Load 1 Usage",
+          "rate": 0.17721,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "general_controlled_load_2_usage",
+      "name": "General Controlled Load 2 Usage",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "General Controlled Load 2 Usage",
+          "rate": 0.17721,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan SUM1202033MRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in rates are listed for 2026-04-01 to 2026-12-31 only; used all year. Discount: $120 (incl.GST) sign-up credit (conditional, fixedAmount 120.00). Incentive: $120 (incl.GST) sign-up credit. Fees: CONNECTION."
+}
