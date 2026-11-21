@@ -383,3 +383,27 @@ def test_feed_in_options_are_a_file_each_and_the_earlier_file_becomes_option_a(e
     # A second run finds both unchanged
     report = run(eme, today=date(2026, 11, 28))
     assert len(report.already) == 2 and not (report.written or report.updated or report.new_versions)
+
+
+def test_library_plans_are_checked_whatever_the_limit(eme, library):
+    # Regression: after feed-in options, library plans weren't recognised when choosing what to fetch, so a
+    # library plan past the per-retailer limit was never re-converted (Red Energy's bundled demand plan)
+    offer(eme, "COV8000001MRE1@EME", name="Old Plan")
+    run(eme, per_retailer=1)
+    offer(eme, "COV8000002MRE1@EME", name="Newer Plan")
+    eme.plans[-1]["lastUpdated"] = "2026-10-01"  # newest first: this one fills the limit
+    set_peak(offer(eme, "COV8000001MRE1@EME", name="Old Plan"), 0.5)
+    report = run(eme, per_retailer=1)
+    assert any("COV8000001MRE1" in line for line in report.updated)
+    assert "COV8000001MRE1@EME" in eme.fetched
+
+
+def test_a_second_plan_with_the_same_name_keeps_its_feed_in_option_in_the_file_name(eme, library):
+    from test_importer_cdr import RED_OPTIONS
+
+    for plan_id in ("COV9000001MRE1@EME", "COV9000002MRE1@EME"):
+        detail = offer(eme, plan_id, name="Saver Demand")
+        detail["data"]["electricityContract"]["solarFeedInTariff"] = copy.deepcopy(RED_OPTIONS)
+    run(eme, per_retailer=0)
+    names = sorted(plans_in(library))
+    assert len(names) == 4 and sum(n.split("-")[1].endswith("FITOptionB") for n in names) == 2, names

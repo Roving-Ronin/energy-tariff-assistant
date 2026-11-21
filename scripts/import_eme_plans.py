@@ -278,7 +278,10 @@ def target_path(plan: dict[str, Any], taken: set[Path]) -> Path:
         plan_slug = slug(re.sub(r"\(\s*FIT Option \w+\s*\)", "", plan["plan"]))[:SLUG_LENGTH - len(suffix)] + suffix
     path = PLANS_DIR / plan_relpath(plan, plan_slug)
     if path.exists() or path in taken:
-        path = PLANS_DIR / plan_relpath(plan, (plan_slug[:SLUG_LENGTH - 12] + slug(plan["plan_id"]))[:SLUG_LENGTH + 12])
+        # Another plan has the name: add the plan ID, keeping any feed-in option at the end
+        suffix = f"FITOption{slug(plan.get('feed_in_option'))}" if plan.get("feed_in_option") else ""
+        base = plan_slug[:len(plan_slug) - len(suffix)] if suffix else plan_slug
+        path = PLANS_DIR / plan_relpath(plan, base[:SLUG_LENGTH - 12] + slug(plan["plan_id"]) + suffix)
     return path
 
 
@@ -300,6 +303,7 @@ def run(
     # A plan with a choice of feed-in is one library plan per option: plan ID + DNSP + option
     by_id = {(base_id(lp.plan["plan_id"]), lp.plan["dnsp"], lp.plan.get("feed_in_option")): lp for lp in library}
     by_family = {(family(lp.plan["plan_id"]), lp.plan["dnsp"], lp.plan.get("feed_in_option")): lp for lp in library}
+    in_library = {(family(lp.plan["plan_id"]), lp.plan["dnsp"]) for lp in library}  # whatever the option
     allowed = PRICING[pricing]
     listed: set[tuple[str, str]] = set()  # (family, DNSP) of everything on the list, converted or not
     incoming: list[dict[str, Any]] = []
@@ -318,19 +322,19 @@ def run(
         counts: dict[str, int] = {}
         for summary in summaries:
             for d in wanted(summary, wanted_dnsps, customer):
-                if (family(summary.get("planId", "")), d) in by_family:
+                if (family(summary.get("planId", "")), d) in in_library:
                     counts[d] = counts.get(d, 0) + 1
         for summary in summaries:
             plan_id = summary.get("planId", "")
             on = wanted(summary, wanted_dnsps, customer)
             listed.update((family(plan_id), d) for d in on)
-            known = [d for d in on if (family(plan_id), d) in by_family]
+            known = [d for d in on if (family(plan_id), d) in in_library]
             picks = {d: wanted_match(summary, d, wanted_plans) for d in on}
             picks = {d: i for d, i in picks.items() if i is not None}
             for d, i in picks.items():
-                if (family(plan_id), d) in by_family:
+                if (family(plan_id), d) in in_library:
                     wanted_found[(i, d)] = wanted_found.get((i, d), 0) + 1
-            asked = {d for d, i in picks.items() if (family(plan_id), d) not in by_family
+            asked = {d for d, i in picks.items() if (family(plan_id), d) not in in_library
                      and (not per_retailer or wanted_found.get((i, d), 0) < WANTED_PER_ENTRY)}
             new = [d for d in on if d not in known and (
                 d in asked or not per_retailer or counts.get(d, 0) < per_retailer)]
