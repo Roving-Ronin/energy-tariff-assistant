@@ -559,3 +559,22 @@ def test_one_plan_per_network_when_it_has_several_names(solarmax_cdr):
 def test_retailer_name_is_trimmed(solarmax_cdr):
     solarmax_cdr["data"]["brandName"] = "GEE Energy "
     assert convert(solarmax_cdr, TODAY).plans[0]["retailer"] == "GEE Energy"
+
+
+def test_seasonal_prices_are_named_by_season_not_price(solarmax_cdr):
+    # Endeavour high/low season peak: same name, different price. Ids must survive next year's prices.
+    contract = solarmax_cdr["data"]["electricityContract"]
+    supply = {k: v for k, v in contract["tariffPeriod"][0].items() if k in ("dailySupplyCharge", "dailySupplyChargeType")}
+    contract["tariffPeriod"] = [
+        {**season("11-01", "03-31", tou("Peak", 0.465719, ("16:00", "19:59")),
+                  tou("Off Peak", 0.356907, ("20:00", "15:59"), kind="OFF_PEAK")), **supply,
+         "displayName": "Season 1 (1 Nov to 31 Mar)"},
+        {**season("04-01", "10-31", tou("Peak", 0.471379, ("16:00", "19:59")),
+                  tou("Off Peak", 0.356907, ("20:00", "15:59"), kind="OFF_PEAK")), **supply,
+         "displayName": "Season 2 (1 Apr to 31 Oct)"},
+    ]
+    plan = convert(solarmax_cdr, TODAY).plans[0]
+    assert validate_plan(plan).ok, validate_plan(plan).errors
+    assert plan["seasons"] == {"nov_mar": [11, 12, 1, 2, 3], "apr_oct": [4, 5, 6, 7, 8, 9, 10]}
+    ids = {p["id"]: p["name"] for p in plan["import"]["periods"]}
+    assert ids == {"peak_nov_mar": "Peak (Nov-Mar)", "peak_apr_oct": "Peak (Apr-Oct)", "off_peak": "Off Peak"}
