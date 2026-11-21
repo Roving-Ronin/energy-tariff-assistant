@@ -39,6 +39,10 @@ PRICING = {
     "all": ("TIME_OF_USE", "TIME_OF_USE_CONT_LOAD", "SINGLE_RATE", "SINGLE_RATE_CONT_LOAD"),
 }
 SLUG_LENGTH = 40
+# Plans whose prices follow the wholesale market: EME shows the retailer's estimate (GloBird WHOLESAVE
+# "estimate", Flow Power "Variable Prices (estimate)"), so as fixed rates they'd price meters wrongly.
+# They wait for a live price source (CLAUDE-TODO: wholesale-priced retailers).
+WHOLESALE = re.compile(r"\bestimated?\b|\bwholesale\b|\bspot prices?\b|\bvariable prices\b", re.IGNORECASE)
 
 
 def base_id(plan_id: str) -> str:
@@ -256,6 +260,12 @@ def run(
             contract = (detail.get("data") or {}).get("electricityContract") or {}
             if (contract.get("pricingModel") or "").upper() not in allowed:
                 report.other_pricing += 1
+                continue
+            data = detail.get("data") or {}
+            if WHOLESALE.search(f"{data.get('displayName') or ''} {data.get('description') or ''}"):
+                report.skipped.append(f"{plan_id}: {data.get('displayName')!r} follows wholesale prices (EME shows "
+                                      "an estimate): not a fixed-rate plan")
+                listed.update((family(plan_id), d) for d in on)
                 continue
             try:
                 conversion = convert(detail, today)
