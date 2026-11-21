@@ -11,6 +11,10 @@ on:
         description: "Plans to try per retailer path"
         required: false
         default: "3"
+      demand_plans:
+        description: "Demand charges only: plan IDs to include, space-separated (plus demand plans from each path)"
+        required: false
+        default: ""
 
 permissions: {}
 
@@ -29,12 +33,24 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Demand charges in Energy Made Easy plans
+        if: ${{ inputs.demand_plans != '' }}
+        env:
+          PER_PATH: ${{ inputs.per_path }}
+          PLANS: ${{ inputs.demand_plans }}
+        run: |
+          args=()
+          for plan in $PLANS; do args+=(--plan "$plan"); done
+          python scripts/check_demand_charges.py --out cdr-check/demand --per-path "${PER_PATH:-3}" "${args[@]}"
+
       - name: Convert sample plans from Energy Made Easy
+        if: ${{ inputs.demand_plans == '' }}
         env:
           PER_PATH: ${{ inputs.per_path }}
         run: python scripts/check_cdr_conversion.py --out cdr-check --per-path "${PER_PATH:-3}"
 
       - name: How plans are versioned
+        if: ${{ inputs.demand_plans == '' }}
         run: python scripts/check_plan_versions.py
 
       - name: Upload the report and samples

@@ -83,7 +83,21 @@ class Report:
     other_pricing: int = 0
     wanted_missing: list[str] = field(default_factory=list)  # wanted_plans.json entries not found on EME
 
-    def summary(self, dnsps: list[str], customer: str, pricing: str) -> str:
+    def summary(self, dnsps: list[str], customer: str, pricing: str, max_chars: int | None = None) -> str:
+        """The run's Markdown summary; with `max_chars`, lists are cut short to fit (a PR body takes 65,536)."""
+        text = self._summary(dnsps, customer, pricing, None)
+        cap = 200
+        while max_chars is not None and len(text) > max_chars and cap >= 1:
+            text = self._summary(dnsps, customer, pricing, cap)
+            cap //= 2
+        return text
+
+    def _summary(self, dnsps: list[str], customer: str, pricing: str, cap: int | None) -> str:
+        def first(items: list[Any]) -> tuple[list[Any], list[str]]:
+            if cap is None or len(items) <= cap:
+                return items, []
+            return items[:cap], [f"- … and {len(items) - cap} more (the run's summary has the full list)"]
+
         lines = [
             f"Imported from Energy Made Easy for **{', '.join(dnsps)}** ({customer}, {pricing} pricing).",
             "",
@@ -104,8 +118,10 @@ class Report:
             lines.append(f"- {len(self.wanted_missing)} wanted plans (`scripts/wanted_plans.json`) not found")
         if self.written:
             lines += ["", "| Retailer | Plan | Distributor | From | Plan ID |", "|---|---|---|---|---|"]
-            for p in sorted(self.written, key=lambda p: (p["dnsp"], p["retailer"], p["plan"])):
+            shown, more = first(sorted(self.written, key=lambda p: (p["dnsp"], p["retailer"], p["plan"])))
+            for p in shown:
                 lines.append(f"| {p['retailer']} | {p['plan']} | {p['dnsp']} | {p['effective_from']} | {p['plan_id']} |")
+            lines += [""] + more if more else []
         for title, items in (
             ("New versions", self.new_versions), ("Replacements (same name, new plan ID)", self.replaced),
             ("Updated in place", self.updated), ("No longer on Energy Made Easy", self.withdrawn),
@@ -116,13 +132,15 @@ class Report:
         ):
             if items:
                 lines += ["", f"<details><summary>{title} ({len(items)})</summary>", ""]
-                lines += [f"- {item}" for item in items]
+                shown, more = first(items)
+                lines += [f"- {item}" for item in shown] + more
                 lines += ["", "</details>"]
         return "\n".join(lines) + "\n"
 
 
 # ----- the library ----------------------------------------------------------------
 
+PR_BODY_MAX = 60_000  # GitHub refuses a PR body over 65,536 characters (run #5 of a whole state failed so)
 MAX_WITHDRAWN = 5  # a run may end at most this many plans, or WITHDRAWN_SHARE of them, whichever is more
 WITHDRAWN_SHARE = 0.2
 PRICING_KEYS = ("timezone", "holidays", "seasons", "supply_charge", "import", "export", "demand", "controlled_load")
@@ -449,7 +467,8 @@ def main() -> int:
     parser.add_argument("--pricing", choices=tuple(PRICING), default="tou")
     parser.add_argument("--per-retailer", type=int, default=3,
                         help="newest plans per retailer per distributor (0: all)")
-    parser.add_argument("--summary", type=Path, help="write a Markdown summary here")
+    parser.add_argument("--summary", type=Path, help="write a Markdown summary here, short enough for a PR")
+    parser.add_argument("--summary-full", type=Path, help="write the whole summary here (lists not cut)")
     parser.add_argument("--dry-run", action="store_true", help="convert and report, write no plan files")
     args = parser.parse_args()
 
@@ -463,7 +482,10 @@ def main() -> int:
     text = report.summary(args.dnsp, args.customer, args.pricing)
     print(text)
     if args.summary:
-        args.summary.write_text(text, encoding="utf-8")
+        args.summary.write_text(report.summary(args.dnsp, args.customer, args.pricing, max_chars=PR_BODY_MAX),
+                                encoding="utf-8")
+    if args.summary_full:
+        args.summary_full.write_text(text, encoding="utf-8")
     return 0
 
 

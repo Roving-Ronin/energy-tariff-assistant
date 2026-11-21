@@ -349,7 +349,7 @@ def test_gas_and_garbage():
         convert({"something": "else"}, TODAY)
 
 
-def test_demand_and_tou_controlled_load_noted(solarmax_cdr):
+def test_tou_controlled_load_noted(solarmax_cdr):
     contract = solarmax_cdr["data"]["electricityContract"]
     contract["tariffPeriod"].append({"displayName": "Demand", "startDate": "01-01", "endDate": "12-31",
                                      "rateBlockUType": "demandCharges", "demandCharges": []})
@@ -363,7 +363,7 @@ def test_demand_and_tou_controlled_load_noted(solarmax_cdr):
     assert validate_plan(plan).ok, validate_plan(plan).errors
     assert [c["id"] for c in plan["controlled_load"]] == ["cl1"]
     assert plan["controlled_load"][0]["periods"][0]["rate"] == pytest.approx(0.2)
-    assert "Demand charges left out" in plan["notes"] and "CL2" in plan["notes"]
+    assert plan["demand"] == [] and "CL2" in plan["notes"]
 
 
 # ----- feed-in split over several entries (as Energy Made Easy data does) ---------------------------------------
@@ -610,3 +610,138 @@ def test_one_feed_in_period_is_called_feed_in():
 def test_source_links_the_plan_page():
     assert cdr_module.plan_page("ALI1151050MRE4@EME") == "https://www.energymadeeasy.gov.au/plan?id=ALI1151050MRE4"
     assert cdr_module.plan_page("ABC123@VEC") == "https://www.energymadeeasy.gov.au/"
+
+
+# ----- demand charges (hand-written in the shapes Energy Made Easy data takes) ----------------------------------
+
+
+def demand(amount, name="Demand", *, start="00:00", end="00:00", days=None, text="", **extra):
+    charge = {"displayName": name, "description": text, "amount": amount, "startTime": start, "endTime": end,
+              "measureUnit": "KWH", "chargePeriod": "DAY", "measurementPeriod": "DAY", "minDemand": "0.00", **extra}
+    if days:
+        charge["days"] = days
+    return charge
+
+
+def demand_period(start, end, *charges, name="Demand"):
+    return {"displayName": name, "startDate": start, "endDate": end, "rateBlockUType": "demandCharges",
+            "demandCharges": list(charges)}
+
+
+WEEKDAYS = ALL[:5]
+
+
+def with_demand(detail, *charges):
+    detail["data"]["electricityContract"]["tariffPeriod"][0]["demandCharges"] = list(charges)
+    return convert(detail, TODAY)
+
+
+def test_demand_window_read_from_the_description(solarmax_cdr):
+    # Red Energy's shape: times 00:00-00:00, the window only in the text, "per kVA"
+    result = with_demand(solarmax_cdr, demand(
+        ex(0.19613), "Residential Demand (CENT/kVA/DAY)",
+        text="Based on the highest interval reading between 5pm and 8pm Mon to Fri. Per kVA, per day."))
+    (plan,) = result.plans
+    assert validate_plan(plan).ok, validate_plan(plan).errors
+    assert plan["demand"] == [{
+        "id": "residential_demand", "name": "Residential Demand", "rate": pytest.approx(0.19613),
+        "unit": "per_kw_per_day", "windows": [{"days": "weekdays", "start": "17:00", "end": "20:00"}],
+        "measure": {"interval_minutes": 30, "method": "max", "over": "month"},
+    }]
+    notes = plan["notes"]
+    assert "times read from its description" in notes and "per kVA; counted as kW" in notes
+    assert "measured over a month (not stated" in notes
+    loaded = load_plan(plan)
+    assert loaded.demand[0].measure.over == "month" and loaded.demand[0].windows[0].start == 17 * 60
+
+
+@pytest.mark.parametrize(("text", "over"), [
+    ("Highest half hour between 5pm and 8pm in a calendar month (or part thereof) in a billing period.", "month"),
+    ("Highest reading between 5pm and 8pm on any day within your bill period.", "bill"),
+    ("Maximum half hourly kW over the 12 months before the bill, 2pm to 8pm working weekdays.",
+     "rolling_12_months"),
+])
+def test_demand_measured_over_what_the_text_says(solarmax_cdr, text, over):
+    result = with_demand(solarmax_cdr, demand(ex(0.25), text=text))
+    assert result.plans, result.skipped
+    plan = result.plans[0]
+    assert plan["demand"][0]["measure"]["over"] == over
+    assert "measured over a month (not stated" not in plan["notes"]
+
+
+def test_demand_structured_window_and_minimum(solarmax_cdr):
+    plan = with_demand(solarmax_cdr, demand(ex(0.3), "Peak Demand", start="16:00", end="20:59", days=WEEKDAYS,
+                                            minDemand="1.50", measurementPeriod="MONTH",
+                                            text="Measured between 4:00 pm and 8:59 pm.")).plans[0]
+    (charge,) = plan["demand"]
+    assert charge["windows"] == [{"days": "weekdays", "start": "16:00", "end": "21:00"}]
+    assert charge["measure"] == {"interval_minutes": 30, "method": "max", "over": "month", "minimum_kw": 1.5}
+    assert "Peak Demand" not in plan["notes"]
+
+
+def test_demand_seasons_from_the_charge_names(solarmax_cdr):
+    # Alinta's shape: two charges beside an all-year usage rate, months only in the text
+    plan = with_demand(
+        solarmax_cdr,
+        demand(ex(0.5), "Demand Summer (c/kW/day)", start="16:00", end="20:59", days=WEEKDAYS,
+               text="November to March, Mon-Fri"),
+        demand(ex(0.25), "Demand Non-Summer (c/kW/day)", start="16:00", end="20:59", days=WEEKDAYS,
+               text="April to October, Mon-Fri"),
+    ).plans[0]
+    assert validate_plan(plan).ok, validate_plan(plan).errors
+    assert plan["seasons"] == {"nov_mar": [11, 12, 1, 2, 3], "apr_oct": [4, 5, 6, 7, 8, 9, 10]}
+    assert [(c["id"], c["windows"][0]["seasons"]) for c in plan["demand"]] == [
+        ("demand_summer", ["nov_mar"]), ("demand_non_summer", ["apr_oct"])]
+
+
+def test_demand_periods_with_dates_named_by_season(solarmax_cdr):
+    # AusNet's shape: demandCharges tariff periods, the same name at two prices
+    contract = solarmax_cdr["data"]["electricityContract"]
+    contract["tariffPeriod"] += [
+        demand_period("12-01", "03-31", demand(ex(0.35), start="15:00", end="21:00", days=WEEKDAYS,
+                                               measurementPeriod="MONTH", text="Peak demand 3pm-9pm weekdays, Dec - Mar."),
+                      name="Summer"),
+        demand_period("04-01", "11-30", demand(ex(0.1), start="15:00", end="21:00", days=WEEKDAYS,
+                                               measurementPeriod="MONTH"), name="Non-Summer"),
+    ]
+    plan = convert(solarmax_cdr, TODAY).plans[0]
+    assert validate_plan(plan).ok, validate_plan(plan).errors
+    assert {c["id"]: c["name"] for c in plan["demand"]} == {
+        "demand_dec_mar": "Demand (Dec – Mar)", "demand_apr_nov": "Demand (Apr – Nov)"}
+
+
+def test_one_demand_charge_listed_in_every_season_is_one_charge(solarmax_cdr):
+    # United Energy's shape: four usage seasons, each listing the same rolling 12-month charge
+    text = "Maximum half hourly kW over the 12 months before the bill, 2pm to 8pm working weekdays."
+    contract = solarmax_cdr["data"]["electricityContract"]
+    base = contract["tariffPeriod"][0]
+    contract["tariffPeriod"] = []
+    for start, end, label in (("11-01", "03-31", "Summer"), ("04-01", "05-31", "Non Summer/Non Winter"),
+                              ("06-01", "08-31", "Winter"), ("09-01", "10-31", "Non Summer/Non Winter")):
+        contract["tariffPeriod"].append({**copy.deepcopy(base), "startDate": start, "endDate": end,
+                                         "displayName": label,
+                                         "demandCharges": [demand(ex(0.54), f"{label} Demand Charge", text=text)]})
+    plan = convert(solarmax_cdr, TODAY).plans[0]
+    assert validate_plan(plan).ok, validate_plan(plan).errors
+    (charge,) = plan["demand"]
+    assert charge["name"] == "Demand Charge" and charge["id"] == "demand_charge"
+    assert charge["windows"] == [{"days": "weekdays", "start": "14:00", "end": "20:00"}]
+    assert charge["measure"]["over"] == "rolling_12_months"
+
+
+@pytest.mark.parametrize(("charge", "reason"), [
+    (demand("0.00", text="between 4pm and 8pm Mon to Fri"), "priced at $0"),
+    (demand("9.24", "Capacity Charge (cents per kW pr day)"), "isn't a believable $/kW price"),
+    (demand("0.000919", start="15:00", end="21:00"), "isn't a believable $/kW price"),
+    (demand("0.62", chargePeriod="MONTH", start="10:00", end="18:00"), "looks like a daily price"),
+    (demand("0.42", "All kVA", chargePeriod="MONTH", text="160.71 per annum"), "yearly figure"),
+    (demand("0.13", text="Billable demand is the greater of this bill's demand and the network's peak."),
+     "greater of"),
+    (demand("0.35", start="15:00", end="21:00", text="between 3pm and 9pm during Summer (1 November to 31 March) "
+                                                    "and Winter (1 June to 31 August)"), "several month ranges"),
+    (demand("0.3", start="16:00", end="20:59", text="between 5pm and 8pm"), "other times than its data"),
+])
+def test_demand_charges_that_cant_be_read_skip_the_plan(solarmax_cdr, charge, reason):
+    result = with_demand(solarmax_cdr, charge)
+    assert not result.plans
+    assert reason in result.skipped[0]

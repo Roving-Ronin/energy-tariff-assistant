@@ -143,6 +143,17 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   (Sumo: Apr-Dec) is when the rates apply, used all year with a note. Same rate and times in every season → one period. A cap with nothing
   after it, or entries that don't pair up, is skipped with a reason. Covau SolarMax combined matches the library.
 - CDR window ends are inclusive (14:59, 23:59): they become 15:00, 24:00.
+- **Demand charges** (`_demand_charges`, surveyed 2026-11-21 with the CDR conversion check's `demand_plans`
+  input: 40 plans, 67 charges): they sit in `demandCharges` tariff periods **and** in `demandCharges` lists beside
+  usage rates; read both. The data is loose: times are often `00:00`-`00:00` with the window only in the description
+  (Red Energy: "between 5pm and 8pm Mon to Fri"), `measurementPeriod` says DAY where the text says "calendar month",
+  `measureUnit` says KWH. So: the data's times, else the text's, else all day (data and text disagreeing skips);
+  `over` from the text (12 months / 365 days, calendar month, bill period), else `month` with a note; seasons from
+  the tariff period's dates or the months in the name or text ("Demand Summer": "November to March"), made into plan
+  seasons when usage has none. The same charge in every season (UE) is one charge (one measure); the same name at
+  two prices is named by season. kVA counts as kW (note). Skipped with a reason: $0 (Red standing offers),
+  implausible amounts (cents: 9.24; 0.000919), MONTH under $1 (a daily price), yearly figures, "greater of" rules,
+  two month ranges, a maximum demand. Charge = peak kW x rate x days (EME's wording).
 - Never guess: anything the plan format can't express exactly (FLEXIBLE/QUOTA pricing, banded supply, seasons not on
   month boundaries, per-year steps, differing supply charges) is skipped with a reason in `Conversion.skipped`;
   parts left out of a converted plan go in its `notes`. Converted plans are `needs_review: true`.

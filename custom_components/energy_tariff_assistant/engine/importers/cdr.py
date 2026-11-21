@@ -32,7 +32,15 @@ Rules:
   reason: never guessed.
 - Feed-in: the retailer-paid tariff (PREMIUM government schemes are closed to
   new customers and left out). None: feed-in 0 with a note.
-- Demand charges and time-of-use controlled load: left out with a note for now.
+- Demand charges: read from every tariff period (`demandCharges` periods and the
+  lists beside usage rates), GST added, $/kW/day (per month only when marked so and
+  priced like it). Windows: the data's times, else the description's ("5pm and
+  8pm Mon to Fri"), else all day; measured over what the text says (12 months,
+  calendar month, bill), else a month with a note. Seasons from the tariff period
+  or the months in the text. kVA is counted as kW (note). Anything unclear ($0,
+  cents or yearly figures, "greater of" rules, two month ranges, text and data
+  disagreeing) skips the plan with the reason.
+- Time-of-use controlled load: left out with a note for now.
 - Discounts, incentives and fees are summarised in `notes`, not priced.
 
 Pure Python: no Home Assistant imports.
@@ -744,6 +752,269 @@ def _extras_note(contract: dict[str, Any]) -> list[str]:
     return out
 
 
+# ----- demand charges ------------------------------------------------------------
+# Energy Made Easy data is loose here: windows are often only in the description (times "00:00" to
+# "00:00"), measurementPeriod says DAY where the text says "calendar month", measureUnit says KWH.
+# Read what's stated; skip the plan when it can't be read for sure.
+
+_MONTH = r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*"
+_MONTH_RANGE = re.compile(
+    rf"(?:\b(\d{{1,2}})(?:st|nd|rd|th)?[\s-]*)?\b{_MONTH}\.?\s*(?:-|–|to)\s*(?:(\d{{1,2}})(?:st|nd|rd|th)?[\s-]*)?\b{_MONTH}\b",
+    re.IGNORECASE,
+)
+_TIME = r"(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)?"
+_TIME_RANGE = re.compile(rf"(?<![\d.$/]){_TIME}\s*(?:-|–|to|and)\s*{_TIME}(?!\d|\.\d)", re.IGNORECASE)
+_WEEKDAYS = re.compile(r"\bmon(?:day)?\s*(?:-|–|to)\s*fri(?:day)?\b|\bweekdays?\b", re.IGNORECASE)
+_WEEKENDS = re.compile(r"\bweekends?\b|\bsat(?:urday)?\s*(?:-|–|to|and|&)\s*sun(?:day)?\b", re.IGNORECASE)
+_ANY_TIME = re.compile(r"\bany\s*time\b", re.IGNORECASE)
+_UNIT_WORDS = re.compile(r"\s*(?:-\s*)?\(?\s*(?:\$|c\b|cents?\b|cent\b)\s*(?:/|per)\s*k(?:w|va)\b[^)]*\)?\s*$",
+                         re.IGNORECASE)
+_DATES_IN_NAME = re.compile(rf"\s*\([^)]*\b{_MONTH}\b[^)]*\)", re.IGNORECASE)
+DEMAND_OVER_TEXT = (  # first match wins
+    ("rolling_12_months", re.compile(r"\b(?:12|twelve)\s+months\b|\b365\s+days\b", re.IGNORECASE)),
+    ("month", re.compile(r"\bcalendar\s+month|\bresets?\s+monthly\b|\beach\s+month\b|\bin\s+a\s+month\b",
+                         re.IGNORECASE)),
+    ("bill", re.compile(r"\bbill(?:ing)?\s+period\b|\beach\s+relevant\s+bill\b", re.IGNORECASE)),
+)
+DEMAND_MAX_PER_DAY = 5.0  # $/kW/day inc GST; above this the figure is cents or an annual amount
+DEMAND_MIN_PER_DAY = 0.005
+DEMAND_MIN_PER_MONTH = 1.0  # less is a daily price marked MONTH (seen: 0.62 "a month" beside 0.31 a day)
+
+
+def _demand_name(charge: dict[str, Any]) -> str:
+    """'Residential Demand (CENT/kVA/DAY)' -> 'Residential Demand'; 'High Season (01-Nov ...)' -> 'High Season Demand'."""
+    name = rate_name(charge.get("displayName"), "Demand")
+    name = _DATES_IN_NAME.sub("", name)
+    name = _UNIT_WORDS.sub("", name).strip(" -–") or "Demand"
+    if not re.search(r"demand|capacity", name, re.IGNORECASE):
+        name = f"{name} Demand"
+    return name
+
+
+def _text_months(text: str) -> list[int] | None:
+    """The months of the one month range in `text` ('Nov to Mar', '1 Dec - 31 Mar'), None if there's none."""
+    ranges = set()
+    for match in _MONTH_RANGE.finditer(text):
+        sd, sm, ed, em = match.group(1), match.group(2), match.group(3), match.group(4)
+        start = MONTH_NAMES.index(sm[:3].lower()) + 1
+        end = MONTH_NAMES.index(em[:3].lower()) + 1
+        if sd and int(sd) != 1:
+            raise CdrImportError(f"a demand charge's season starts part way through a month ({match.group(0)!r})")
+        if ed and int(ed) != calendar.monthrange(2023, end)[1] and not (end == 2 and int(ed) == 29):
+            raise CdrImportError(f"a demand charge's season ends part way through a month ({match.group(0)!r})")
+        ranges.add((start, end))
+    if not ranges:
+        return None
+    if len(ranges) > 1:
+        raise CdrImportError("a demand charge names several month ranges")
+    start, end = ranges.pop()
+    return _months(f"{start:02d}-01", f"{end:02d}-{calendar.monthrange(2023, end)[1]:02d}")
+
+
+def _text_times(text: str) -> tuple[str, str] | None:
+    """('17:00', '20:00') from '5pm and 8pm', '4:00 pm to 8:59 pm', '17:00 - 20:00'; None if there's none."""
+    found = set()
+    for match in _TIME_RANGE.finditer(text):
+        h1, m1, p1, h2, m2, p2 = match.groups()
+        if not ((p1 or p2) or (m1 and m2)):
+            continue  # "1 - 31": not times
+        p1, p2 = p1 or p2, p2 or p1  # "5 - 8pm"
+        times = []
+        for hours, minutes, half in ((h1, m1, p1), (h2, m2, p2)):
+            h, m = int(hours), int(minutes or 0)
+            if half:
+                if h > 12:
+                    raise CdrImportError(f"not a time: {match.group(0)!r}")
+                h = h % 12 + (12 if half.lower() == "pm" else 0)
+            times.append(f"{h:02d}:{m:02d}")
+        found.add((_hhmm(times[0], end=False), _hhmm(times[1], end=True)))
+    if len(found) > 1:
+        raise CdrImportError("a demand charge's description gives several time ranges")
+    return found.pop() if found else None
+
+
+def _text_days(text: str) -> Any:
+    if _WEEKDAYS.search(text):
+        return "weekdays"
+    if _WEEKENDS.search(text):
+        return "weekends"
+    return "all"
+
+
+def _demand_charge(charge: dict[str, Any], months: list[int] | None, notes: list[str]) -> dict[str, Any]:
+    """One CDR demand charge -> a demand dict (with `_months`, settled into seasons later)."""
+    name = _demand_name(charge)
+    text = " ".join(str(charge.get(k) or "") for k in ("displayName", "description"))
+    if re.search(r"greater\s+of", text, re.IGNORECASE):
+        raise CdrImportError(f"demand charge {name!r}: its billable demand is the greater of several readings")
+    if re.search(r"\bper\s+(?:annum|year)\b|\ba\s+year\b", text, re.IGNORECASE):
+        raise CdrImportError(f"demand charge {name!r}: it also gives a yearly figure, so its unit is unclear")
+    if charge.get("maxDemand") not in (None, "", "0", "0.00") and float(charge["maxDemand"] or 0) > 0:
+        raise CdrImportError(f"demand charge {name!r}: a maximum demand can't be expressed")
+
+    monthly = (charge.get("chargePeriod") or "DAY").upper() == "MONTH"
+    rate = with_gst(charge.get("amount"))
+    per_day = rate / 30 if monthly else rate
+    if rate <= 0:
+        raise CdrImportError(f"demand charge {name!r} is priced at $0 (the data looks incomplete)")
+    if monthly and rate < DEMAND_MIN_PER_MONTH:
+        raise CdrImportError(f"demand charge {name!r}: {charge.get('amount')} a month looks like a daily price")
+    if not DEMAND_MIN_PER_DAY <= per_day <= DEMAND_MAX_PER_DAY:
+        raise CdrImportError(f"demand charge {name!r}: {charge.get('amount')} isn't a believable $/kW price")
+
+    stated = _text_months(text)
+    if stated and months and stated != months:
+        raise CdrImportError(f"demand charge {name!r}: its text gives other months than its tariff period")
+    months = months or stated
+
+    start, end = charge.get("startTime"), charge.get("endTime")
+    structured = bool(start and end and (_hhmm(start, end=False), _hhmm(end, end=True)) not in (
+        ("00:00", "24:00"),))
+    times = None if _ANY_TIME.search(text) else _text_times(text)
+    if charge.get("days"):
+        days, _ = _days(charge["days"])
+    else:
+        days = _text_days(text)
+    if structured:
+        window = _window(days, start, end, None)
+        if times and times != (window.get("start"), window.get("end")):
+            raise CdrImportError(f"demand charge {name!r}: its description gives other times than its data")
+    elif times:
+        window = {"days": days, "start": times[0], "end": times[1]}
+        notes.append(f"Demand charge '{name}': times read from its description.")
+    else:
+        window = {"days": days, "all_day": True}
+
+    measure: dict[str, Any] = {"interval_minutes": 30, "method": "max"}
+    over = next((value for value, pattern in DEMAND_OVER_TEXT if pattern.search(text)), None)
+    if over is None:
+        over = "month"
+        if (charge.get("measurementPeriod") or "").upper() != "MONTH":
+            notes.append(f"Demand charge '{name}': measured over a month (not stated; check the fact sheet).")
+    measure["over"] = over
+    try:
+        minimum = float(charge.get("minDemand") or 0)
+    except ValueError as err:
+        raise CdrImportError(f"demand charge {name!r}: not a minimum demand: {charge.get('minDemand')!r}") from err
+    if minimum > 0:
+        measure["minimum_kw"] = minimum
+    if re.search(r"\bkva\b", text, re.IGNORECASE):
+        notes.append(f"Demand charge '{name}' is per kVA; counted as kW (power factor 1).")
+    if re.search(r"public\s+holiday", text, re.IGNORECASE):
+        notes.append(f"Demand charge '{name}' mentions public holidays; check how they're counted.")
+    return {
+        "id": "", "name": name, "rate": rate, "unit": "per_kw_per_month" if monthly else "per_kw_per_day",
+        "windows": [window], "measure": measure, "_months": months,
+    }
+
+
+def _in_order(months: set[int]) -> list[int]:
+    """Months from the start of a run that may wrap the year: {1, 2, 3, 11, 12} -> [11, 12, 1, 2, 3]."""
+    ordered = sorted(months)
+    start = next((m for m in ordered if (m - 2) % 12 + 1 not in months), ordered[0])
+    return ordered[ordered.index(start):] + ordered[:ordered.index(start)]
+
+
+def _common_suffix(names: list[str]) -> str:
+    """'Demand Charge' for 'Summer Demand Charge' and 'Winter Demand Charge'; else 'Demand'."""
+    words = [n.split() for n in names]
+    common: list[str] = []
+    for group in zip(*(reversed(w) for w in words), strict=False):
+        if len({g.lower() for g in group}) != 1:
+            break
+        common.insert(0, group[0])
+    name = " ".join(common)
+    return name if re.search(r"demand|capacity", name, re.IGNORECASE) else "Demand"
+
+
+def _demand_charges(
+    tariffs: list[dict[str, Any]], usage: list[dict[str, Any]], usage_months: list[list[int]],
+    seasons: dict[str, list[int]], notes: list[str],
+) -> list[dict[str, Any]]:
+    """Demand charges from every tariff period (`demandCharges` periods, and lists beside usage rates).
+
+    Adds seasons to `seasons` when the plan has none and the charges need them.
+    """
+    found: list[dict[str, Any]] = []
+    own_notes: list[str] = []
+    for tariff in tariffs:
+        if not tariff.get("demandCharges"):
+            continue
+        months = None
+        index = next((i for i, u in enumerate(usage) if u is tariff), None)
+        if index is not None and len(usage) > 1:
+            months = usage_months[index]
+        elif index is None:
+            months = _months(tariff.get("startDate") or "01-01", tariff.get("endDate") or "12-31")
+            if months is None:
+                raise CdrImportError(f"demand period {tariff.get('displayName')!r} doesn't follow month boundaries")
+        if months and len(months) == 12:
+            months = None
+        for charge in tariff["demandCharges"]:
+            found.append(_demand_charge(charge, months, own_notes))
+    if not found:
+        return []
+
+    # The same charge listed in several seasons is one charge for all of them, even when each season's
+    # copy carries the season in its name ("Summer Demand Charge", "Winter Demand Charge"): one measure
+    merged: list[dict[str, Any]] = []
+    for charge in found:
+        key = json.dumps({k: v for k, v in charge.items() if k not in ("_months", "name")}, sort_keys=True)
+        twin = next((m for m in merged if m["_key"] == key), None)
+        if twin is None:
+            merged.append({**charge, "_key": key, "_names": [charge["name"]]})
+            continue
+        twin["_names"].append(charge["name"])
+        if twin["_months"] is None or charge["_months"] is None:
+            twin["_months"] = None
+        else:
+            twin["_months"] = _in_order(set(twin["_months"]) | set(charge["_months"]))
+    for charge in merged:
+        charge.pop("_key")
+        names = list(dict.fromkeys(charge.pop("_names")))
+        if len(names) > 1:
+            charge["name"] = _common_suffix(names)
+        if charge["_months"] and len(charge["_months"]) == 12:
+            charge["_months"] = None
+
+    # Seasons: the plan's own (a charge must cover whole ones), else made from the charges' months
+    month_sets = [tuple(c["_months"]) for c in merged if c["_months"]]
+    if month_sets and not seasons:
+        owner: dict[int, tuple[int, ...]] = {}
+        for ms in dict.fromkeys(month_sets):
+            for m in ms:
+                if m in owner:
+                    raise CdrImportError("demand charges' seasons overlap")
+                owner[m] = ms
+            seasons[_unique(f"{MONTH_NAMES[ms[0] - 1]}_{MONTH_NAMES[ms[-1] - 1]}", set(seasons))] = list(ms)
+    for charge in merged:
+        months = charge.pop("_months")
+        if not months:
+            continue
+        names = [n for n, ms in seasons.items() if set(ms) <= set(months)]
+        if sorted(m for n in names for m in seasons[n]) != sorted(months):
+            raise CdrImportError(f"demand charge {charge['name']!r}: its months don't match the plan's seasons")
+        charge["windows"][0]["seasons"] = names
+        charge["_label"] = _season_label(charge, seasons)
+
+    # The same name at different prices is named by its seasons, never its price
+    taken: set[str] = set()
+    by_name: dict[str, int] = {}
+    for charge in merged:
+        by_name[charge["name"]] = by_name.get(charge["name"], 0) + 1
+    for charge in merged:
+        label = charge.pop("_label", None)
+        if by_name[charge["name"]] > 1:
+            if label is None:
+                raise CdrImportError(f"demand charge {charge['name']!r} has two prices for the same time")
+            charge["name"] = f"{charge['name']} ({label})"
+        charge["id"] = _unique(_slug(charge["name"].replace("–", " ")), taken)
+    for note in own_notes:
+        if note not in notes:
+            notes.append(note)
+    return merged
+
+
 def convert(detail: dict[str, Any], today: date) -> Conversion:
     """Convert one CDR plan detail into ha_tariff_plan dicts (one per known distributor)."""
     data = detail.get("data", detail) if isinstance(detail, dict) else None
@@ -797,11 +1068,8 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
     """Everything but region, DNSP and timezone (set per distributor from `_clock`)."""
     tariffs = contract.get("tariffPeriod") or []
     usage = [t for t in tariffs if t.get("rateBlockUType") in ("singleRate", "timeOfUseRates")]
-    demand = [t for t in tariffs if t.get("rateBlockUType") == "demandCharges"]
     if not usage:
         raise CdrImportError("no usage rates")
-    if demand:
-        notes.append("Demand charges left out for now (not yet converted).")
     for t in usage:
         if (t.get("dailySupplyChargeType") or "SINGLE").upper() != "SINGLE":
             raise CdrImportError("banded daily supply charges can't be expressed")
@@ -836,6 +1104,8 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
             season_names.append(name)
         if sorted(m for ms in seasons.values() for m in ms) != list(range(1, 13)):
             raise CdrImportError("the tariff periods don't cover the whole year exactly once")
+
+    demand = _demand_charges(tariffs, usage, season_months, seasons, notes)
 
     stated = {(t.get("timeZone") or contract.get("timeZone") or "").upper() for t in usage}
     if len(stated) != 1:
@@ -875,7 +1145,7 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
         "supply_charge": {"rate": with_gst(next(iter(supplies))), "unit": "per_day"},
         "import": {"periods": import_periods},
         "export": {"periods": export_periods},
-        "demand": [],
+        "demand": demand,
         "controlled_load": controlled,
         "needs_review": True,
         "notes": " ".join(
