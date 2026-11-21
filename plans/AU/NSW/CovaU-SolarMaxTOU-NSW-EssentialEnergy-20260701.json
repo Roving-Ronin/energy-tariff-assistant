@@ -13,7 +13,7 @@
   "source": {
     "type": "manual",
     "url": null,
-    "checked": "2026-08-25"
+    "checked": "2026-11-21"
   },
   "currency": "AUD",
   "timezone": "Australia/Sydney",
@@ -87,5 +87,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from energy-manager-tariffs CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json. Check against EME: supply charge 2.29999 (looks like 2.30 after rounding); whether the 30 kWh super FiT cap resets daily; whether public holidays change anything."
+  "notes": "Converted from energy-manager-tariffs CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json. Checked 2026-11-21 against a customer's bill: supply charge 229.9990c/day (2.29999, not rounded), the 30 kWh Super FiT cap resets daily, public holidays are priced like any other day. Rates, times and caps match Energy Made Easy (COV1117612MRE3), with times in local time: CovaU bills on local time through daylight saving although its EME data says AEST."
 }

@@ -1,7 +1,7 @@
 {
   "format": "ha_tariff_index",
   "version": 1,
-  "updated_at": "2026-11-21T04:58:49Z",
+  "updated_at": "2026-11-21T05:06:13Z",
   "plans": [
     {
       "file": "plans/AU/NSW/CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json",
@@ -14,7 +14,7 @@
       "customer_type": "residential",
       "effective_from": "2026-07-01",
       "effective_to": null,
-      "source_checked": "2026-08-25"
+      "source_checked": "2026-11-21"
     }
   ]
 }
