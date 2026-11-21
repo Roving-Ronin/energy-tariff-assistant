@@ -161,13 +161,44 @@ def test_caps_become_tiers(solarmax_cdr):
 
 
 def test_aest_windows_use_brisbane_time(solarmax_cdr):
-    del solarmax_cdr["data"]["electricityContract"]["timeZone"]  # absent = AEST
-    plan = convert(solarmax_cdr, TODAY).plans[0]
+    solarmax_cdr["data"]["electricityContract"]["timeZone"] = "AEST"
+    result = convert(solarmax_cdr, TODAY)
+    plan = result.plans[0]
     assert plan["timezone"] == "Australia/Brisbane"
+    assert not any("time zone" in note for note in result.notes)
     resolver = Resolver(load_plan(plan))
     # 16:00 AEDT (summer) is 15:00 AEST: peak starts at 15:00 AEST = 16:00 Sydney summer time
     assert resolver.rate_at("import", at("2026-11-04 15:30")).period.name == "Shoulder"
     assert resolver.rate_at("import", at("2026-11-04 16:30")).period.name == "Peak"
+
+
+def test_no_time_zone_means_local_time(solarmax_cdr):
+    # The standard says absent = AEST, but distributors' periods follow local time: the library
+    # check found a plan with no time zone an hour out all summer when read as AEST.
+    del solarmax_cdr["data"]["electricityContract"]["timeZone"]
+    result = convert(solarmax_cdr, TODAY)
+    plan = result.plans[0]
+    assert plan["timezone"] == "Australia/Sydney"
+    assert any("local time" in note for note in result.notes)
+    assert "local time" in plan["notes"]
+    resolver = Resolver(load_plan(plan))
+    assert resolver.rate_at("import", at("2026-11-04 15:30")).period.name == "Peak"
+
+
+def test_no_time_zone_note_only_when_times_matter(solarmax_cdr):
+    contract = solarmax_cdr["data"]["electricityContract"]
+    del contract["timeZone"]
+    for tariff in contract["tariffPeriod"]:
+        tariff["rateBlockUType"] = "singleRate"
+        tariff["singleRate"] = {"rates": [{"unitPrice": "0.25"}]}
+        tariff.pop("timeOfUseRates", None)
+    contract["solarFeedInTariff"] = [
+        {"scheme": "OTHER", "payerType": "RETAILER", "tariffUType": "singleTariff",
+         "singleTariff": {"rates": [{"unitPrice": "0.05"}]}}
+    ]
+    result = convert(solarmax_cdr, TODAY)
+    assert result.plans
+    assert not any("time zone" in note for note in result.notes)
 
 
 def test_one_plan_per_distributor(solarmax_cdr):

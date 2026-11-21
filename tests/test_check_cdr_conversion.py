@@ -84,9 +84,21 @@ def test_differences_are_reported():
     peak["rates"] = [{"unitPrice": "0.5"}]  # 0.55 with GST, library has 0.45331
     converted = convert(detail, date(2026, 11, 20)).plans[0]
     diffs = chk.compare_plans(library_solarmax(), converted, date(2026, 11, 20))
-    assert diffs and all("import" in d and "library 0.45331 vs converted 0.55" in d for d in diffs)
-    # Peak is 15:00-21:00: 12 half hours x 4 days x (nothing used, caps used)
-    assert len(diffs) == 12 * 4 * 2
+    assert diffs and all("import" in d and "15:00-21:00" in d and "library 0.45331 vs converted 0.55" in d
+                         for d in diffs)
+    # One line per day (4) x (nothing used, caps used): the 12 half hours of peak are merged
+    assert len(diffs) == 4 * 2
+    assert diffs[0] == "import Wed 06 Jan 15:00-21:00: library 0.45331 vs converted 0.55"
+
+
+def test_daylight_saving_shift_shows_as_ranges():
+    detail = copy.deepcopy(SOLARMAX)
+    detail["data"]["electricityContract"]["timeZone"] = "AEST"
+    converted = convert(detail, date(2026, 11, 20)).plans[0]
+    diffs = chk.compare_plans(library_solarmax(), converted, date(2026, 11, 20))
+    assert diffs and all(" Jan " in d for d in diffs)  # July is AEST in Sydney too: no differences
+    assert "import Wed 06 Jan 15:00-16:00: library 0.45331 vs converted 0.27478" in diffs
+    assert "import Wed 06 Jan 21:00-22:00: library 0.27478 vs converted 0.45331" in diffs
 
 
 def test_check_compares_library_plans(tmp_path, monkeypatch):
@@ -112,6 +124,6 @@ def test_check_compares_library_plans(tmp_path, monkeypatch):
     # The library plan is checked even though only one plan per path was picked
     assert report["plans_tried"] == 2
     assert report["library_checks"] == [{"plan_id": "COV1117612MRE3@EME", "library": "SolarMax Residential TOU",
-                                         "agrees": True, "differences": []}]
-    assert "LIBRARY CHECK COV1117612MRE3@EME: agrees" in logged
+                                         "time_zone": "LOCAL", "agrees": True, "differences": []}]
+    assert any(line.startswith("LIBRARY CHECK COV1117612MRE3@EME: agrees (plan time zone: LOCAL") for line in logged)
     assert report["notes"] == {}  # nothing left out of SolarMax

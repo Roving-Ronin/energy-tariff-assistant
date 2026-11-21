@@ -72,6 +72,12 @@ reported as `register_brands_not_in_list` (a warning in the workflow).
     single 28, single+CL 21; time zones LOCAL 82, AEST 15, absent 14. Artifacts can't be downloaded from this
     workspace (Azure blob host not allowed), so the check now logs full reasons, converter-note counts and a
     **library check** (library plans found in the listing are converted and priced against the library copy).
+  - **Second run (2026-11-21):** 112 plans, 109 converted, 3 skipped. Library check: Covau SolarMax **424
+    differences**. The 40 logged were all January import, every window an hour late: the plan was read as AEST
+    (`Australia/Brisbane`) while Essential Energy's periods follow local time ("AEST or AEDST"). Fix: a missing
+    `timeZone` now means LOCAL, with a note. The rest (~370, mostly July, where AEST = Sydney time) weren't logged:
+    the check now merges differences into time ranges and logs them all, plus the plan's stated time zone. Re-run
+    and read the log before trusting converted plans.
   - **Real samples:** Actions → **CDR conversion check** (`scripts/check_cdr_conversion.py`) converts a few plans per
     path and uploads `report.json` + raw details as an artifact (not committed). Use it to find what real data
     does that the hand-written samples don't, and add trimmed cases to `tests/test_importer_cdr.py`.

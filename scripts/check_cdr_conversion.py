@@ -49,6 +49,9 @@ def reason_key(text: str) -> str:
     return re.sub(r"'[^']*'|\d+(\.\d+)?", "…", reason)
 
 
+MAX_DIFF_LINES = 200  # per library plan; differences are already merged into time ranges
+
+
 def base_id(plan_id: str) -> str:
     """'COV1117612MRE3@EME' -> 'COV1117612MRE3' (library plans keep the id without the suffix)."""
     return (plan_id or "").split("@", 1)[0]
@@ -69,6 +72,8 @@ def compare_plans(library: dict[str, Any], converted: dict[str, Any], today: dat
 
     Every half hour of a Wednesday and a Sunday, in January and July, import and export,
     with nothing used and with every cap used up. Times are in the library plan's zone.
+    Neighbouring half hours with the same two rates are one line ("15:00-21:00"), so the
+    whole comparison fits in the log.
     """
     diffs: list[str] = []
     if abs(library["supply_charge"]["rate"] - converted["supply_charge"]["rate"]) > 0.0005:
@@ -82,16 +87,33 @@ def compare_plans(library: dict[str, Any], converted: dict[str, Any], today: dat
         days.append(first + timedelta(days=(6 - first.weekday()) % 7))  # Sunday
     for stream in ("import", "export"):
         for day in days:
-            for half_hour in range(48):
-                moment = datetime(day.year, day.month, day.day, tzinfo=zone) + timedelta(minutes=30 * half_hour + 15)
-                for label, used in (("", None), (" (caps used)", "all")):
-                    lib_used = dict.fromkeys(_period_ids(library, stream), 1e9) if used else None
-                    conv_used = dict.fromkeys(_period_ids(converted, stream), 1e9) if used else None
+            for label, used in (("", None), (" (caps used)", "all")):
+                lib_used = dict.fromkeys(_period_ids(library, stream), 1e9) if used else None
+                conv_used = dict.fromkeys(_period_ids(converted, stream), 1e9) if used else None
+                run: tuple[int, int, float, float] | None = None  # start, end (half hours), rates
+                runs = []
+                for half_hour in range(48):
+                    moment = datetime(day.year, day.month, day.day, tzinfo=zone) + timedelta(minutes=30 * half_hour + 15)
                     a = lib.rate_at(stream, moment, lib_used).rate
                     b = conv.rate_at(stream, moment, conv_used).rate
-                    if abs(a - b) > 0.0005:
-                        diffs.append(f"{stream} {moment:%a %d %b %H:%M}{label}: library {a} vs converted {b}")
+                    if abs(a - b) <= 0.0005:
+                        run = None
+                        continue
+                    if run and run[1] == half_hour and (run[2], run[3]) == (a, b):
+                        run = (run[0], half_hour + 1, a, b)
+                        runs[-1] = run
+                    else:
+                        run = (half_hour, half_hour + 1, a, b)
+                        runs.append(run)
+                for start, end, a, b in runs:
+                    diffs.append(
+                        f"{stream} {day:%a %d %b} {_hhmm(start)}-{_hhmm(end)}{label}: library {a} vs converted {b}"
+                    )
     return diffs
+
+
+def _hhmm(half_hours: int) -> str:
+    return f"{half_hours // 2:02d}:{30 * (half_hours % 2):02d}"
 
 
 def _period_ids(plan: dict[str, Any], stream: str) -> list[str]:
@@ -161,11 +183,17 @@ def check(
                 match = next((p for p in conversion.plans if p.get("dnsp") == lib_plan.get("dnsp")), None)
                 diffs = (compare_plans(lib_plan, match, today) if match
                          else [f"no converted plan for {lib_plan.get('dnsp')}"])
+                zone_text = contract.get("timeZone") or "not given"
                 library_checks.append({"plan_id": plan_id, "library": lib_plan.get("plan"),
-                                       "agrees": not diffs, "differences": diffs[:40]})
-                log(f"LIBRARY CHECK {plan_id}: {'agrees' if not diffs else f'{len(diffs)} differences'}")
-                for diff in diffs[:40]:
+                                       "time_zone": zone_text, "agrees": not diffs,
+                                       "differences": diffs[:MAX_DIFF_LINES]})
+                verdict = "agrees" if not diffs else f"{len(diffs)} differences"
+                log(f"LIBRARY CHECK {plan_id}: {verdict} (plan time zone: {zone_text}, "
+                    f"converted as {match['timezone'] if match else '-'}, library {lib_plan.get('timezone')})")
+                for diff in diffs[:MAX_DIFF_LINES]:
                     log(f"    {diff}")
+                if len(diffs) > MAX_DIFF_LINES:
+                    log(f"    ... and {len(diffs) - MAX_DIFF_LINES} more")
             errors = []
             for plan in conversion.plans:
                 errors += validate_plan(plan).errors
