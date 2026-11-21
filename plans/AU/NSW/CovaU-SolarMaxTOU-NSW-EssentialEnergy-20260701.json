@@ -4,7 +4,7 @@
   "country": "AU",
   "region": "NSW",
   "dnsp": "Essential Energy",
-  "retailer": "Covau",
+  "retailer": "CovaU",
   "plan": "SolarMax Residential TOU",
   "plan_id": "COV1117612MRE3",
   "customer_type": "residential",
@@ -87,5 +87,5 @@
   "demand": [],
   "controlled_load": [],
   "needs_review": true,
-  "notes": "Converted from energy-manager-tariffs Covau-SolarMaxTOU-NSW-EssentialEnergy-20260701.json. Check against EME: supply charge 2.29999 (looks like 2.30 after rounding); whether the 30 kWh super FiT cap resets daily; whether public holidays change anything."
+  "notes": "Converted from energy-manager-tariffs CovaU-SolarMaxTOU-NSW-EssentialEnergy-20260701.json. Check against EME: supply charge 2.29999 (looks like 2.30 after rounding); whether the 30 kWh super FiT cap resets daily; whether public holidays change anything."
 }
