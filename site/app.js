@@ -496,7 +496,6 @@ async function renderPlan(file) {
   if (entry.errors.length) view.append(h("div", { class: "notice err" }, "The validator found errors:", h("ul", {}, entry.errors.map((e) => h("li", {}, e)))));
   if (entry.warnings.length) view.append(h("div", { class: "notice warn" }, "Warnings:", h("ul", {}, entry.warnings.map((w) => h("li", {}, w)))));
   if (entry.needs_review) view.append(h("div", { class: "notice warn" }, `Needs review: it shows as Confirmed once ${state.library.confirmations_needed || 2} people on the plan have confirmed it. If you're on it, compare it with your bill: press Confirm this plan if it matches, or Report a problem if it doesn't.`));
-  if (plan.notes) view.append(h("div", { class: "card", style: "margin-top:12px" }, h("strong", {}, "Notes: "), plan.notes));
 
   const streams = h("div", { class: "grid-2", style: "margin-top:16px" });
   for (const key of ["import", "export"]) {
@@ -515,6 +514,8 @@ async function renderPlan(file) {
         h("td", {}, d.name), h("td", {}, `${dollars(d.rate)} ${d.unit === "per_kw_per_month" ? "per kW per month" : "per kW per day"}`),
         h("td", {}, d.windows.map((w) => h("div", {}, windowText(w, plan.seasons))))))))));
   }
+  if (plan.notes) view.append(h("div", { class: "card", style: "margin-top:16px" }, h("strong", {}, "Notes: "), plan.notes));
+
 
   view.append(h("details", {}, h("summary", {}, "Plan JSON"), h("pre", { class: "json" }, text)));
   app.replaceChildren(view);
