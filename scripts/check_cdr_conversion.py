@@ -183,6 +183,9 @@ def check(
             if not conversion.plans:
                 results.append({**entry, "outcome": "skipped", "detail": "; ".join(conversion.skipped)})
                 log(f"  skipped {plan_id}: {'; '.join(conversion.skipped)}")
+                if any("feed-in" in reason for reason in conversion.skipped):
+                    for fit in contract.get("solarFeedInTariff") or []:
+                        log(f"FEED-IN SKIPPED {plan_id}: {json.dumps(fit, ensure_ascii=False)}")
                 continue
             lib_plan = library.get(base_id(plan_id))
             if lib_plan is not None:
