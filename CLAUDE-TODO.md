@@ -40,7 +40,7 @@ Order: (1) plan versions and expiry in the EME importer: built 2026-11-21 (see C
 (`index/AU-NSW-residential.json`; HA and the plan browser load only what's picked; plan paths unchanged),
 (3) weekly EME check + badges, (4) full import, scheduled and staggered per state/customer type (~22,000 files:
 NSW 7,032 res / 4,719 bus, VIC 3,430 / 2,466, QLD 1,448 / 953, SA 604 / 430, ACT 559 / 207, TAS 75 / 72).
-Open: approve-and-merge each import PR by hand, or auto-merge after checks pass. WA: Synergy and Horizon Power scrapers built
+Decided (maintainer 2026-11-22): import PRs auto-merge once the checks pass (the import job runs them and merges). WA: Synergy and Horizon Power scrapers built
 (2026-11-21); NT later.
 
 ### Location → postcode → distributor, retailers and plans (design 2026-11-21, with step 2 above)
