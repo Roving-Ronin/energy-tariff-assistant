@@ -82,7 +82,8 @@ reported as `register_brands_not_in_list` (a warning in the workflow).
     5c: 15c x 1.1, so the converter adds GST to feed-in (import matches exactly after x1.1, so only feed-in is
     affected); and the cap and the 5c rate are missing: WATTever shows SolarMax's feed-in as a condition, "15c per
     kWh for the first 30kWh exported per day. 5c per kWh for exports at all other times", i.e. stepped FiT only in
-    the description (CDS standards-maintenance #520). Waiting on the raw Covau sample (artifact) and the maintainer's OK for the GST fix.
+    the description (CDS standards-maintenance #520). GST fixed (2026-11-21): residential and unstated feed-in as published, business feed-in +GST (bill amounts;
+    claiming it back is the business's accounting). Still open: stepped FiT only in text: flag for review.
   - **Real samples:** Actions → **CDR conversion check** (`scripts/check_cdr_conversion.py`) converts a few plans per
     path and uploads `report.json` + raw details as an artifact (not committed). Use it to find what real data
     does that the hand-written samples don't, and add trimmed cases to `tests/test_importer_cdr.py`.

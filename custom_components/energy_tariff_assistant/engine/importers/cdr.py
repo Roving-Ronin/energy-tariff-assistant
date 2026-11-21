@@ -9,8 +9,11 @@ offered on several networks; ours have one DNSP each), plus the reasons for
 anything left out. Every converted plan is `needs_review: true`.
 
 Rules:
-- **GST is added.** CDR prices are "exclusive of GST" (unit prices, daily supply
-  charges); our plans hold GST-inclusive dollars, so x1.1.
+- **GST is added to charges.** CDR prices are "exclusive of GST" (unit prices,
+  daily supply charges); our plans hold what the bill shows, GST included, so x1.1.
+  Feed-in: households aren't paid GST, so residential (and unstated) plans use
+  the published rate; business plans add GST, as paid to GST-registered
+  businesses, with a note for those who aren't registered.
 - Time zone: the plan's stated `timeZone` wins (LOCAL: the state's zone; AEST:
   Australia/Brisbane, so fixed-AEST windows stay right through daylight saving).
   **Absent** uses the network's clock, not the standard's AEST default: NSW, VIC
@@ -196,15 +199,27 @@ def _unique(base: str, taken: set[str]) -> str:
     return candidate
 
 
-def _rates(rates: list[dict[str, Any]], period: str | None, what: str) -> dict[str, Any]:
-    """CDR rates (in order of usage volume) -> {'rate': x} or tiers. Volumes are block sizes."""
+def _price(value: Any, gst: bool) -> float:
+    if gst:
+        return with_gst(value)
+    try:
+        return round(float(value), 6)
+    except (TypeError, ValueError) as err:
+        raise CdrImportError(f"not a price: {value!r}") from err
+
+
+def _rates(rates: list[dict[str, Any]], period: str | None, what: str, gst: bool = True) -> dict[str, Any]:
+    """CDR rates (in order of usage volume) -> {'rate': x} or tiers. Volumes are block sizes.
+
+    `gst`: add GST (charges, and business feed-in); residential feed-in is paid as published.
+    """
     if not rates:
         raise CdrImportError(f"{what} has no rates")
     for r in rates:
         if (r.get("measureUnit") or "KWH").upper() != "KWH":
             raise CdrImportError(f"{what} is priced per {r.get('measureUnit')}, not per kWh")
     if len(rates) == 1:
-        return {"rate": with_gst(rates[0]["unitPrice"])}
+        return {"rate": _price(rates[0]["unitPrice"], gst)}
     reset = TIER_RESET.get(period or "P1Y")
     if reset is None:
         raise CdrImportError(f"{what} has stepped rates per {period or 'year'}, which plans can't express")
@@ -213,8 +228,8 @@ def _rates(rates: list[dict[str, Any]], period: str | None, what: str) -> dict[s
         if not r.get("volume"):
             raise CdrImportError(f"{what} has a stepped rate without a volume")
         cumulative += float(r["volume"])
-        tiers.append({"up_to_kwh": round(cumulative, 6), "rate": with_gst(r["unitPrice"])})
-    tiers.append({"rate": with_gst(rates[-1]["unitPrice"])})
+        tiers.append({"up_to_kwh": round(cumulative, 6), "rate": _price(r["unitPrice"], gst)})
+    tiers.append({"rate": _price(rates[-1]["unitPrice"], gst)})
     return {"tiers": tiers, "tier_reset": reset}
 
 
@@ -350,7 +365,18 @@ def _has_windows(usage: list[dict[str, Any]], contract: dict[str, Any]) -> bool:
     return any(fit.get("timeVaryingTariffs") for fit in contract.get("solarFeedInTariff") or [])
 
 
-def _export_periods(contract: dict[str, Any], notes: list[str]) -> list[dict[str, Any]]:
+FEED_IN_GST_NOTES = {
+    "business": ("Feed-in includes GST, as paid to GST-registered businesses; if you aren't registered for GST, "
+                 "your feed-in is the published rate (divide by 1.1)."),
+    "": ("Feed-in is the published rate, without GST (households aren't paid GST on feed-in); a GST-registered "
+         "business is paid 10% more."),
+}
+
+
+def _export_periods(contract: dict[str, Any], notes: list[str], customer: str) -> list[dict[str, Any]]:
+    """Retailer feed-in. GST: households aren't paid GST on feed-in, so residential (and unstated) plans use
+    the published rate; GST-registered businesses are, so business plans add it, as their bill shows."""
+    gst = customer == "business"
     feed_ins = [
         f for f in contract.get("solarFeedInTariff") or []
         if (f.get("payerType") or "").upper() == "RETAILER" and (f.get("scheme") or "").upper() != "PREMIUM"
@@ -364,8 +390,9 @@ def _export_periods(contract: dict[str, Any], notes: list[str]) -> list[dict[str
     name = fit.get("displayName") or "Feed-in"
     if fit.get("tariffUType") == "singleTariff":
         single = fit.get("singleTariff") or {}
-        return [{"id": "feed_in", "name": name, **_rates(single.get("rates") or [], single.get("period"), name),
-                 "default": True}]
+        _feed_in_note(notes, customer)
+        return [{"id": "feed_in", "name": name,
+                 **_rates(single.get("rates") or [], single.get("period"), name, gst), "default": True}]
     periods: list[dict[str, Any]] = []
     taken: set[str] = set()
     for variation in fit.get("timeVaryingTariffs") or []:
@@ -377,13 +404,20 @@ def _export_periods(contract: dict[str, Any], notes: list[str]) -> list[dict[str
         periods.append({
             "id": _unique(_slug(vname), taken),
             "name": vname,
-            **_rates(variation.get("rates") or [], variation.get("period"), vname),
+            **_rates(variation.get("rates") or [], variation.get("period"), vname, gst),
             "windows": windows,
         })
     if not periods:
         raise CdrImportError("time-varying feed-in has no variations")
+    _feed_in_note(notes, customer)
     _make_default(periods)
     return periods
+
+
+def _feed_in_note(notes: list[str], customer: str) -> None:
+    note = FEED_IN_GST_NOTES.get(customer)
+    if note and note not in notes:
+        notes.append(note)
 
 
 def _controlled_loads(contract: dict[str, Any], notes: list[str]) -> list[dict[str, Any]]:
@@ -512,7 +546,7 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
 
     holiday_rates: set[str] = set()
     import_periods = _import_periods(usage, season_names, holiday_rates)
-    export_periods = _export_periods(contract, notes)
+    export_periods = _export_periods(contract, notes, (data.get("customerType") or "").lower())
     controlled = _controlled_loads(contract, notes)
     if holiday_rates:
         notes.append(
@@ -543,7 +577,7 @@ def _build(data: dict[str, Any], contract: dict[str, Any], today: date, notes: l
         "controlled_load": controlled,
         "needs_review": True,
         "notes": " ".join(
-            [f"Converted from Energy Made Easy (CDR) plan {data['planId']}; prices include GST (CDR ex GST x1.1)."]
+            [f"Converted from Energy Made Easy (CDR) plan {data['planId']}; charges include GST (CDR ex GST x1.1)."]
             + notes + extras
         ),
     }

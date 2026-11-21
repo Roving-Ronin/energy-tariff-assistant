@@ -91,7 +91,10 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   is unrecorded.
 
 ### Converting CDR (Energy Made Easy) plans
-- CDR prices are **ex GST**: `cdr.with_gst` adds 10%. Our plans are GST-inclusive.
+- CDR prices are **ex GST**: `cdr.with_gst` adds 10%. Our plans hold what the bill shows, GST included (a
+  business claiming GST back is its own accounting). **Feed-in** (decided 2026-11-21): households aren't paid GST,
+  so residential and unstated plans use the published rate; business plans add GST, as paid to GST-registered
+  businesses, with a note for those who aren't registered (unstated plans get a note too).
 - Time zone (decided 2026-11-21): the plan's stated `timeZone` wins (AEST → `Australia/Brisbane`, so fixed-AEST
   windows stay right through daylight saving; LOCAL → the state's zone). **Absent uses the network's clock**, not
   the standard's AEST default: NSW, VIC and SA networks follow local time, Evoenergy and TasNetworks stay on AEST

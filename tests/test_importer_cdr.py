@@ -76,9 +76,10 @@ SOLARMAX = {
                 "tariffUType": "timeVaryingTariffs",
                 "timeVaryingTariffs": [
                     {"type": "PEAK", "displayName": "Super FiT",
-                     "rates": [{"unitPrice": ex(0.15), "volume": 30}, {"unitPrice": ex(0.05)}], "period": "P1D",
+                     # Feed-in is published as paid: households get no GST on it
+                     "rates": [{"unitPrice": "0.15", "volume": 30}, {"unitPrice": "0.05"}], "period": "P1D",
                      "timeVariations": [{"days": ALL, "startTime": "18:00", "endTime": "20:59"}]},
-                    {"type": "OFF_PEAK", "displayName": "Standard FiT", "rates": [{"unitPrice": ex(0.05)}],
+                    {"type": "OFF_PEAK", "displayName": "Standard FiT", "rates": [{"unitPrice": "0.05"}],
                      "timeVariations": [{"days": ALL, "startTime": "00:00", "endTime": "17:59"},
                                         {"days": ALL, "startTime": "21:00", "endTime": "23:59"}]},
                 ],
@@ -264,12 +265,41 @@ def test_single_rate_and_flat_feed_in():
         {"displayName": "Premium", "scheme": "PREMIUM", "payerType": "GOVERNMENT", "tariffUType": "singleTariff",
          "singleTariff": {"rates": [{"unitPrice": "0.6"}]}},
         {"displayName": "Retailer FiT", "scheme": "CURRENT", "payerType": "RETAILER", "tariffUType": "singleTariff",
-         "singleTariff": {"rates": [{"unitPrice": ex(0.04)}]}},
+         "singleTariff": {"rates": [{"unitPrice": "0.04"}]}},
     ]
     plan = convert(detail, TODAY).plans[0]
     assert validate_plan(plan).ok
     assert plan["import"]["periods"] == [{"id": "anytime", "name": "Anytime", "rate": pytest.approx(0.3), "default": True}]
     assert plan["export"]["periods"][0]["rate"] == pytest.approx(0.04)  # the premium scheme is left out
+
+
+def test_residential_feed_in_is_paid_without_gst(solarmax_cdr):
+    result = convert(solarmax_cdr, TODAY)
+    plan = result.plans[0]
+    sfit = next(p for p in plan["export"]["periods"] if p["id"] == "super_fit")
+    assert sfit["tiers"] == [{"up_to_kwh": 30.0, "rate": 0.15}, {"rate": 0.05}]
+    # Charges still get GST added
+    peak = next(p for p in plan["import"]["periods"] if p["id"] == "peak")
+    assert peak["rate"] == pytest.approx(0.45331)
+    assert not any("Feed-in" in note and "GST" in note for note in result.notes)
+
+
+def test_business_feed_in_includes_gst(solarmax_cdr):
+    # A GST-registered business is paid GST on feed-in and its bill shows it.
+    solarmax_cdr["data"]["customerType"] = "BUSINESS"
+    result = convert(solarmax_cdr, TODAY)
+    plan = result.plans[0]
+    sfit = next(p for p in plan["export"]["periods"] if p["id"] == "super_fit")
+    assert sfit["tiers"] == [{"up_to_kwh": 30.0, "rate": pytest.approx(0.165)}, {"rate": pytest.approx(0.055)}]
+    assert "if you aren't registered for GST" in plan["notes"]
+
+
+def test_unstated_customer_type_pays_feed_in_without_gst_and_says_so(solarmax_cdr):
+    del solarmax_cdr["data"]["customerType"]
+    plan = convert(solarmax_cdr, TODAY).plans[0]
+    sfit = next(p for p in plan["export"]["periods"] if p["id"] == "super_fit")
+    assert sfit["tiers"][0]["rate"] == 0.15
+    assert "a GST-registered business is paid 10% more" in plan["notes"]
 
 
 def test_seasons_from_month_aligned_periods(solarmax_cdr):
