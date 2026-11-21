@@ -1,0 +1,92 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Ezi Power",
+  "plan": "Ezi Peak",
+  "plan_id": "SLV1213511MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-22",
+  "effective_to": "2028-06-30",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.42935,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.44253,
+        "windows": [
+          {
+            "days": "all",
+            "start": "17:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off peak",
+        "rate": 0.1386,
+        "windows": [
+          {
+            "days": "all",
+            "start": "00:00",
+            "end": "07:00"
+          },
+          {
+            "days": "all",
+            "start": "22:00",
+            "end": "24:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.44253,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "peak_solar_feed_in_tariff",
+        "name": "Peak solar feed-in tariff",
+        "rate": 0.25,
+        "windows": [
+          {
+            "days": "all",
+            "start": "17:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "all_other_times_solar_feed_in_tariff",
+        "name": "All other times solar feed-in tariff",
+        "rate": 0.02,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan SLV1213511MRE1@EME; charges include GST (CDR ex GST x1.1). Fees: DISCONNECTION, CONNECTION, CHEQUE_DISHONOUR, DD_DISHONOUR."
+}

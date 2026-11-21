@@ -1,0 +1,101 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Powershop",
+  "plan": "Switch Saver",
+  "plan_id": "PSH1060225MRE4",
+  "customer_type": "residential",
+  "effective_from": "2026-10-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.189111,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.439899,
+        "windows": [
+          {
+            "days": "all",
+            "start": "07:00",
+            "end": "10:00"
+          },
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.252175,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "voluntary_fit",
+        "name": "Voluntary FIT",
+        "rate": 0.01,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "single_rate_controlled_load",
+      "name": "Single Rate Controlled Load",
+      "supply_charge": {
+        "rate": 0.156605,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Single Rate Controlled Load",
+          "rate": 0.17323,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "single_rate_controlled_load_2",
+      "name": "Single Rate Controlled Load",
+      "supply_charge": {
+        "rate": 0.156605,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Single Rate Controlled Load",
+          "rate": 0.208865,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan PSH1060225MRE4@EME; charges include GST (CDR ex GST x1.1). Discount: Conditional Discount (conditional, fixedAmount 200.00). Fees: OTHER, DISCONNECTION, DISCONNECTION, CONNECTION, CONNECTION, OTHER, OTHER."
+}

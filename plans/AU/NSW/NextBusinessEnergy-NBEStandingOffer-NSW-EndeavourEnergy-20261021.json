@@ -1,0 +1,80 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Next Business Energy",
+  "plan": "NBE Standing Offer",
+  "plan_id": "NEX1213294SRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-21",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.8502,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.47102,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "13:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.35695,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "13:00"
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.12353,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "rfit_single_rate_feed_in_tariff",
+        "name": "RFIT: Single Rate Feed In Tariff",
+        "rate": 0.001,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan NEX1213294SRE1@EME; charges include GST (CDR ex GST x1.1). Fees: RECONNECTION, DISCONNECTION. The plan gives its times in AEST all year (an hour later on the clock in summer), but Endeavour Energy's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+}

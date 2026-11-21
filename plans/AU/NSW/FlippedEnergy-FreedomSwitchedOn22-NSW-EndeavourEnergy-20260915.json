@@ -1,0 +1,75 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "Flipped Energy",
+  "plan": "Freedom Switched On 2.2!",
+  "plan_id": "FEA1154593MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-09-15",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.327511,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "day",
+        "name": "Day",
+        "rate": 0.176959,
+        "windows": [
+          {
+            "days": "all",
+            "start": "08:00",
+            "end": "16:00"
+          }
+        ]
+      },
+      {
+        "id": "evening",
+        "name": "Evening",
+        "rate": 0.521703,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "overnight",
+        "name": "Overnight",
+        "rate": 0.322843,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "solar_feed_in_tariff",
+        "name": "Solar Feed In Tariff",
+        "rate": 0.02,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan FEA1154593MRE2@EME; charges include GST (CDR ex GST x1.1). Discount: Referral Discount (conditional, fixedAmount 30.00). Fees: DISCONNECTION, RECONNECTION, CONNECTION."
+}

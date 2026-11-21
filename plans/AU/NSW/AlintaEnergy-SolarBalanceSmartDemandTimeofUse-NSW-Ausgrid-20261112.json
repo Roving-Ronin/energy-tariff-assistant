@@ -1,0 +1,122 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Ausgrid",
+  "retailer": "Alinta Energy",
+  "plan": "SolarBalance Smart - Demand Time of Use",
+  "plan_id": "ALI1215505MRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-11-12",
+  "effective_to": "2026-11-26",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "season_1_1_nov_to_31_mar": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ],
+    "season_2_1_apr_to_31_may": [
+      4,
+      5
+    ],
+    "season_3_1_jun_to_31_aug": [
+      6,
+      7,
+      8
+    ],
+    "season_4_1_sep_to_31_oct": [
+      9,
+      10
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.47411,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.30492,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "14:00",
+            "end": "20:00",
+            "seasons": [
+              "season_1_1_nov_to_31_mar"
+            ]
+          },
+          {
+            "days": "weekdays",
+            "start": "17:00",
+            "end": "21:00",
+            "seasons": [
+              "season_3_1_jun_to_31_aug"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-peak",
+        "rate": 0.15587,
+        "windows": [
+          {
+            "days": "all",
+            "end": "07:00",
+            "start": "00:00"
+          },
+          {
+            "days": "all",
+            "end": "24:00",
+            "start": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.16324,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "solar_bonus_fit",
+        "name": "Solar Bonus FiT",
+        "tiers": [
+          {
+            "up_to_kwh": 8.0,
+            "rate": 0.08
+          },
+          {
+            "rate": 0.03
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ALI1215505MRE2@EME; charges include GST (CDR ex GST x1.1). Incentive: Stepped FiT. Fees: DISCONNECTION, RECONNECTION, CONNECTION, DISCONNECT_MOVE_OUT, RECONNECTION."
+}

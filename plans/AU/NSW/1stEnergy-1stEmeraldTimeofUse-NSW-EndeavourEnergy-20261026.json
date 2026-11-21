@@ -1,0 +1,120 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Endeavour Energy",
+  "retailer": "1st Energy",
+  "plan": "1st Emerald - Time of Use",
+  "plan_id": "1ST1213182MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-10-26",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "seasons": {
+    "winter_peak": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "summer_peak": [
+      11,
+      12,
+      1,
+      2,
+      3
+    ]
+  },
+  "supply_charge": {
+    "rate": 1.4806,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "winter_peak",
+        "name": "Winter Peak",
+        "rate": 0.3718,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "winter_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "solar_soak",
+        "name": "Solar Soak",
+        "rate": 0.0979,
+        "windows": [
+          {
+            "days": "all",
+            "end": "14:00",
+            "start": "10:00"
+          }
+        ]
+      },
+      {
+        "id": "summer_peak",
+        "name": "Summer Peak",
+        "rate": 0.3718,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "16:00",
+            "end": "20:00",
+            "seasons": [
+              "summer_peak"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.2849,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in_tariff_gst_exempt",
+        "name": "Feed-in tariff (GST exempt)",
+        "tiers": [
+          {
+            "up_to_kwh": 5.0,
+            "rate": 0.01
+          },
+          {
+            "rate": 0.001
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan 1ST1213182MRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Feed-in tariff (GST exempt)': the data gives its 5 kWh limit per P1Y, but its text says per day: per day was used. Discount: Guaranteed discount off usage and supply charges (guaranteed, percentOfBill 0.04). Fees: CONNECTION, DISCONNECTION, CHEQUE_DISHONOUR, DD_DISHONOUR."
+}
