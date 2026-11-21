@@ -169,6 +169,12 @@ def check(
             contract = (detail.get("data") or {}).get("electricityContract") or {}
             entry["pricing_model"] = contract.get("pricingModel")
             entry["time_zone"] = contract.get("timeZone")
+            for fit in contract.get("solarFeedInTariff") or []:
+                # Feed-in whose steps may be only in its text (CDS standards-maintenance #520): log it, so the
+                # converter's reading of that text can be checked against real wording.
+                if (fit.get("payerType") or "").upper() == "RETAILER" and re.search(r"\d", json.dumps(
+                        {k: v for k, v in fit.items() if k in ("description", "displayName")})):
+                    log(f"FEED-IN TEXT {plan_id}: {json.dumps(fit, ensure_ascii=False)}")
             try:
                 conversion = convert(detail, today)
             except CdrImportError as err:
@@ -177,6 +183,9 @@ def check(
             if not conversion.plans:
                 results.append({**entry, "outcome": "skipped", "detail": "; ".join(conversion.skipped)})
                 log(f"  skipped {plan_id}: {'; '.join(conversion.skipped)}")
+                if any("feed-in" in reason for reason in conversion.skipped):
+                    for fit in contract.get("solarFeedInTariff") or []:
+                        log(f"FEED-IN SKIPPED {plan_id}: {json.dumps(fit, ensure_ascii=False)}")
                 continue
             lib_plan = library.get(base_id(plan_id))
             if lib_plan is not None:

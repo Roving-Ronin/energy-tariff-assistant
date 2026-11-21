@@ -91,11 +91,24 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   is unrecorded.
 
 ### Converting CDR (Energy Made Easy) plans
-- CDR prices are **ex GST**: `cdr.with_gst` adds 10%. Our plans are GST-inclusive.
-- Contract `timeZone`: AEST gets timezone `Australia/Brisbane` (fixed AEST windows stay right through daylight
-  saving); LOCAL uses the state's zone. **Absent is read as LOCAL** (decided 2026-11-21), not the standard's AEST
-  default: distributors' periods follow local time (Essential Energy: "AEST or AEDST") and the library check found
-  Covau SolarMax an hour out all summer read as AEST. The plan gets a note that local time was assumed.
+- CDR prices are **ex GST**: `cdr.with_gst` adds 10%. Our plans hold what the bill shows, GST included (a
+  business claiming GST back is its own accounting). **Feed-in** (decided 2026-11-21): households aren't paid GST,
+  so residential and unstated plans use the published rate; business plans add GST, as paid to GST-registered
+  businesses, with a note for those who aren't registered (unstated plans get a note too).
+- Time zone (decided 2026-11-21): the plan's stated `timeZone` wins (AEST → `Australia/Brisbane`, so fixed-AEST
+  windows stay right through daylight saving; LOCAL → the state's zone). **Absent uses the network's clock**, not
+  the standard's AEST default: NSW, VIC and SA networks follow local time, Evoenergy and TasNetworks stay on AEST
+  (`AEST_NETWORKS`). Absent, or a stated zone that disagrees with the network (Covau SolarMax on Essential Energy
+  says AEST), adds a review note: retailers can apply their own rule, so neither side is assumed wrong. A retailer
+  known to bill on its own clock overrides its data (`RETAILER_CLOCKS`, with the source: CovaU bills on local time,
+  maintainer 2026-11-21, though its EME data says AEST).
+- **Feed-in is spread over several entries** (CDS standards-maintenance #520): every retailer (non-PREMIUM)
+  entry is read, not just the first. Entries for the same times and months combine: a capped block (one rate with
+  `volume`) + one uncapped entry → tiers, reset from the capped entry's period; P1Y with "per day"/"/day" in its
+  text → per day, with a note (1st Energy). Entry dates under a year that split the year (Red Energy: Nov-Mar, Apr-Oct)
+  are seasons (must match usage seasons, or become the plan's if usage has none); one date range on every entry
+  (Sumo: Apr-Dec) is when the rates apply, used all year with a note. Same rate and times in every season → one period. A cap with nothing
+  after it, or entries that don't pair up, is skipped with a reason. Covau SolarMax combined matches the library.
 - CDR window ends are inclusive (14:59, 23:59): they become 15:00, 24:00.
 - Never guess: anything the plan format can't express exactly (FLEXIBLE/QUOTA pricing, banded supply, seasons not on
   month boundaries, per-year steps, differing supply charges) is skipped with a reason in `Conversion.skipped`;

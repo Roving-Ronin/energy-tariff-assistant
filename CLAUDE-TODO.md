@@ -72,12 +72,21 @@ reported as `register_brands_not_in_list` (a warning in the workflow).
     single 28, single+CL 21; time zones LOCAL 82, AEST 15, absent 14. Artifacts can't be downloaded from this
     workspace (Azure blob host not allowed), so the check now logs full reasons, converter-note counts and a
     **library check** (library plans found in the listing are converted and priced against the library copy).
-  - **Second run (2026-11-21):** 112 plans, 109 converted, 3 skipped. Library check: Covau SolarMax **424
-    differences**. The 40 logged were all January import, every window an hour late: the plan was read as AEST
-    (`Australia/Brisbane`) while Essential Energy's periods follow local time ("AEST or AEDST"). Fix: a missing
-    `timeZone` now means LOCAL, with a note. The rest (~370, mostly July, where AEST = Sydney time) weren't logged:
-    the check now merges differences into time ranges and logs them all, plus the plan's stated time zone. Re-run
-    and read the log before trusting converted plans.
+  - **Second run (2026-11-21):** 112 plans, 109 converted, 3 skipped. Library check, now logged in full as time
+    ranges: Covau SolarMax **says AEST** on Energy Made Easy, so every January window is an hour later than the
+    library (local time); July import agrees exactly. Essential Energy follows local time ("AEST or AEDST"), so
+    either Covau's data or the library is wrong. **Settled:** CovaU bills on local time (maintainer, 2026-11-21),
+    so the library is right and its EME data isn't: `RETAILER_CLOCKS` overrides it. Rule otherwise: the plan's
+    stated zone wins, absent uses the network's clock (Evoenergy, TasNetworks: AEST; others local), and a
+    disagreement adds a review note. **Feed-in:** converted pays 16.5c all day vs library 15c super FiT (18:00-21:00, 30 kWh/day) then
+    5c: 15c x 1.1, so the converter adds GST to feed-in (import matches exactly after x1.1, so only feed-in is
+    affected); and the cap and the 5c rate are missing: WATTever shows SolarMax's feed-in as a condition, "15c per
+    kWh for the first 30kWh exported per day. 5c per kWh for exports at all other times", i.e. stepped FiT only in
+    the description (CDS standards-maintenance #520). GST fixed (2026-11-21): residential and unstated feed-in as published, business feed-in +GST (bill amounts;
+    claiming it back is the business's accounting). Feed-in steps (2026-11-21): not text after all. The
+    data splits them over separate entries (capped block + the rest for the same times, seasons as dated
+    entries; seen in Covau, Flow Power, 1st Energy, Red Energy); the converter read only the first. Now combined
+    (see CLAUDE.md); the check logs `FEED-IN TEXT` lines for entries whose text has numbers.
   - **Real samples:** Actions → **CDR conversion check** (`scripts/check_cdr_conversion.py`) converts a few plans per
     path and uploads `report.json` + raw details as an artifact (not committed). Use it to find what real data
     does that the hand-written samples don't, and add trimmed cases to `tests/test_importer_cdr.py`.
