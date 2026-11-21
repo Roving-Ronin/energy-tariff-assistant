@@ -1,0 +1,97 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "GEE Energy",
+  "plan": "GEE Smart Saver ESSNR Time of Use + CL2",
+  "plan_id": "GEE1037104MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-03-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=GEE1037104MRE1",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 1.89255,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.56265,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "15:00",
+            "end": "21:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.54219,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "15:00"
+          },
+          {
+            "days": "weekdays",
+            "start": "21:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-Peak",
+        "rate": 0.38258,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 2",
+          "rate": 0.24046,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan GEE1037104MRE1@EME; charges include GST (CDR ex GST x1.1). No retailer feed-in tariff in the plan data: feed-in set to 0."
+}

@@ -1,0 +1,51 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "CovaU",
+  "plan": "CovaU Basics Residential Single",
+  "plan_id": "COV757670SRE4",
+  "customer_type": "residential",
+  "effective_from": "2026-07-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=COV757670SRE4",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.695,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.35002,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.055,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan COV757670SRE4@EME; charges include GST (CDR ex GST x1.1). Feed-in is called 'Feed In Tariff: Single Rate Feed In Tariff' on Energy Made Easy. Fees: CONNECTION, DISCONNECTION, RECONNECTION, DD_DISHONOUR."
+}

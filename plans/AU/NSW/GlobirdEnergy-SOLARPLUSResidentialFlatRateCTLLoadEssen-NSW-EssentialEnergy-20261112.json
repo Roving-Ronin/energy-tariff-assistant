@@ -1,0 +1,86 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Globird Energy",
+  "plan": "SOLARPLUS Residential (Flat Rate CTL Load)-Essential",
+  "plan_id": "GLO1218560MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-11-12",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=GLO1218560MRE1",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.101,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "single_rate_block",
+        "name": "Single Rate Block",
+        "tiers": [
+          {
+            "up_to_kwh": 15.0,
+            "rate": 0.3487
+          },
+          {
+            "rate": 0.396
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "tiers": [
+          {
+            "up_to_kwh": 8.0,
+            "rate": 0.1
+          },
+          {
+            "rate": 0.03
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load",
+      "name": "Controlled Load",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load",
+          "rate": 0.297,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan GLO1218560MRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Single Stepped Rate Solar FiT': the data gives its 8 kWh limit per P1Y, but its text says per day: per day was used. Feed-in is called 'Single Stepped Rate Solar FiT' on Energy Made Easy. Discount: $100 Online Signup Bonus (conditional, fixedAmount 100.00). Discount: Direct Debit Discount (conditional, percentOfBill 0.01). Discount: Pay-on-time Discount (conditional, percentOfBill 0.02). Incentive: Generous solar feed-in. Fees: DISCONNECT_MOVE_OUT, CONNECTION."
+}

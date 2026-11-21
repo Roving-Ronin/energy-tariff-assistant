@@ -1,0 +1,118 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Alinta Energy",
+  "plan": "Standing Offer - Time of Use + CL",
+  "plan_id": "ALI1127312SBE6",
+  "customer_type": "residential",
+  "effective_from": "2026-07-14",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ALI1127312SBE6",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.725195,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.449944,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "09:00"
+          },
+          {
+            "days": "weekdays",
+            "start": "17:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder_consumption",
+        "name": "Shoulder consumption",
+        "rate": 0.388608,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "09:00",
+            "end": "17:00"
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-peak",
+        "rate": 0.249601,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load",
+      "name": "Controlled load",
+      "supply_charge": {
+        "rate": 0.156607,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled load",
+          "rate": 0.198891,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled load",
+      "supply_charge": {
+        "rate": 0.156607,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled load",
+          "rate": 0.2398,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ALI1127312SBE6@EME; charges include GST (CDR ex GST x1.1). Feed-in is called 'Single Rate Solar FiT' on Energy Made Easy. Fees: DISCONNECTION, RECONNECTION, CONNECTION, DISCONNECT_MOVE_OUT, RECONNECTION, LATE_PAYMENT."
+}

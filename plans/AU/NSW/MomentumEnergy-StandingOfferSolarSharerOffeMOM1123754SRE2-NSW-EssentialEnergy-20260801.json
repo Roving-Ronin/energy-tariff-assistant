@@ -1,0 +1,106 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Momentum Energy",
+  "plan": "Standing Offer - Solar Sharer Offer",
+  "plan_id": "MOM1123754SRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-08-01",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=MOM1123754SRE2",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.878773,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.455697,
+        "windows": [
+          {
+            "days": "all",
+            "start": "07:00",
+            "end": "10:00"
+          },
+          {
+            "days": "all",
+            "start": "15:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-Peak",
+        "tiers": [
+          {
+            "up_to_kwh": 24.0,
+            "rate": 0.0
+          },
+          {
+            "rate": 0.275957
+          }
+        ],
+        "tier_reset": "day",
+        "windows": [
+          {
+            "days": "all",
+            "start": "11:00",
+            "end": "14:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.275957,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.0,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.19888,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan MOM1123754SRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in is called 'Single Rate Solar FiT' on Energy Made Easy. Fees: DISCONNECTION, RECONNECTION, CONNECTION."
+}

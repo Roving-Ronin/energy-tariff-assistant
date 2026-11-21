@@ -1,0 +1,97 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "ENGIE",
+  "plan": "NSW ENGIE - Home Business Movers Elec",
+  "plan_id": "ENG1207642MRE3",
+  "customer_type": "residential",
+  "effective_from": "2026-10-27",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ENG1207642MRE3",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.87859,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.54956,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "17:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.36168,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "17:00"
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-Peak",
+        "rate": 0.25223,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.03,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "single_rate_controlled_load",
+      "name": "Single Rate Controlled Load",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Single Rate Controlled Load",
+          "rate": 0.23969,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ENG1207642MRE3@EME; charges include GST (CDR ex GST x1.1). Feed-in is called 'Single Rate Solar FiT' on Energy Made Easy. Discount: 8% Guaranteed Discount (guaranteed, percentOfBill 0.08). Incentive: ENGIE Easy Move Guarantee. Incentive: Once Off Join and Stay - $220. Fees: DISCONNECTION, DISCONNECTION, RECONNECTION, LATE_PAYMENT. The plan gives its times in AEST all year (an hour later on the clock in summer), but Essential Energy's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+}

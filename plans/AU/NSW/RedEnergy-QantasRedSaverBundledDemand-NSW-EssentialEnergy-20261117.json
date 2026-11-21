@@ -5,9 +5,10 @@
   "region": "NSW",
   "dnsp": "Essential Energy",
   "retailer": "Red Energy",
-  "plan": "Qantas Red Saver Bundled Demand",
+  "plan": "Qantas Red Saver Bundled Demand (FIT Option A)",
   "plan_id": "RED552428MRE21",
   "customer_type": "residential",
+  "feed_in_option": "A",
   "effective_from": "2026-11-17",
   "effective_to": null,
   "source": {
@@ -66,64 +67,33 @@
   "export": {
     "periods": [
       {
-        "id": "peak",
-        "name": "Peak",
-        "tiers": [
-          {
-            "up_to_kwh": 7.5,
-            "rate": 0.025
-          },
-          {
-            "rate": 0.016
-          }
-        ],
-        "tier_reset": "day",
-        "windows": [
-          {
-            "days": "all",
-            "start": "10:00",
-            "end": "15:00"
-          }
-        ]
-      },
-      {
-        "id": "off_peak",
-        "name": "Off-peak",
-        "rate": 0.154,
-        "windows": [
-          {
-            "days": "all",
-            "start": "17:00",
-            "end": "20:00"
-          }
-        ]
-      },
-      {
-        "id": "shoulder",
-        "name": "Shoulder",
-        "rate": 0.025,
-        "windows": [
-          {
-            "days": "all",
-            "start": "15:00",
-            "end": "17:00"
-          },
-          {
-            "days": "all",
-            "start": "20:00",
-            "end": "10:00"
-          }
-        ]
-      },
-      {
         "id": "solar_feed_in_tariffs_fit",
-        "name": "Solar feed-in tariffs (FIT)",
+        "name": "Feed-in",
         "rate": 0.025,
         "default": true
       }
     ]
   },
-  "demand": [],
+  "demand": [
+    {
+      "id": "residential_demand",
+      "name": "Residential Demand",
+      "rate": 0.19613,
+      "unit": "per_kw_per_day",
+      "windows": [
+        {
+          "days": "weekdays",
+          "start": "17:00",
+          "end": "20:00"
+        }
+      ],
+      "measure": {
+        "interval_minutes": 30,
+        "method": "max",
+        "over": "month"
+      }
+    }
+  ],
   "controlled_load": [
     {
       "id": "controlled_load_1",
@@ -159,5 +129,5 @@
     }
   ],
   "needs_review": true,
-  "notes": "Converted from Energy Made Easy (CDR) plan RED552428MRE21@EME; charges include GST (CDR ex GST x1.1). Feed-in 'Solar Export Tariff (BLNREX2)': the data gives its 7.5 kWh limit per P1Y, but its text says per day: per day was used. Incentive: Qantas Points. Fees: CONNECTION, DISCONNECTION."
+  "notes": "Converted from Energy Made Easy (CDR) plan RED552428MRE21@EME; charges include GST (CDR ex GST x1.1). Demand charge 'Residential Demand': times read from its description. Demand charge 'Residential Demand': measured over a month (not stated; check the fact sheet). Demand charge 'Residential Demand' is per kVA; counted as kW (power factor 1). Demand charge 'Residential Demand' mentions public holidays; check how they're counted. Feed-in is called 'Red Energy FIT' on Energy Made Easy. Incentive: Qantas Points. Fees: CONNECTION, DISCONNECTION. Energy Made Easy offers a choice of feed-in (options A, B): this is option A."
 }

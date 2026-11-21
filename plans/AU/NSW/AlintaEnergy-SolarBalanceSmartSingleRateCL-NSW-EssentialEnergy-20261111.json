@@ -1,0 +1,93 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Alinta Energy",
+  "plan": "SolarBalance Smart - Single Rate + CL",
+  "plan_id": "ALI1218287MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-11-11",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ALI1218287MRE1",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.50437,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "general",
+        "name": "General",
+        "rate": 0.32208,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "tiers": [
+          {
+            "up_to_kwh": 8.0,
+            "rate": 0.08
+          },
+          {
+            "rate": 0.03
+          }
+        ],
+        "tier_reset": "day",
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load",
+      "name": "Controlled load",
+      "supply_charge": {
+        "rate": 0.1441,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled load",
+          "rate": 0.18293,
+          "default": true
+        }
+      ]
+    },
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled load",
+      "supply_charge": {
+        "rate": 0.1441,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled load",
+          "rate": 0.22066,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ALI1218287MRE1@EME; charges include GST (CDR ex GST x1.1). Feed-in is called 'Solar Bonus FiT' on Energy Made Easy. Incentive: Stepped FiT. Fees: DISCONNECTION, RECONNECTION, CONNECTION, DISCONNECT_MOVE_OUT, RECONNECTION."
+}

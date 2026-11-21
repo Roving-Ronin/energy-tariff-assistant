@@ -1,0 +1,140 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Indigo Power",
+  "plan": "Indigo Power Retail - Energy Shapers Plan Essential",
+  "plan_id": "IPR1200266MRE1",
+  "customer_type": "residential",
+  "effective_from": "2026-09-30",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=IPR1200266MRE1",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.8941,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.3278,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "17:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.2904,
+        "windows": [
+          {
+            "days": "weekdays",
+            "start": "07:00",
+            "end": "17:00"
+          },
+          {
+            "days": "weekdays",
+            "start": "20:00",
+            "end": "22:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off Peak",
+        "rate": 0.2574,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "peak",
+        "name": "Peak",
+        "rate": 0.134,
+        "windows": [
+          {
+            "days": "all",
+            "start": "17:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "off_peak",
+        "name": "Off-peak",
+        "rate": 0.0,
+        "windows": [
+          {
+            "days": "all",
+            "start": "10:00",
+            "end": "15:00"
+          }
+        ]
+      },
+      {
+        "id": "shoulder",
+        "name": "Shoulder",
+        "rate": 0.031,
+        "default": true
+      }
+    ]
+  },
+  "demand": [
+    {
+      "id": "peak_demand",
+      "name": "Peak Demand",
+      "rate": 0.1881,
+      "unit": "per_kw_per_day",
+      "windows": [
+        {
+          "days": "weekdays",
+          "start": "17:00",
+          "end": "20:00"
+        }
+      ],
+      "measure": {
+        "interval_minutes": 30,
+        "method": "max",
+        "over": "month"
+      }
+    }
+  ],
+  "controlled_load": [
+    {
+      "id": "controlled_load_2",
+      "name": "Controlled Load 2",
+      "supply_charge": {
+        "rate": 0.0,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 2",
+          "rate": 0.253,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan IPR1200266MRE1@EME; charges include GST (CDR ex GST x1.1). Demand charge 'Peak Demand': times read from its description. Demand charge 'Peak Demand': measured over a month (not stated; check the fact sheet). Discount: Daytime Rebate (10am - 3pm) (guaranteed, percentOfUse 0.0). Fees: DD_DISHONOUR, DISCONNECT_MOVE_OUT, RECONNECTION. The plan gives its times in AEST all year (an hour later on the clock in summer), but Essential Energy's time-of-use periods follow local time, following daylight saving. The plan's own time zone was used: check against the plan's fact sheet."
+}

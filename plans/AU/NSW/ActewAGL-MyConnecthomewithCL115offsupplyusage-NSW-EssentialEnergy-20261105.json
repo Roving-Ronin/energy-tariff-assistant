@@ -1,0 +1,68 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "ActewAGL",
+  "plan": "My Connect - home with CL 1 15% off supply & usage",
+  "plan_id": "ACT858888MRE7",
+  "customer_type": "residential",
+  "effective_from": "2026-11-05",
+  "effective_to": "2027-07-01",
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=ACT858888MRE7",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Brisbane",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.722168,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "general",
+        "name": "General",
+        "rate": 0.350053,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.025,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [
+    {
+      "id": "controlled_load_1",
+      "name": "Controlled Load 1",
+      "supply_charge": {
+        "rate": 0.156605,
+        "unit": "per_day"
+      },
+      "periods": [
+        {
+          "id": "anytime",
+          "name": "Controlled Load 1",
+          "rate": 0.198887,
+          "default": true
+        }
+      ]
+    }
+  ],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan ACT858888MRE7@EME; charges include GST (CDR ex GST x1.1). Feed-in is called 'Voluntary retailer buyback rate' on Energy Made Easy. Discount: Discount off supply and usage charges (guaranteed, percentOfBill 0.15). Incentive: Sign up credit incentive. Incentive: Battery Power Top-Up. Incentive: Battery Power Top-Up Bonus. Fees: DISCONNECTION, RECONNECTION, OTHER, LATE_PAYMENT, DD_DISHONOUR."
+}

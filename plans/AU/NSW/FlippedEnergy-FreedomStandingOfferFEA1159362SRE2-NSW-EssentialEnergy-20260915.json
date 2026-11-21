@@ -1,0 +1,75 @@
+{
+  "format": "ha_tariff_plan",
+  "version": 1,
+  "country": "AU",
+  "region": "NSW",
+  "dnsp": "Essential Energy",
+  "retailer": "Flipped Energy",
+  "plan": "Freedom Standing Offer",
+  "plan_id": "FEA1159362SRE2",
+  "customer_type": "residential",
+  "effective_from": "2026-09-15",
+  "effective_to": null,
+  "source": {
+    "type": "EME",
+    "url": "https://www.energymadeeasy.gov.au/plan?id=FEA1159362SRE2",
+    "checked": "2026-11-21"
+  },
+  "currency": "AUD",
+  "timezone": "Australia/Sydney",
+  "holidays": {
+    "treat_as": "none"
+  },
+  "supply_charge": {
+    "rate": 2.756919,
+    "unit": "per_day"
+  },
+  "import": {
+    "periods": [
+      {
+        "id": "day",
+        "name": "Day",
+        "rate": 0.231194,
+        "windows": [
+          {
+            "days": "all",
+            "start": "08:00",
+            "end": "16:00"
+          }
+        ]
+      },
+      {
+        "id": "evening",
+        "name": "Evening",
+        "rate": 0.553458,
+        "windows": [
+          {
+            "days": "all",
+            "start": "16:00",
+            "end": "20:00"
+          }
+        ]
+      },
+      {
+        "id": "overnight",
+        "name": "Overnight",
+        "rate": 0.325069,
+        "default": true
+      }
+    ]
+  },
+  "export": {
+    "periods": [
+      {
+        "id": "feed_in",
+        "name": "Feed-in",
+        "rate": 0.02,
+        "default": true
+      }
+    ]
+  },
+  "demand": [],
+  "controlled_load": [],
+  "needs_review": true,
+  "notes": "Converted from Energy Made Easy (CDR) plan FEA1159362SRE2@EME; charges include GST (CDR ex GST x1.1). Feed-in is called 'Solar Feed In Tariff' on Energy Made Easy. Discount: Referral Discount (conditional, fixedAmount 30.00). Fees: DISCONNECTION, RECONNECTION, CONNECTION."
+}
