@@ -34,6 +34,9 @@ jobs:
           PER_PATH: ${{ inputs.per_path }}
         run: python scripts/check_cdr_conversion.py --out cdr-check --per-path "${PER_PATH:-3}"
 
+      - name: How plans are versioned
+        run: python scripts/check_plan_versions.py
+
       - name: Upload the report and samples
         uses: actions/upload-artifact@v4
         with:
