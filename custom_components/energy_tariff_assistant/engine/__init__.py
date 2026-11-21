@@ -4,7 +4,7 @@ Pure Python: no Home Assistant imports, so it can be tested and reused on
 its own. The integration wraps it; scripts and CI use it directly.
 """
 
-from .forecast import build_forecast
+from .forecast import build_forecast, build_intervals
 from .meter import BUCKETS, Bucket, Ledger, bucket_start
 from .model import FORMAT, VERSION, Period, Plan, Stream, Tier, Window, load_plan
 from .resolver import RateResult, Resolver
@@ -22,6 +22,7 @@ __all__ = [
     "RateResult",
     "Resolver",
     "build_forecast",
+    "build_intervals",
     "BUCKETS",
     "Bucket",
     "Ledger",

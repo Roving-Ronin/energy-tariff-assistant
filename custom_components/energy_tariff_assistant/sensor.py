@@ -1,11 +1,9 @@
-"""Price, period, metering and bill sensors."""
+"""Price sensors (with forecasts), capped-rate usage, and Active tariff's grid sensors and totals."""
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Any
 
-import voluptuous as vol
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -13,21 +11,23 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import UnitOfEnergy
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import ServiceValidationError
-from homeassistant.helpers import entity_platform
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import TariffConfigEntry
+from .active import ActiveRuntime
 from .const import (
-    ATTR_COST,
-    ATTR_ENERGY,
+    ACTIVE_SLUG,
+    ACTIVE_TITLE,
+    ACTIVE_UNIQUE_ID,
+    CONF_KIND,
+    CONF_SLUG,
     DOMAIN,
-    EXPOSED_BUCKETS,
-    SERVICE_CALIBRATE,
+    KIND_ACTIVE,
     STREAM_EXPORT,
     STREAM_IMPORT,
+    signal_active,
 )
 from .engine import Period
 from .runtime import TariffRuntime
@@ -35,8 +35,7 @@ from .runtime import TariffRuntime
 PARALLEL_UPDATES = 0
 
 STREAM_LABEL = {STREAM_IMPORT: "Import", STREAM_EXPORT: "Export"}
-BUCKET_LABEL = {"day": "today", "cycle": "this billing cycle"}
-COST_LABEL = {STREAM_IMPORT: "cost", STREAM_EXPORT: "credit"}
+FORECAST_ATTRIBUTES = frozenset({"forecast", "forecasts"})
 
 
 async def async_setup_entry(
@@ -44,66 +43,65 @@ async def async_setup_entry(
     entry: TariffConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    runtime = entry.runtime_data
-    entities: list[SensorEntity] = []
-
-    for stream in (STREAM_IMPORT, STREAM_EXPORT):
-        entities += [
-            PriceSensor(runtime, stream),
-            PeriodSensor(runtime, stream),
-            NextChangeSensor(runtime, stream),
-        ]
-    entities.append(DailySupplySensor(runtime))
-
-    for stream in runtime.ledgers:
-        periods = _periods(runtime, stream)
-        for bucket in EXPOSED_BUCKETS:
-            entities += [
-                EnergySensor(runtime, stream, bucket, None),
-                CostSensor(runtime, stream, bucket, None),
+    if entry.data.get(CONF_KIND) == KIND_ACTIVE:
+        runtime: ActiveRuntime = entry.runtime_data
+        async_add_entities(
+            [
+                GridPriceSensor(runtime, STREAM_IMPORT),
+                GridPriceSensor(runtime, STREAM_EXPORT),
+                TotalSensor(runtime, "import_cost", "Grid - Import Cost - Total", "mdi:cash-minus"),
+                TotalSensor(runtime, "export_compensation", "Grid - Export Compensation - Total", "mdi:cash-plus"),
+                SupplyChargeSensor(runtime),
+                TotalSensor(runtime, "supply_charge", "Grid - Supply Charge - Total", "mdi:transmission-tower"),
             ]
-            for period in periods:
-                entities += [
-                    EnergySensor(runtime, stream, bucket, period),
-                    CostSensor(runtime, stream, bucket, period),
-                ]
-    if STREAM_IMPORT in runtime.ledgers:
-        entities += [SupplyAccruedSensor(runtime, b) for b in EXPOSED_BUCKETS]
-        entities.append(BillSensor(runtime))
+        )
+        return
 
+    plan_runtime: TariffRuntime = entry.runtime_data
+    entities: list[SensorEntity] = [PlanPriceSensor(plan_runtime, s) for s in (STREAM_IMPORT, STREAM_EXPORT)]
+    for stream in (STREAM_IMPORT, STREAM_EXPORT):
+        entities += [CapUsedSensor(plan_runtime, stream, p) for p in plan_runtime.capped_periods(stream)]
     async_add_entities(entities)
 
-    platform = entity_platform.async_get_current_platform()
-    platform.async_register_entity_service(
-        SERVICE_CALIBRATE,
-        {
-            vol.Required(ATTR_ENERGY): vol.All(vol.Coerce(float), vol.Range(min=0)),
-            vol.Optional(ATTR_COST): vol.Coerce(float),
-        },
-        "async_calibrate",
-    )
+
+def price_attributes(runtime: TariffRuntime, stream: str) -> tuple[float, dict[str, Any]]:
+    """The price now and the attributes optimisers read, laid out as Amber Express publishes them."""
+    result = runtime.rate(stream)
+    start, end = runtime.period_window(stream)
+    plan = result.plan
+    return round(result.rate, 6), {
+        "start_time": start.isoformat() if start else None,
+        "end_time": end.isoformat() if end else None,
+        "period": result.period.id,
+        "period_name": result.period.name,
+        "charged_as": result.rate_period.id,
+        "tier": result.tier_index,
+        "retailer": plan.retailer,
+        "plan": plan.plan,
+        "plan_id": plan.plan_id,
+        # Each price holds until the next point; without this HAEO interpolates `forecast` linearly
+        "interpolation_mode": "previous",
+        "forecast": runtime.forecast(stream),  # {time, value}: Nimbus, HAEO's own format
+        "forecasts": runtime.intervals(stream),  # Amber's layout, 30-min slots: HAEO, EMHASS templates
+    }
 
 
-def _periods(runtime: TariffRuntime, stream: str) -> list[Period]:
-    """Every period of `stream` across plan versions, first seen wins."""
-    seen: dict[str, Period] = {}
-    for plan in runtime.resolver.versions:
-        for period in plan.stream(stream).periods:
-            seen.setdefault(period.id, period)
-    return list(seen.values())
+# ----- plan entries -----------------------------------------------------------
 
 
-class TariffEntity(SensorEntity):
-    """Base: one device per entry, updated by the runtime's signal."""
+class PlanEntity(SensorEntity):
+    """A plan entry's entity: one device per plan, updated by the plan's runtime."""
 
     _attr_has_entity_name = True
     _attr_should_poll = False
 
-    def __init__(self, runtime: TariffRuntime, key: str) -> None:
+    def __init__(self, runtime: TariffRuntime, key: str, object_id: str) -> None:
         self.runtime = runtime
         entry = runtime.entry
         plan = runtime.plan
         self._attr_unique_id = f"{entry.entry_id}_{key}"
+        # The entity ID comes from the entry (fixed when it was created), never the plan's content
+        self.entity_id = f"sensor.{entry.data[CONF_SLUG]}_{object_id}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name=entry.title,
@@ -114,9 +112,7 @@ class TariffEntity(SensorEntity):
         )
 
     async def async_added_to_hass(self) -> None:
-        self.async_on_remove(
-            async_dispatcher_connect(self.hass, self.runtime.signal, self._async_refresh)
-        )
+        self.async_on_remove(async_dispatcher_connect(self.hass, self.runtime.signal, self._async_refresh))
         self._update()
 
     @callback
@@ -127,256 +123,192 @@ class TariffEntity(SensorEntity):
     def _update(self) -> None:
         """Recompute the state from the runtime."""
 
-    async def async_calibrate(self, energy: float, cost: float | None = None) -> None:
-        raise ServiceValidationError(
-            translation_domain=DOMAIN, translation_key="not_calibratable"
-        )
 
-
-# ----- prices ---------------------------------------------------------------
-
-
-class PriceSensor(TariffEntity):
-    """Price in force now, per kWh. Use as the Energy dashboard price entity."""
+class PlanPriceSensor(PlanEntity):
+    """This plan's price now, per kWh, with forecasts. Export is positive: what you're paid."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_suggested_display_precision = 4
-    _unrecorded_attributes = frozenset({"forecast"})
+    _unrecorded_attributes = FORECAST_ATTRIBUTES
 
     def __init__(self, runtime: TariffRuntime, stream: str) -> None:
-        super().__init__(runtime, f"{stream}_price")
+        super().__init__(runtime, f"{stream}_price", f"{stream}_price")
         self.stream = stream
-        self._attr_name = f"{STREAM_LABEL[stream]} price"
+        self._attr_name = f"{STREAM_LABEL[stream]} Price"
         self._attr_native_unit_of_measurement = f"{runtime.currency}/{UnitOfEnergy.KILO_WATT_HOUR}"
-        self._attr_icon = "mdi:cash-plus" if stream == STREAM_IMPORT else "mdi:cash-minus"
+        self._attr_icon = "mdi:transmission-tower-import" if stream == STREAM_IMPORT else "mdi:transmission-tower-export"
 
     def _update(self) -> None:
+        self._attr_native_value, self._attr_extra_state_attributes = price_attributes(self.runtime, self.stream)
+
+
+class CapUsedSensor(PlanEntity):
+    """kWh counted toward a capped rate ("first 50 kWh free") since its last reset."""
+
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_state_class = SensorStateClass.TOTAL
+    _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+    _attr_suggested_display_precision = 3
+    _attr_icon = "mdi:gauge"
+
+    def __init__(self, runtime: TariffRuntime, stream: str, period: Period) -> None:
+        super().__init__(runtime, f"{stream}_{period.id}_used", f"{stream}_{period.id}_used")
+        self.stream = stream
+        self.period = period
+        self._attr_name = f"{STREAM_LABEL[stream]} {period.name} Used"
+
+    @property
+    def available(self) -> bool:
+        return self.stream in self.runtime.ledgers
+
+    def _cap(self) -> tuple[float | None, Period]:
+        current = next(
+            (p for p in self.runtime.plan.stream(self.stream).periods if p.id == self.period.id), self.period
+        )
+        return next((t.up_to_kwh for t in current.tiers if t.up_to_kwh is not None), None), current
+
+    def _update(self) -> None:
+        used = self.runtime.used(self.stream, self.period.id)
+        cap, period = self._cap()
+        self._attr_native_value = round(used, 3) if used is not None else None
+        ledger = self.runtime.ledgers.get(self.stream)
+        self._attr_last_reset = None
+        if ledger is not None and period.tier_reset in ledger.buckets:
+            self._attr_last_reset = ledger.bucket_start_time(period.tier_reset)
         result = self.runtime.rate(self.stream)
-        self._attr_native_value = round(result.rate, 6)
         self._attr_extra_state_attributes = {
-            "period": result.period.id,
-            "period_name": result.period.name,
-            "charged_as": result.rate_period.id,
-            "tier": result.tier_index,
-            "retailer": result.plan.retailer,
-            "plan": result.plan.plan,
-            "forecast": self.runtime.forecast(self.stream),
+            "cap_kwh": cap,
+            "remaining_kwh": round(max(cap - used, 0.0), 3) if cap is not None and used is not None else None,
+            "resets": period.tier_reset,
+            "over_cap_rate_from": next((t.use_period for t in period.tiers if t.use_period), None),
+            "rate_now": round(result.rate, 6) if result.period.id == self.period.id else None,
+            "source": self.runtime.sources.get(self.stream),
         }
 
 
-class PeriodSensor(TariffEntity):
-    """Name of the period in force now (Peak, Shoulder, Off-peak...)."""
+# ----- Active tariff ----------------------------------------------------------
 
-    _attr_device_class = SensorDeviceClass.ENUM
 
-    def __init__(self, runtime: TariffRuntime, stream: str) -> None:
-        super().__init__(runtime, f"{stream}_period")
-        self.stream = stream
-        self._attr_name = f"{STREAM_LABEL[stream]} period"
-        self._attr_icon = "mdi:clock-outline"
-        self._attr_options = [p.name for p in _periods(runtime, stream)]
+class ActiveEntity(SensorEntity):
+    """An Active tariff entity: follows whichever plan is in use.
+
+    Named on its own ("Grid - Import Price"), not after the device: these are the names people pick in the Energy
+    dashboard and optimisers."""
+
+    _attr_has_entity_name = False
+    _attr_should_poll = False
+
+    def __init__(self, runtime: ActiveRuntime, key: str) -> None:
+        self.runtime = runtime
+        self._attr_unique_id = f"{ACTIVE_UNIQUE_ID}_{key}"
+        self.entity_id = f"sensor.{ACTIVE_SLUG}_{key}"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, ACTIVE_UNIQUE_ID)},
+            name=ACTIVE_TITLE,
+            manufacturer="Energy Tariff Assistant",
+            entry_type=DeviceEntryType.SERVICE,
+        )
+
+    async def async_added_to_hass(self) -> None:
+        self.async_on_remove(async_dispatcher_connect(self.hass, signal_active(), self._async_refresh))
+        self._update()
+
+    @callback
+    def _async_refresh(self) -> None:
+        self._update()
+        self.async_write_ha_state()
 
     def _update(self) -> None:
-        result = self.runtime.rate(self.stream)
-        self._attr_native_value = result.period.name
-        self._attr_extra_state_attributes = {"period_id": result.period.id}
+        """Recompute the state."""
+
+    def _plan_attributes(self) -> dict[str, Any]:
+        entry = self.runtime.active_entry
+        return {"active_plan": entry.title if entry else None}
 
 
-class NextChangeSensor(TariffEntity):
-    """When the period in force next changes."""
+class GridPriceSensor(ActiveEntity):
+    """The active plan's price now, with its forecasts: one fixed name for the Energy dashboard and optimisers."""
 
-    _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_suggested_display_precision = 4
+    _unrecorded_attributes = FORECAST_ATTRIBUTES
 
-    def __init__(self, runtime: TariffRuntime, stream: str) -> None:
-        super().__init__(runtime, f"{stream}_next_change")
+    def __init__(self, runtime: ActiveRuntime, stream: str) -> None:
+        super().__init__(runtime, f"{stream}_price")
         self.stream = stream
-        self._attr_name = f"{STREAM_LABEL[stream]} next period change"
-        self._attr_icon = "mdi:clock-end"
+        self._attr_name = f"Grid - {STREAM_LABEL[stream]} Price"
+        self._attr_icon = "mdi:transmission-tower-import" if stream == STREAM_IMPORT else "mdi:transmission-tower-export"
+
+    @property
+    def available(self) -> bool:
+        return self.runtime.plan_runtime is not None
 
     def _update(self) -> None:
-        change = self.runtime.next_change(self.stream)
-        self._attr_native_value = change
-        if change is None:
-            self._attr_extra_state_attributes = {}
+        plan_runtime = self.runtime.plan_runtime
+        if plan_runtime is None:
+            self._attr_native_value = None
+            self._attr_extra_state_attributes = self._plan_attributes()
             return
-        nxt = self.runtime.resolver.period_at(self.stream, change)
-        self._attr_extra_state_attributes = {"next_period": nxt.id, "next_period_name": nxt.name}
+        self._attr_native_unit_of_measurement = f"{plan_runtime.currency}/{UnitOfEnergy.KILO_WATT_HOUR}"
+        value, attributes = price_attributes(plan_runtime, self.stream)
+        self._attr_native_value = value
+        self._attr_extra_state_attributes = {
+            **self._plan_attributes(),
+            "source_entity": self.runtime.source_entity(self.stream),
+            **attributes,
+        }
 
 
-class DailySupplySensor(TariffEntity):
-    """The plan's daily supply charge."""
+class TotalSensor(ActiveEntity):
+    """A running $ total kept across plan switches (import cost, export compensation, supply charge)."""
+
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_state_class = SensorStateClass.TOTAL
+    _attr_suggested_display_precision = 2
+
+    def __init__(self, runtime: ActiveRuntime, key: str, name: str, icon: str) -> None:
+        super().__init__(runtime, f"{key}_total")
+        self.key = key
+        self._attr_name = name
+        self._attr_icon = icon
+
+    @property
+    def available(self) -> bool:
+        if self.key == "supply_charge":
+            return True
+        # Cost and compensation need the grid energy sensors: without them there's nothing counted
+        plan_runtime = self.runtime.plan_runtime
+        stream = STREAM_IMPORT if self.key == "import_cost" else STREAM_EXPORT
+        return plan_runtime is not None and stream in plan_runtime.ledgers
+
+    def _update(self) -> None:
+        plan_runtime = self.runtime.plan_runtime
+        # Keep the currency while no plan is in use, so the total's statistics don't break
+        self._attr_native_unit_of_measurement = plan_runtime.currency if plan_runtime else "AUD"
+        self._attr_native_value = round(self.runtime.totals[self.key], 6)
+        attributes = self._plan_attributes()
+        if self.key == "supply_charge":
+            attributes["days_counted"] = self.runtime.days_counted
+        self._attr_extra_state_attributes = attributes
+
+
+class SupplyChargeSensor(ActiveEntity):
+    """The active plan's daily supply charge."""
 
     _attr_suggested_display_precision = 4
     _attr_icon = "mdi:transmission-tower"
 
-    def __init__(self, runtime: TariffRuntime) -> None:
-        super().__init__(runtime, "supply_charge_daily")
-        self._attr_name = "Daily supply charge"
-
-    def _update(self) -> None:
-        self._attr_native_unit_of_measurement = f"{self.runtime.currency}/d"
-        self._attr_native_value = self.runtime.plan.supply_charge
-
-
-# ----- metering -------------------------------------------------------------
-
-
-class MeterEntity(TariffEntity):
-    """Common to energy and cost meters: a ledger bucket, optionally one period."""
-
-    _attr_state_class = SensorStateClass.TOTAL
-
-    def __init__(
-        self,
-        runtime: TariffRuntime,
-        stream: str,
-        bucket: str,
-        period: Period | None,
-        metric: str,
-    ) -> None:
-        part = period.id if period else "total"
-        super().__init__(runtime, f"{stream}_{part}_{metric}_{bucket}")
-        self.stream = stream
-        self.bucket = bucket
-        self.period = period
-        self.ledger = runtime.ledgers[stream]
+    def __init__(self, runtime: ActiveRuntime) -> None:
+        super().__init__(runtime, "supply_charge")
+        self._attr_name = "Grid - Supply Charge"
 
     @property
     def available(self) -> bool:
-        return self.bucket in self.ledger.buckets
-
-    def _pick(self, values: dict[str, float] | None) -> float:
-        if values is None:
-            return 0.0
-        if self.period is None:
-            return sum(values.values())
-        return values.get(self.period.id, 0.0)
-
-    def _common_attributes(self, previous: float | None) -> dict[str, Any]:
-        attrs: dict[str, Any] = {
-            "source": self.runtime.sources[self.stream],
-            "source_available": self.runtime.source_ok[self.stream],
-            "last_period": previous,
-        }
-        if (prev := self.ledger.previous.get(self.bucket)) is not None:
-            attrs["last_period_start"] = prev.start.isoformat()
-        return attrs
-
-    @property
-    def last_reset(self) -> datetime | None:
-        if self.bucket not in self.ledger.buckets:
-            return None
-        return self.ledger.bucket_start_time(self.bucket)
-
-
-class EnergySensor(MeterEntity):
-    """kWh used (or exported) in a period, today or this billing cycle."""
-
-    _attr_device_class = SensorDeviceClass.ENERGY
-    _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
-    _attr_suggested_display_precision = 3
-
-    def __init__(self, runtime, stream, bucket, period) -> None:
-        super().__init__(runtime, stream, bucket, period, "energy")
-        what = f"{period.name} energy" if period else "energy"
-        self._attr_name = f"{STREAM_LABEL[stream]} {what} {BUCKET_LABEL[bucket]}"
-        self._attr_icon = "mdi:transmission-tower-import" if stream == STREAM_IMPORT else "mdi:transmission-tower-export"
+        return self.runtime.plan_runtime is not None
 
     def _update(self) -> None:
-        bucket = self.ledger.buckets.get(self.bucket)
-        self._attr_native_value = round(self._pick(bucket.kwh if bucket else None), 6)
-        prev = self.ledger.previous.get(self.bucket)
-        self._attr_extra_state_attributes = self._common_attributes(
-            round(self._pick(prev.kwh), 6) if prev else None
-        )
-
-    async def async_calibrate(self, energy: float, cost: float | None = None) -> None:
-        if self.period is None:
-            raise ServiceValidationError(
-                translation_domain=DOMAIN, translation_key="calibrate_total"
-            )
-        self.ledger.calibrate(self.bucket, self.period.id, energy, cost)
-        self.runtime.async_changed(forecasts=True)
-
-
-class CostSensor(MeterEntity):
-    """Cost of import (or credit for export) in a period, today or this cycle."""
-
-    _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_suggested_display_precision = 2
-
-    def __init__(self, runtime, stream, bucket, period) -> None:
-        super().__init__(runtime, stream, bucket, period, "cost")
-        label = COST_LABEL[stream]
-        what = f"{period.name} {label}" if period else label
-        self._attr_name = f"{STREAM_LABEL[stream]} {what} {BUCKET_LABEL[bucket]}"
-        self._attr_native_unit_of_measurement = runtime.currency
-        self._attr_icon = "mdi:cash"
-
-    def _update(self) -> None:
-        bucket = self.ledger.buckets.get(self.bucket)
-        self._attr_native_value = round(self._pick(bucket.cost if bucket else None), 4)
-        prev = self.ledger.previous.get(self.bucket)
-        attrs = self._common_attributes(round(self._pick(prev.cost), 4) if prev else None)
-        if bucket is not None:
-            kwh = self._pick(bucket.kwh)
-            attrs["average_rate"] = round(self._attr_native_value / kwh, 5) if kwh > 0 else None
-        self._attr_extra_state_attributes = attrs
-
-
-class SupplyAccruedSensor(TariffEntity):
-    """Supply charge for the days so far, today or this billing cycle."""
-
-    _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class = SensorStateClass.TOTAL
-    _attr_suggested_display_precision = 2
-    _attr_icon = "mdi:transmission-tower"
-
-    def __init__(self, runtime: TariffRuntime, bucket: str) -> None:
-        super().__init__(runtime, f"supply_charge_{bucket}")
-        self.bucket = bucket
-        self._attr_name = f"Supply charge {BUCKET_LABEL[bucket]}"
-        self._attr_native_unit_of_measurement = runtime.currency
-
-    @property
-    def last_reset(self) -> datetime | None:
-        ledger = self.runtime.ledgers[STREAM_IMPORT]
-        if self.bucket not in ledger.buckets:
-            return None
-        return ledger.bucket_start_time(self.bucket)
-
-    def _update(self) -> None:
-        value = self.runtime.supply_for_bucket(self.bucket)
-        self._attr_native_value = round(value, 4) if value is not None else None
-
-
-class BillSensor(TariffEntity):
-    """Estimated bill so far this cycle: usage + supply - export credit."""
-
-    _attr_device_class = SensorDeviceClass.MONETARY
-    _attr_state_class = SensorStateClass.TOTAL
-    _attr_suggested_display_precision = 2
-    _attr_icon = "mdi:receipt-text-outline"
-
-    def __init__(self, runtime: TariffRuntime) -> None:
-        super().__init__(runtime, "bill_cycle")
-        self._attr_name = "Estimated bill this billing cycle"
-        self._attr_native_unit_of_measurement = runtime.currency
-
-    @property
-    def last_reset(self) -> datetime | None:
-        ledger = self.runtime.ledgers[STREAM_IMPORT]
-        return ledger.bucket_start_time("cycle") if "cycle" in ledger.buckets else None
-
-    def _update(self) -> None:
-        bill = self.runtime.bill_to_date()
-        if bill is None:
-            self._attr_native_value = None
-            return
-        self._attr_native_value = round(bill["total"], 2)
-        self._attr_extra_state_attributes = {
-            "usage": round(bill["usage"], 4),
-            "supply": round(bill["supply"], 4),
-            "export_credit": round(bill["export_credit"], 4),
-            "estimate": True,
-        }
+        plan_runtime = self.runtime.plan_runtime
+        if plan_runtime is not None:
+            self._attr_native_unit_of_measurement = f"{plan_runtime.currency}/d"
+        self._attr_native_value = self.runtime.supply_rate()
+        self._attr_extra_state_attributes = self._plan_attributes()

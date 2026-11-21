@@ -1,6 +1,5 @@
 {
   "services": {
-    "calibrate": { "service": "mdi:counter" },
-    "reset_meters": { "service": "mdi:restart" }
+    "set_active_plan": { "service": "mdi:list-status" }
   }
 }

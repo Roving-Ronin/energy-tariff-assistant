@@ -8,6 +8,11 @@ from homeassistant import config_entries
 from homeassistant.data_entry_flow import FlowResultType
 
 from custom_components.energy_tariff_assistant.const import (
+    CONF_ACTIVE_ENTRY,
+    CONF_KIND,
+    CONF_SLUG,
+    KIND_ACTIVE,
+    KIND_PLAN,
     CONF_BILLING_DAY,
     CONF_IMPORT_SENSOR,
     CONF_LIBRARY_FILE,
@@ -31,7 +36,7 @@ async def _start(hass, source: str):
     )
     assert result["type"] is FlowResultType.FORM
     return await hass.config_entries.flow.async_configure(
-        result["flow_id"], {"name": "Electricity", CONF_SOURCE: source}
+        result["flow_id"], {CONF_SOURCE: source}
     )
 
 
@@ -41,17 +46,16 @@ async def test_paste_flow_creates_entry(hass, sydney, plan_data):
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"], {CONF_PLAN_JSON: json.dumps(plan_data)}
     )
-    assert result["step_id"] == "meters"
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], {CONF_IMPORT_SENSOR: IMPORT, CONF_BILLING_DAY: 15}
-    )
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert result["title"] == "Electricity"
-    options = result["options"]
-    assert options[CONF_PLAN]["plan"] == "SolarMax Residential TOU"
-    assert options[CONF_IMPORT_SENSOR] == IMPORT
-    assert options["export_sensor"] is None
-    assert options[CONF_BILLING_DAY] == 15
+    assert result["title"] == "CovaU - SolarMax TOU"  # retailer - plan, without customer type or network
+    assert result["data"] == {CONF_KIND: KIND_PLAN, CONF_SLUG: "eta_covau_solarmaxtou"}
+    assert result["options"][CONF_PLAN]["plan"] == "SolarMax Residential TOU"
+    await hass.async_block_till_done()
+    # The first plan creates Active tariff, with it in use
+    hub = next(e for e in hass.config_entries.async_entries(DOMAIN) if e.data.get(CONF_KIND) == KIND_ACTIVE)
+    assert hub.title == "Active Tariff"
+    assert hub.options[CONF_ACTIVE_ENTRY] == result["result"].entry_id
+    assert hass.states.get("sensor.eta_grid_import_price") is not None
 
 
 async def test_paste_bad_json(hass, sydney):
@@ -110,7 +114,11 @@ def _options(result, key):
 async def test_library_flow(hass, sydney, aioclient_mock):
     file = INDEX["plans"][0]["file"]
     aioclient_mock.get(LIBRARY_BASE_URL + LIBRARY_INDEX, text=json.dumps(INDEX))
-    aioclient_mock.get(LIBRARY_BASE_URL + file, text=PLAN_FILE.read_text(encoding="utf-8"))
+    # Library feedback fields (newer than some releases) load, and aren't copied into the entry
+    plan = json.loads(PLAN_FILE.read_text(encoding="utf-8"))
+    plan["confirmations"] = [{"date": "2026-11-21", "by": "octocat", "issue": 34}]
+    plan["problems"] = [{"date": "2026-11-22", "issue": 35}]
+    aioclient_mock.get(LIBRARY_BASE_URL + file, text=json.dumps(plan))
     result = await _start(hass, SOURCE_LIBRARY)
     assert result["step_id"] == "library"
     assert _options(result, "country") == ["au"]
@@ -132,15 +140,13 @@ async def test_library_flow(hass, sydney, aioclient_mock):
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"], {CONF_LIBRARY_FILE: file}
     )
-    assert result["step_id"] == "meters"
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], {CONF_BILLING_DAY: 1}
-    )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["options"][CONF_PLAN_SOURCE] == {
         CONF_SOURCE: SOURCE_LIBRARY,
         CONF_LIBRARY_FILE: file,
     }
+    assert "confirmations" not in result["options"][CONF_PLAN]
+    assert "problems" not in result["options"][CONF_PLAN]
 
 
 async def test_library_unreachable(hass, sydney, aioclient_mock):
@@ -150,22 +156,28 @@ async def test_library_unreachable(hass, sydney, aioclient_mock):
     assert result["reason"] == "cannot_connect"
 
 
-async def test_options_change_meters(hass, sydney, entry):
-    await hass.config_entries.async_setup(entry.entry_id)
+async def test_active_tariff_settings(hass, sydney, entry, hub):
+    assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
-    result = await hass.config_entries.options.async_init(entry.entry_id)
-    assert result["type"] is FlowResultType.MENU
+    result = await hass.config_entries.options.async_init(hub.entry_id)
+    assert result["step_id"] == "active"
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {"next_step_id": "meters"}
-    )
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {CONF_IMPORT_SENSOR: IMPORT, CONF_BILLING_DAY: 3}
+        result["flow_id"], {CONF_ACTIVE_ENTRY: entry.entry_id, CONF_IMPORT_SENSOR: IMPORT, CONF_BILLING_DAY: 3}
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
-    assert entry.options[CONF_BILLING_DAY] == 3
-    assert entry.options["export_sensor"] is None
-    assert entry.options[CONF_PLAN]["retailer"] == "CovaU"
+    assert hub.options[CONF_BILLING_DAY] == 3
+    assert hub.options["export_sensor"] is None
+    # The plan entry was reloaded with the new sensors: export no longer counted
+    assert "export" not in entry.runtime_data.ledgers
+
+
+async def test_plan_options_menu(hass, sydney, entry, hub):
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] is FlowResultType.MENU
+    assert result["menu_options"] == ["plan", "share"]
 
 
 async def test_library_business_filter(hass, sydney, aioclient_mock):

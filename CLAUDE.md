@@ -10,8 +10,9 @@ remove an item once it's released.
 ## Project
 
 Energy Tariff Assistant is a Home Assistant custom integration (`custom_components/energy_tariff_assistant`)
-for Australian electricity tariff plans with per-rate metering built in: prices, periods, forecasts, kWh and $
-per period, supply charge and an estimated bill. Plans are JSON files (`"format": "ha_tariff_plan"`, v1) from the
+for Australian electricity tariff plans: imported plans become price sensors with forecasts (Energy dashboard,
+HAEO, EMHASS, Nimbus), "Active tariff" points stable grid sensors at the plan in use, with capped-rate tracking
+and running cost, compensation and supply charge totals. Plans are JSON files (`"format": "ha_tariff_plan"`, v1) from the
 shared library in `plans/` (published as
 `https://raw.githubusercontent.com/Roving-Ronin/energy-tariff-assistant/main/plans/index.json`), a file in the
 user's config folder, or pasted text. Licence: **GPL-3.0** (decided 2026-11-20; keep it).
@@ -50,16 +51,19 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
 | `engine/model.py` | Plan dataclasses and `load_plan`. Pure |
 | `engine/validate.py` | Plan validation (errors block, warnings report). Runs without third-party packages. Pure |
 | `engine/resolver.py` | **Moment → period and rate**, tiers (`used_kwh`), holidays, plan versions, `boundaries`, `next_change`. Pure |
-| `engine/forecast.py` | HAEO/EMHASS-shaped price forecast. Pure |
+| `engine/forecast.py` | `build_forecast` (`{time, value}`: now, every :00/:30, changes) and `build_intervals` (Amber's `{start_time, end_time, per_kwh}`, 30-min slots). Pure |
 | `engine/meter.py` | **`Ledger`: all per-period kWh and cost maths**, day/month/cycle buckets, boundary split, tier split. Pure, unit-tested directly. Never re-implement this elsewhere |
 | `engine/importers/` | Converters from other formats: `energy_manager.py` (energy-manager-tariffs), `cdr.py` (Energy Made Easy / CDR plan detail; also the shared CDR distributor → DNSP/state map). Pure |
 | `schema/tariff-plan.schema.json` | JSON Schema for editors and CI; `validate.py` adds the cross-field rules |
 | `plan_source.py` | Library fetch, file read, paste parse; `check_plan` (validate + build resolver + prewarm holidays) |
 | `wizard.py` | Build-a-plan answers → plan dict (`assemble_plan`), file names, review summary; library filtering (country → state → DNSP → retailer → plan, newest first). Pure |
 | `share.py` | Pre-filled GitHub plan submission link (plan only, never meter data). Pure apart from `const` |
-| `runtime.py` | Per entry: tracks source sensors, converts units, feeds the ledgers, timers, `.storage`, signals entities |
-| `sensor.py` | Entities only: values come from the runtime / ledgers |
-| `config_flow.py` | Setup (plan source → meters) and options flow (meters, replace the plan, share). Plan sources: library (filtered steps), build step by step (`build_*` steps, one set per stream), paste, file |
+| `runtime.py` | Per plan entry: prices, forecasts, period window, capped periods; counts Active tariff's grid sensors in its ledgers (caps), timers, `.storage` |
+| `active.py` | Active tariff: the plan in use, totals (import cost, export compensation, supply charge), the active plan files for other tools |
+| `sensor.py` | Entities only: plan price sensors and capped-rate `_used` sensors; Active tariff's grid prices and totals |
+| `select.py` | `select.eta_grid_active_tariff_plan` |
+| `update.py` / `updates.py` | Library updates for a plan entry (update entity; matching and change notes, pure) |
+| `config_flow.py` | Add a plan (source → entry titled "Retailer - Plan"); `async_step_import` creates Active tariff; options: plan entries (replace the plan, share), Active tariff (`active`: plan in use, grid sensors, billing day). Plan sources: library (filtered steps), build step by step (`build_*` steps, one set per stream), paste, file |
 | `diagnostics.py` | Plan, options and ledger state |
 
 ## Rules
@@ -81,18 +85,43 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
 - Source units: Wh, kWh, MWh (`ENERGY_UNIT_FACTORS`); anything else is rejected with a warning.
 
 ### Plans and entries
+- **Two kinds of entry** (`data.kind`): `plan` (one per imported plan) and `active` (Active tariff, unique id
+  `active_tariff`, created by the first plan entry through `async_step_import`). The grid energy sensors and
+  billing day live on Active tariff; every plan entry counts them in its own ledgers, so each plan's caps are right
+  whether or not it's in use. Changing them reloads the plan entries; changing the plan in use doesn't.
+- Active tariff follows the plan in use (`async_follow`): called from its own start and from the end of the plan
+  entry's setup (state `SETUP_IN_PROGRESS` counts: entries set up concurrently). Removing the plan in use leaves
+  no plan and a repair (`no_active_plan`); it never switches on its own.
+- Totals (`active.py`): cost/compensation add each change in the active plan's ledger `total_cost` (a switch
+  starts from the new plan's figure); supply charge adds whole days at 00:00, missed days at start.
 - The chosen plan is **copied into the entry's options** (pinned). Library changes never reach an entry silently;
   the user replaces the plan in the options flow.
 - Ledgers are keyed by period `id`. Keep ids stable across plan versions (`peak`, `shoulder`, `offpeak`...):
   a renamed id starts a new meter and new entities.
+- **Released clients read the live library.** A new top-level field is only reported (a warning) by
+  `validate_plan`, so older releases still load plans that gain one; the schema (CI) still rejects unknown
+  fields. Anything that changes how prices are read bumps the plan format `version` instead (older releases
+  refuse it). Library-only fields (`confirmations`, `problems`) are dropped when a plan is pinned
+  (`LIBRARY_ONLY_FIELDS`).
 - Changing what an entry stores = bump `VERSION` in `config_flow.py` + `async_migrate_entry` + a test with an
   old-format entry. Changing the ledger's storage format = bump `STORAGE_VERSION` with a migration.
 
 ### Entities
-- Unique IDs are `{entry_id}_{stream}_{period|total}_{energy|cost}_{day|cycle}` and similar. **Renaming a key
-  breaks users' dashboards and history**: avoid it, or migrate the registry entry.
-- Meters are `state_class: total` with `last_reset` at the bucket start; the price sensor's `forecast` attribute
-  is unrecorded.
+- Entity IDs come from the entry, never the plan's content: plan entries `sensor.<slug>_import_price` /
+  `_export_price`, `sensor.<slug>_<stream>_<period>_used`, `update.<slug>_plan`, where `slug` (`data.slug`,
+  `wizard.entity_slug`: `eta_covau_solarmaxtou`) is fixed at creation. Active tariff: `sensor.eta_grid_import_price`
+  / `_export_price`, `…_import_cost_total`, `…_export_compensation_total`, `…_supply_charge`(`_total`),
+  `select.eta_grid_active_tariff_plan`. Unique IDs `{entry_id}_{stream}_price`, `{entry_id}_{stream}_{period}_used`,
+  `{entry_id}_plan_update`, `active_tariff_<key>`. **Renaming a key breaks users' dashboards and history**: avoid
+  it, or migrate the registry entry (`_remove_retired_entities` drops what a version no longer makes and moves
+  old price entity IDs).
+- Price sensors carry Amber Express's layout: `start_time`/`end_time`, `interpolation_mode: previous` (HAEO
+  interpolates linearly without it), `forecast` `{time, value}` (Nimbus; HAEO's own reader) and `forecasts`
+  `{start_time, end_time, per_kwh}` (HAEO's Amber reader, which it tries first; EMHASS templates). Both unrecorded.
+  Never add `detailedForecast` (Nimbus would read it as Amber Express). Price sensors have no device class
+  (monetary allows only `total`); totals are `monetary` + `total`.
+- Version 1 entries (own sensors, meters) migrate to 2 (`async_migrate_entry`): kind + slug; Active tariff, when
+  created, takes their energy sensors.
 
 ### Converting CDR (Energy Made Easy) plans
 - CDR prices are **ex GST**: `cdr.with_gst` adds 10%. Our plans hold what the bill shows, GST included (a

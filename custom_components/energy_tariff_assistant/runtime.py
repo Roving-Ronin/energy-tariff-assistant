@@ -1,11 +1,15 @@
-"""Per-entry runtime: watches the energy sensors, keeps the ledgers, fires updates."""
+"""Per plan entry: prices now and ahead, and the grid energy counted toward the plan's caps.
+
+The grid energy sensors are set once, on Active tariff; every plan entry counts the same readings in its own
+ledgers, so each plan's capped rates are right whether or not it's the plan in use.
+"""
 
 from __future__ import annotations
 
 import logging
 import math
 from collections.abc import Callable
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -30,7 +34,6 @@ from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from .const import (
-    CONF_BILLING_DAY,
     DOMAIN,
     ENERGY_UNIT_FACTORS,
     FORECAST_DAYS,
@@ -38,10 +41,9 @@ from .const import (
     STORAGE_VERSION,
     STREAM_EXPORT,
     STREAM_IMPORT,
-    STREAM_SENSORS,
     signal_update,
 )
-from .engine import Ledger, Plan, RateResult, Resolver, build_forecast
+from .engine import Ledger, Period, Plan, RateResult, Resolver, build_forecast, build_intervals
 from .plan_source import prewarm_holidays
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,17 +56,20 @@ MAX_TICK = timedelta(minutes=30)
 class TariffRuntime:
     """Everything one config entry needs at run time."""
 
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, resolver: Resolver) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        resolver: Resolver,
+        sources: dict[str, str] | None = None,
+        billing_day: int = 1,
+    ) -> None:
         self.hass = hass
         self.entry = entry
         self.resolver = resolver
         self.signal = signal_update(entry.entry_id)
-        billing_day = int(entry.options.get(CONF_BILLING_DAY, 1))
-        self.sources: dict[str, str] = {
-            stream: entity_id
-            for stream, key in STREAM_SENSORS.items()
-            if (entity_id := entry.options.get(key))
-        }
+        # Grid energy sensors by stream, from Active tariff (none: capped rates last their whole window)
+        self.sources: dict[str, str] = {s: e for s, e in (sources or {}).items() if e}
         self.ledgers: dict[str, Ledger] = {
             stream: Ledger(resolver, stream, billing_day) for stream in self.sources
         }
@@ -75,6 +80,7 @@ class TariffRuntime:
         self._unsubs: list[Callable[[], None]] = []
         self._unsub_tick: Callable[[], None] | None = None
         self._forecasts: dict[str, list[dict[str, Any]]] = {}
+        self._intervals: dict[str, list[dict[str, Any]]] = {}
         self._year = dt_util.now().year
 
     # ----- plan helpers -------------------------------------------------
@@ -98,55 +104,55 @@ class TariffRuntime:
         return self.resolver.next_change(stream, dt_util.utcnow())
 
     def forecast(self, stream: str) -> list[dict[str, Any]]:
+        """`{time, value}` points (Nimbus, HAEO's own format)."""
         if stream not in self._forecasts:
             self._refresh_forecast(stream)
         return self._forecasts[stream]
 
+    def intervals(self, stream: str) -> list[dict[str, Any]]:
+        """Amber Electric's `forecasts` layout in fixed 30-minute slots (HAEO, EMHASS templates)."""
+        if stream not in self._intervals:
+            self._refresh_forecast(stream)
+        return self._intervals[stream]
+
     def _refresh_forecast(self, stream: str) -> None:
         ledger = self.ledgers.get(stream)
         now = dt_util.utcnow()
+        used = ledger.used_for_tiers(now) if ledger else None
         self._forecasts[stream] = build_forecast(
-            self.resolver,
-            stream,
-            now,
-            horizon_days=FORECAST_DAYS,
-            used_kwh=ledger.used_for_tiers(now) if ledger else None,
+            self.resolver, stream, now, horizon_days=FORECAST_DAYS, used_kwh=used
+        )
+        self._intervals[stream] = build_intervals(
+            self.resolver, stream, now, horizon_days=FORECAST_DAYS, used_kwh=used
         )
 
-    # ----- supply charge ------------------------------------------------
+    def period_window(self, stream: str) -> tuple[datetime | None, datetime | None]:
+        """Start and end of the period in force now (the last change before now, the next one after)."""
+        now = dt_util.utcnow()
+        current = self.resolver.period_at(stream, now).id
+        start = None
+        # Candidate moments (window edges, midnights) back to two days ago; the latest where the period changed
+        for moment in sorted(self.resolver.boundaries(stream, now - timedelta(days=2), now), reverse=True):
+            if moment <= now and self.resolver.period_at(stream, moment - timedelta(minutes=1)).id != current:
+                start = moment
+                break
+        return start, self.resolver.next_change(stream, now)
 
-    def supply_between(self, first: date, last: date) -> float:
-        """Daily supply charges for each day from `first` to `last` inclusive."""
-        total = 0.0
-        day = first
-        while day <= last:
-            total += self.resolver.plan_for(day).supply_charge
-            day += timedelta(days=1)
-        return total
+    def capped_periods(self, stream: str) -> list[Period]:
+        """Periods with a cap (first N kWh at one rate), across plan versions, first seen wins."""
+        seen: dict[str, Period] = {}
+        for plan in self.resolver.versions:
+            for period in plan.stream(stream).periods:
+                if period.tiered and any(t.up_to_kwh is not None for t in period.tiers):
+                    seen.setdefault(period.id, period)
+        return list(seen.values())
 
-    def supply_for_bucket(self, kind: str) -> float | None:
-        """Supply charge accrued in the current `kind` bucket (whole days)."""
-        ledger = self.ledgers.get(STREAM_IMPORT)
-        if ledger is None or kind not in ledger.buckets:
+    def used(self, stream: str, period_id: str) -> float | None:
+        """kWh counted toward `period_id`'s cap in its current reset (None without an energy sensor)."""
+        ledger = self.ledgers.get(stream)
+        if ledger is None:
             return None
-        today = self.resolver.local(dt_util.utcnow()).date()
-        return self.supply_between(ledger.buckets[kind].start, today)
-
-    def bill_to_date(self) -> dict[str, float] | None:
-        """Estimated bill for the current billing cycle."""
-        imp = self.ledgers.get(STREAM_IMPORT)
-        if imp is None or "cycle" not in imp.buckets:
-            return None
-        exp = self.ledgers.get(STREAM_EXPORT)
-        usage = imp.buckets["cycle"].total_cost
-        supply = self.supply_for_bucket("cycle") or 0.0
-        credit = exp.buckets["cycle"].total_cost if exp and "cycle" in exp.buckets else 0.0
-        return {
-            "usage": usage,
-            "supply": supply,
-            "export_credit": credit,
-            "total": usage + supply - credit,
-        }
+        return ledger.used_for_tiers(dt_util.utcnow()).get(period_id, 0.0)
 
     # ----- life cycle ---------------------------------------------------
 
@@ -188,6 +194,7 @@ class TariffRuntime:
         """Save soon and tell the entities."""
         if forecasts:
             self._forecasts.clear()
+            self._intervals.clear()
         self._store.async_delay_save(self._data, SAVE_DELAY)
         async_dispatcher_send(self.hass, self.signal)
 
@@ -277,12 +284,3 @@ class TariffRuntime:
             await self.hass.async_add_executor_job(prewarm_holidays, self.resolver, year)
         self.async_changed(forecasts=True)
         self._schedule_tick()
-
-    # ----- services -----------------------------------------------------
-
-    @callback
-    def async_reset(self, kind: str) -> None:
-        now = dt_util.utcnow()
-        for ledger in self.ledgers.values():
-            ledger.reset(kind, now)
-        self.async_changed(forecasts=True)

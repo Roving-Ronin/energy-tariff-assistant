@@ -1,17 +1,38 @@
-"""Setup, prices and metering through real Home Assistant state changes."""
+"""Plan entries and Active tariff through real Home Assistant state changes."""
 
 from __future__ import annotations
 
 from datetime import datetime
+import json
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 import pytest
 
 from homeassistant.config_entries import ConfigEntryState
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 
-from custom_components.energy_tariff_assistant.const import DOMAIN
+from custom_components.energy_tariff_assistant.const import (
+    CONF_ACTIVE_ENTRY,
+    CONF_KIND,
+    CONF_PLAN,
+    CONF_PLAN_SOURCE,
+    CONF_SLUG,
+    CONF_SOURCE,
+    DOMAIN,
+    KIND_ACTIVE,
+    KIND_PLAN,
+    SOURCE_PASTE,
+)
 
-from .conftest import EXPORT, IMPORT
+from .conftest import EXPORT, IMPORT, SLUG
+
+pytest.importorskip("pytest_homeassistant_custom_component")
+from pytest_homeassistant_custom_component.common import (  # noqa: E402
+    MockConfigEntry,
+    async_fire_time_changed,
+)
 
 SYD = ZoneInfo("Australia/Sydney")
 KWH = {"unit_of_measurement": "kWh", "device_class": "energy", "state_class": "total_increasing"}
@@ -27,136 +48,223 @@ def num(hass, entity_id: str) -> float:
     return float(state.state)
 
 
-async def _setup(hass, entry, freezer, when: str):
+async def _setup(hass, freezer, when: str, *entries) -> None:
     freezer.move_to(syd(when))
     hass.states.async_set(IMPORT, "1000.0", KWH)
     hass.states.async_set(EXPORT, "500.0", KWH)
-    assert await hass.config_entries.async_setup(entry.entry_id)
+    for entry in entries:
+        if entry.state is not ConfigEntryState.LOADED:
+            assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
 
-async def test_prices_and_periods(hass, sydney, entry, freezer):
-    await _setup(hass, entry, freezer, "2026-11-04 16:00")
+async def _at(hass, freezer, when: str, **readings: str) -> None:
+    freezer.move_to(syd(when))
+    if "imp" in readings:
+        hass.states.async_set(IMPORT, readings["imp"], KWH)
+    if "exp" in readings:
+        hass.states.async_set(EXPORT, readings["exp"], KWH)
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+
+
+def flat_plan(plan_data: dict, rate: float, feed_in: float, supply: float) -> dict:
+    plan = json.loads(json.dumps(plan_data))
+    plan.update(retailer="Flat Co", plan="Residential Flat", plan_id="FLT1000001MRE1")
+    plan["supply_charge"] = {"rate": supply, "unit": "per_day"}
+    plan["import"] = {"periods": [{"id": "anytime", "name": "Anytime", "rate": rate, "default": True}]}
+    plan["export"] = {"periods": [{"id": "feed_in", "name": "Feed-in", "rate": feed_in, "default": True}]}
+    return plan
+
+
+@pytest.fixture
+def flat_entry(hass, plan_data) -> MockConfigEntry:
+    plan = flat_plan(plan_data, 0.30, 0.04, 1.0)
+    entry = MockConfigEntry(
+        domain=DOMAIN, version=2, title="Flat Co - Flat",
+        data={CONF_KIND: KIND_PLAN, CONF_SLUG: "eta_flatco_flat"},
+        options={CONF_PLAN: plan, CONF_PLAN_SOURCE: {CONF_SOURCE: SOURCE_PASTE}},
+    )
+    entry.add_to_hass(hass)
+    return entry
+
+
+async def test_plan_price_sensors(hass, sydney, entry, hub, freezer):
+    await _setup(hass, freezer, "2026-11-04 16:00", entry, hub)
     assert entry.state is ConfigEntryState.LOADED
-    price = hass.states.get("sensor.electricity_import_price")
+    price = hass.states.get(f"sensor.{SLUG}_import_price")
     assert float(price.state) == pytest.approx(0.45331)
-    assert price.attributes["unit_of_measurement"] == "AUD/kWh"
-    assert price.attributes["period"] == "peak"
-    assert price.attributes["forecast"][0]["value"] == pytest.approx(0.45331)
-    assert hass.states.get("sensor.electricity_import_period").state == "Peak"
-    assert num(hass, "sensor.electricity_export_price") == pytest.approx(0.05)
-    nxt = hass.states.get("sensor.electricity_import_next_period_change")
-    assert datetime.fromisoformat(nxt.state) == syd("2026-11-04 21:00")
-    assert num(hass, "sensor.electricity_daily_supply_charge") == pytest.approx(2.29999)
-
-
-async def test_metering_split_and_cost(hass, sydney, entry, freezer):
-    await _setup(hass, entry, freezer, "2026-11-04 14:30")
-    # 14:30 -> 15:30 crosses shoulder -> peak at 15:00: 1 kWh each side.
-    freezer.move_to(syd("2026-11-04 15:30"))
-    hass.states.async_set(IMPORT, "1002.0", KWH)
-    await hass.async_block_till_done()
-
-    assert num(hass, "sensor.electricity_import_shoulder_energy_today") == pytest.approx(1.0)
-    assert num(hass, "sensor.electricity_import_peak_energy_today") == pytest.approx(1.0)
-    assert num(hass, "sensor.electricity_import_energy_today") == pytest.approx(2.0)
-    assert num(hass, "sensor.electricity_import_cost_today") == pytest.approx(
-        0.27478 + 0.45331, abs=1e-4
+    attributes = price.attributes
+    assert attributes["unit_of_measurement"] == "AUD/kWh"
+    assert attributes["period"] == "peak" and attributes["period_name"] == "Peak"
+    assert attributes["start_time"] == syd("2026-11-04 15:00").isoformat()
+    assert attributes["end_time"] == syd("2026-11-04 21:00").isoformat()
+    assert attributes["interpolation_mode"] == "previous"  # HAEO reads steps, not ramps
+    assert attributes["forecast"][0] == {"time": syd("2026-11-04 16:00").isoformat(), "value": pytest.approx(0.45331)}
+    assert len(attributes["forecasts"]) == 96  # Amber layout, 30-min slots, 48 h
+    assert attributes["forecasts"][0]["start_time"] == syd("2026-11-04 16:00").isoformat()
+    assert attributes["plan_id"] == "COV1117612MRE3"
+    assert attributes["friendly_name"] == "CovaU - SolarMax TOU Import Price"  # Title Case names
+    assert hass.states.get(f"sensor.{SLUG}_export_super_used").attributes["friendly_name"] == (
+        "CovaU - SolarMax TOU Export Super FiT Used"
     )
-    assert num(hass, "sensor.electricity_import_energy_this_billing_cycle") == pytest.approx(2.0)
-    bill = hass.states.get("sensor.electricity_estimated_bill_this_billing_cycle")
-    # Cycle started 2026-10-15: 21 days of supply so far.
-    assert bill.attributes["supply"] == pytest.approx(21 * 2.29999, abs=1e-3)
-
-
-async def test_free_cap_moves_price(hass, sydney, entry, freezer):
-    await _setup(hass, entry, freezer, "2026-11-04 11:00")
-    assert num(hass, "sensor.electricity_import_price") == pytest.approx(0.0)
-    freezer.move_to(syd("2026-11-04 12:00"))
-    hass.states.async_set(IMPORT, "1055.0", KWH)
-    await hass.async_block_till_done()
-    assert num(hass, "sensor.electricity_import_price") == pytest.approx(0.27478)
-    assert num(hass, "sensor.electricity_import_free_cost_today") == pytest.approx(
-        5 * 0.27478, abs=1e-4
+    assert hass.states.get("sensor.eta_grid_export_compensation_total").attributes["friendly_name"] == (
+        "Grid - Export Compensation - Total"
     )
+    assert num(hass, f"sensor.{SLUG}_export_price") == pytest.approx(0.05)
+    # Meters, period and bill sensors are gone
+    assert hass.states.get(f"sensor.{SLUG}_import_peak_energy_today") is None
+    # 2 energy sources + the plan's 2 prices and 2 capped-rate "used" sensors (Free, Super FiT) + Active tariff's 6
+    assert len(hass.states.async_entity_ids("sensor")) == 2 + 4 + 6
 
 
-async def test_wh_source_and_unavailable(hass, sydney, entry, freezer):
-    await _setup(hass, entry, freezer, "2026-11-04 03:00")
-    freezer.move_to(syd("2026-11-04 03:10"))
-    hass.states.async_set(IMPORT, "unavailable", {})
-    await hass.async_block_till_done()
-    energy = hass.states.get("sensor.electricity_import_energy_today")
-    assert energy.attributes["source_available"] is False
-    freezer.move_to(syd("2026-11-04 04:00"))
-    hass.states.async_set(IMPORT, "1001000", {**KWH, "unit_of_measurement": "Wh"})
-    await hass.async_block_till_done()
-    assert num(hass, "sensor.electricity_import_off_peak_energy_today") == pytest.approx(1.0)
+async def test_grid_sensors_follow_the_active_plan(hass, sydney, entry, hub, flat_entry, freezer):
+    await _setup(hass, freezer, "2026-11-04 16:00", entry, flat_entry, hub)
+    grid = hass.states.get("sensor.eta_grid_import_price")
+    assert float(grid.state) == pytest.approx(0.45331)
+    assert grid.attributes["active_plan"] == "CovaU - SolarMax TOU"
+    assert grid.attributes["friendly_name"] == "Grid - Import Price"
+    assert hass.states.get("sensor.eta_grid_supply_charge_total").attributes["friendly_name"] == (
+        "Grid - Supply Charge - Total"
+    )
+    assert grid.attributes["source_entity"] == f"sensor.{SLUG}_import_price"
+    assert grid.attributes["forecast"] == hass.states.get(f"sensor.{SLUG}_import_price").attributes["forecast"]
+    assert num(hass, "sensor.eta_grid_export_price") == pytest.approx(0.05)
+    assert num(hass, "sensor.eta_grid_supply_charge") == pytest.approx(2.29999)
 
-
-async def test_calibrate_and_reset(hass, sydney, entry, freezer):
-    await _setup(hass, entry, freezer, "2026-11-04 03:00")
-    freezer.move_to(syd("2026-11-04 04:00"))
-    hass.states.async_set(IMPORT, "1002.0", KWH)
-    await hass.async_block_till_done()
-
+    select = hass.states.get("select.eta_grid_active_tariff_plan")
+    assert select.state == "CovaU - SolarMax TOU"
+    assert select.attributes["friendly_name"] == "Grid - Active Tariff Plan"
+    assert select.attributes["options"] == ["CovaU - SolarMax TOU", "Flat Co - Flat"]
     await hass.services.async_call(
-        DOMAIN,
-        "calibrate",
-        {"entity_id": "sensor.electricity_import_off_peak_energy_this_billing_cycle", "energy": 10},
-        blocking=True,
+        "select", "select_option", {"entity_id": "select.eta_grid_active_tariff_plan", "option": "Flat Co - Flat"}, blocking=True
     )
     await hass.async_block_till_done()
-    assert num(hass, "sensor.electricity_import_off_peak_energy_this_billing_cycle") == 10
-    assert num(hass, "sensor.electricity_import_off_peak_cost_this_billing_cycle") == pytest.approx(
-        10 * 0.165, abs=1e-4
+    assert num(hass, "sensor.eta_grid_import_price") == pytest.approx(0.30)
+    assert num(hass, "sensor.eta_grid_export_price") == pytest.approx(0.04)
+    assert hass.states.get("sensor.eta_grid_import_price").attributes["source_entity"] == (
+        "sensor.eta_flatco_flat_import_price"
     )
 
-    await hass.services.async_call(
-        DOMAIN, "reset_meters", {"config_entry": entry.entry_id, "bucket": "cycle"}, blocking=True
-    )
+    # The action, by plan entry
+    await hass.services.async_call(DOMAIN, "set_active_plan", {"config_entry": entry.entry_id}, blocking=True)
     await hass.async_block_till_done()
-    state = hass.states.get("sensor.electricity_import_energy_this_billing_cycle")
-    assert float(state.state) == 0
-    assert state.attributes["last_period"] == pytest.approx(10.0)
+    assert hass.states.get("select.eta_grid_active_tariff_plan").state == "CovaU - SolarMax TOU"
+    assert num(hass, "sensor.eta_grid_import_price") == pytest.approx(0.45331)
 
 
-async def test_state_survives_reload(hass, sydney, entry, freezer):
-    await _setup(hass, entry, freezer, "2026-11-04 03:00")
-    freezer.move_to(syd("2026-11-04 04:00"))
-    hass.states.async_set(IMPORT, "1003.0", KWH)
+async def test_cost_totals_split_at_boundaries_and_carry_across_a_switch(
+    hass, sydney, entry, hub, flat_entry, freezer
+):
+    await _setup(hass, freezer, "2026-11-04 14:30", entry, flat_entry, hub)
+    # 14:30 -> 15:30 crosses Shoulder -> Peak at 15:00: 1 kWh each side. 2 kWh exported at Standard FiT.
+    await _at(hass, freezer, "2026-11-04 15:30", imp="1002.0", exp="502.0")
+    cost = num(hass, "sensor.eta_grid_import_cost_total")
+    assert cost == pytest.approx(0.27478 + 0.45331, abs=1e-4)
+    assert num(hass, "sensor.eta_grid_export_compensation_total") == pytest.approx(2 * 0.05, abs=1e-4)
+    state = hass.states.get("sensor.eta_grid_import_cost_total")
+    assert state.attributes["state_class"] == "total" and state.attributes["device_class"] == "monetary"
+
+    # Switch to the flat plan: from now, each kWh costs 0.30; the total carries on
+    hub.runtime_data.async_set_active(flat_entry.entry_id)
     await hass.async_block_till_done()
-    assert await hass.config_entries.async_reload(entry.entry_id)
+    await _at(hass, freezer, "2026-11-04 16:30", imp="1003.0")
+    assert num(hass, "sensor.eta_grid_import_cost_total") == pytest.approx(cost + 0.30, abs=1e-4)
+
+    # Totals survive a restart of Active tariff
+    assert await hass.config_entries.async_reload(hub.entry_id)
     await hass.async_block_till_done()
-    assert num(hass, "sensor.electricity_import_energy_today") == pytest.approx(3.0)
-    # Energy used while unloaded is counted from the saved baseline.
-    freezer.move_to(syd("2026-11-04 05:00"))
-    hass.states.async_set(IMPORT, "1004.0", KWH)
-    await hass.async_block_till_done()
-    assert num(hass, "sensor.electricity_import_energy_today") == pytest.approx(4.0)
+    assert num(hass, "sensor.eta_grid_import_cost_total") == pytest.approx(cost + 0.30, abs=1e-4)
 
 
-async def test_midnight_rollover(hass, sydney, entry, freezer):
-    await _setup(hass, entry, freezer, "2026-11-04 23:00")
-    freezer.move_to(syd("2026-11-05 00:00:01"))
-    async_fire = __import__(
-        "pytest_homeassistant_custom_component.common", fromlist=["async_fire_time_changed"]
-    ).async_fire_time_changed
-    async_fire(hass)
-    await hass.async_block_till_done()
-    freezer.move_to(syd("2026-11-05 01:00"))
-    hass.states.async_set(IMPORT, "1002.0", KWH)
-    await hass.async_block_till_done()
-    today = hass.states.get("sensor.electricity_import_energy_today")
-    assert float(today.state) == pytest.approx(1.0)
-    assert today.attributes["last_period"] == pytest.approx(1.0)
+async def test_free_cap_moves_price_and_used_sensor(hass, sydney, entry, hub, freezer):
+    await _setup(hass, freezer, "2026-11-04 11:00", entry, hub)
+    assert num(hass, "sensor.eta_grid_import_price") == pytest.approx(0.0)
+    used = hass.states.get(f"sensor.{SLUG}_import_free_used")
+    assert float(used.state) == 0.0
+    assert used.attributes["cap_kwh"] == 50 and used.attributes["resets"] == "day"
+    assert used.attributes["over_cap_rate_from"] == "shoulder"
+    await _at(hass, freezer, "2026-11-04 12:00", imp="1055.0")
+    assert num(hass, "sensor.eta_grid_import_price") == pytest.approx(0.27478)
+    used = hass.states.get(f"sensor.{SLUG}_import_free_used")
+    assert float(used.state) == pytest.approx(55.0)
+    assert used.attributes["remaining_kwh"] == 0
+    assert num(hass, "sensor.eta_grid_import_cost_total") == pytest.approx(5 * 0.27478, abs=1e-4)
+    assert hass.states.get(f"sensor.{SLUG}_export_super_used").attributes["cap_kwh"] == 30
 
 
-async def test_plan_loads_off_event_loop(hass, sydney, entry, freezer, monkeypatch):
+async def test_supply_charge_total_counts_whole_days(hass, sydney, entry, hub, freezer):
+    await _setup(hass, freezer, "2026-11-04 16:00", entry, hub)
+    assert num(hass, "sensor.eta_grid_supply_charge_total") == pytest.approx(2.29999)  # today counts
+    await _at(hass, freezer, "2026-11-05 00:00:02")
+    assert num(hass, "sensor.eta_grid_supply_charge_total") == pytest.approx(2 * 2.29999)
+    # Home Assistant off for two days: the missed days are added at start
+    assert await hass.config_entries.async_unload(hub.entry_id)
+    freezer.move_to(syd("2026-11-07 09:00"))
+    assert await hass.config_entries.async_setup(hub.entry_id)
+    await hass.async_block_till_done()
+    state = hass.states.get("sensor.eta_grid_supply_charge_total")
+    assert float(state.state) == pytest.approx(4 * 2.29999)
+    assert state.attributes["days_counted"] == 4
+
+
+async def test_without_energy_sensors_totals_are_unavailable(hass, sydney, entry, hub, freezer):
+    hass.config_entries.async_update_entry(hub, options={**hub.options, "import_sensor": None, "export_sensor": None})
+    await _setup(hass, freezer, "2026-11-04 16:00", entry, hub)
+    assert hass.states.get("sensor.eta_grid_import_cost_total").state == "unavailable"
+    assert hass.states.get(f"sensor.{SLUG}_import_free_used").state == "unavailable"
+    assert num(hass, "sensor.eta_grid_supply_charge_total") == pytest.approx(2.29999)
+    assert num(hass, "sensor.eta_grid_import_price") == pytest.approx(0.45331)
+
+
+async def test_removing_the_active_plan_leaves_no_plan(hass, sydney, entry, hub, flat_entry, freezer):
+    await _setup(hass, freezer, "2026-11-04 16:00", entry, flat_entry, hub)
+    assert await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+    assert hub.options[CONF_ACTIVE_ENTRY] is None  # never switched to another plan on its own
+    assert hass.states.get("sensor.eta_grid_import_price").state == "unavailable"
+    assert hass.states.get("select.eta_grid_active_tariff_plan").state == "No active plan"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, "no_active_plan")
+    hub.runtime_data.async_set_active(flat_entry.entry_id)
+    await hass.async_block_till_done()
+    assert num(hass, "sensor.eta_grid_import_price") == pytest.approx(0.30)
+    assert not ir.async_get(hass).async_get_issue(DOMAIN, "no_active_plan")
+
+
+async def test_plan_files_for_other_tools(hass, sydney, entry, hub, freezer):
+    await _setup(hass, freezer, "2026-11-04 16:00", entry, hub)
+    folder = Path(hass.config.config_dir) / "energy_tariff_assistant" / "active"
+    assert json.loads((folder / f"{SLUG}.json").read_text())["plan_id"] == "COV1117612MRE3"
+    assert json.loads((folder / "active.json").read_text())["plan_id"] == "COV1117612MRE3"
+    assert await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+    assert not (folder / f"{SLUG}.json").exists()
+
+
+async def test_version_1_entry_moves_to_active_tariff(hass, sydney, legacy_entry, freezer):
+    registry = er.async_get(hass)
+    # Entities the old version made: a meter (retired) and the price sensor (renamed)
+    registry.async_get_or_create("sensor", DOMAIN, f"{legacy_entry.entry_id}_import_peak_energy_day",
+                                 config_entry=legacy_entry, suggested_object_id="electricity_import_peak_energy_today")
+    registry.async_get_or_create("sensor", DOMAIN, f"{legacy_entry.entry_id}_import_price",
+                                 config_entry=legacy_entry, suggested_object_id="electricity_import_price")
+    await _setup(hass, freezer, "2026-11-04 16:00", legacy_entry)
+    await hass.async_block_till_done()
+    assert legacy_entry.version == 2
+    assert legacy_entry.data == {CONF_KIND: KIND_PLAN, CONF_SLUG: SLUG}
+    assert registry.async_get("sensor.electricity_import_peak_energy_today") is None
+    assert registry.async_get("sensor.electricity_import_price") is None
+    assert num(hass, f"sensor.{SLUG}_import_price") == pytest.approx(0.45331)
+    hub = next(e for e in hass.config_entries.async_entries(DOMAIN) if e.data.get(CONF_KIND) == KIND_ACTIVE)
+    assert hub.options[CONF_ACTIVE_ENTRY] == legacy_entry.entry_id
+    assert hub.options["import_sensor"] == IMPORT  # taken from the old entry
+    assert num(hass, "sensor.eta_grid_import_price") == pytest.approx(0.45331)
+
+
+async def test_plan_loads_off_event_loop(hass, sydney, entry, hub, freezer, monkeypatch):
     """Validation, time zone and holiday loading read files: never on the loop.
 
-    (HA's blocking-call detector doesn't fire in this test harness, so check
-    the thread directly.)
+    (HA's blocking-call detector doesn't fire in this test harness, so check the thread directly.)
     """
     import threading
 
@@ -170,13 +278,24 @@ async def test_plan_loads_off_event_loop(hass, sydney, entry, freezer, monkeypat
         return real(plan)
 
     monkeypatch.setattr(integration, "check_plan", spy)
-    await _setup(hass, entry, freezer, "2026-11-04 16:00")
+    await _setup(hass, freezer, "2026-11-04 16:00", entry, hub)
     assert threads
     assert threading.main_thread() not in threads
 
 
-async def test_unload(hass, sydney, entry, freezer):
-    await _setup(hass, entry, freezer, "2026-11-04 16:00")
+async def test_unload(hass, sydney, entry, hub, freezer):
+    await _setup(hass, freezer, "2026-11-04 16:00", entry, hub)
     assert await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
     assert entry.state is ConfigEntryState.NOT_LOADED
+    assert hass.states.get("sensor.eta_grid_import_price").state == "unavailable"
+
+
+async def test_diagnostics(hass, sydney, entry, hub, freezer):
+    from custom_components.energy_tariff_assistant.diagnostics import async_get_config_entry_diagnostics
+
+    await _setup(hass, freezer, "2026-11-04 16:00", entry, hub)
+    plan = await async_get_config_entry_diagnostics(hass, entry)
+    assert plan["plan"]["plan_id"] == "COV1117612MRE3" and set(plan["ledgers"]) == {"import", "export"}
+    active = await async_get_config_entry_diagnostics(hass, hub)
+    assert active["active_plan"] == "CovaU - SolarMax TOU" and active["days_counted"] == 1

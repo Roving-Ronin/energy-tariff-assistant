@@ -95,6 +95,9 @@ class Ledger:
         self.previous: dict[str, Bucket | None] = dict.fromkeys(BUCKETS)
         self.last_reading: float | None = None
         self.last_time: datetime | None = None
+        # Everything counted since the ledger began (never reset): the running totals cost sensors build on
+        self.total_kwh = 0.0
+        self.total_cost = 0.0
 
     # ----- buckets ------------------------------------------------------
 
@@ -222,6 +225,8 @@ class Ledger:
             cost = take * result.rate
             for kind in self.buckets:
                 self._bucket_for(kind, moment).add(period.id, take, cost)
+            self.total_kwh += take
+            self.total_cost += cost
             remaining -= take
         raise RuntimeError("tier split did not converge")
 
@@ -260,6 +265,8 @@ class Ledger:
             "last_time": self.last_time.isoformat() if self.last_time else None,
             "buckets": {k: b.to_dict() for k, b in self.buckets.items()},
             "previous": {k: b.to_dict() for k, b in self.previous.items() if b is not None},
+            "total_kwh": self.total_kwh,
+            "total_cost": self.total_cost,
         }
 
     def restore(self, data: dict[str, Any]) -> None:
@@ -270,6 +277,9 @@ class Ledger:
         self.buckets = {
             k: Bucket.from_dict(v) for k, v in data.get("buckets", {}).items() if k in BUCKETS
         }
+        # Added after the first release: older saved ledgers start their totals at 0
+        self.total_kwh = float(data.get("total_kwh", 0.0))
+        self.total_cost = float(data.get("total_cost", 0.0))
         self.previous = dict.fromkeys(BUCKETS)
         for k, v in data.get("previous", {}).items():
             if k in BUCKETS:

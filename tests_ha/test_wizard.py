@@ -12,7 +12,6 @@ from homeassistant.data_entry_flow import FlowResultType
 
 from custom_components.energy_tariff_assistant import wizard
 from custom_components.energy_tariff_assistant.const import (
-    CONF_BILLING_DAY,
     CONF_PLAN,
     CONF_PLAN_PATH,
     CONF_PLAN_SOURCE,
@@ -104,7 +103,7 @@ async def _configure(hass, flow_id, data):
 
 async def test_build_flow(hass, sydney):
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
-    result = await _configure(hass, result["flow_id"], {"name": "Electricity", CONF_SOURCE: SOURCE_BUILD})
+    result = await _configure(hass, result["flow_id"], {CONF_SOURCE: SOURCE_BUILD})
     assert result["step_id"] == "build"
     fid = result["flow_id"]
     result = await _configure(hass, fid, {"country": "au", "region": "NSW"})
@@ -139,9 +138,8 @@ async def test_build_flow(hass, sydney):
     assert result["step_id"] == "build_review"
     assert "Peak: 0.45" in result["description_placeholders"]["summary"]
     result = await _configure(hass, fid, {"action": "save"})
-    assert result["step_id"] == "meters"
-    result = await _configure(hass, fid, {CONF_BILLING_DAY: 1})
     assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["title"] == "Covau - SolarMax TOU"
 
     options = result["options"]
     plan = options[CONF_PLAN]
@@ -160,7 +158,7 @@ async def test_build_flow(hass, sydney):
 
 async def test_build_start_over(hass, sydney):
     result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": "user"})
-    fid = (await _configure(hass, result["flow_id"], {"name": "E", CONF_SOURCE: SOURCE_BUILD}))["flow_id"]
+    fid = (await _configure(hass, result["flow_id"], {CONF_SOURCE: SOURCE_BUILD}))["flow_id"]
     await _configure(hass, fid, {"country": "au", "region": "VIC"})
     await _configure(hass, fid, {"retailer": "R", "plan_name": "P", "effective_from": "2026-07-01",
                                  "supply_charge": 1, "customer_type": "business",
@@ -192,8 +190,9 @@ async def test_build_from_options_replaces_plan(hass, sydney, entry):
     await hass.async_block_till_done()
     assert entry.options[CONF_PLAN]["plan"] == "Flat"
     assert entry.options[CONF_PLAN_SOURCE][CONF_SOURCE] == SOURCE_BUILD
-    assert entry.options["billing_day"] == 15
-    assert hass.states.get("sensor.electricity_import_price").state == "0.31"
+    # Same entry, same entity IDs and name: only the plan changed
+    assert entry.title == "CovaU - SolarMax TOU"
+    assert hass.states.get("sensor.eta_covau_solarmaxtou_import_price").state == "0.31"
 
 
 def test_write_plan_file_never_overwrites(tmp_path):
@@ -210,3 +209,29 @@ def test_current_hides_ended_plans():
     entries = [{"plan": "a"}, {"plan": "b", "effective_to": "2026-11-20"}, {"plan": "c", "effective_to": "2026-11-21"},
                {"plan": "d", "effective_to": None}]
     assert [e["plan"] for e in wizard.current(entries, "2026-11-21")] == ["a", "c", "d"]
+
+
+def test_plan_label_puts_the_plan_id_before_the_date():
+    entry = {"plan": "SolarMax Residential TOU", "plan_id": "COV1117612MRE3", "effective_from": "2026-07-01"}
+    assert wizard.plan_label(entry) == "SolarMax Residential TOU · COV1117612MRE3 · from 2026-07-01"
+    assert wizard.plan_label({"plan": "Home", "effective_from": "2026-07-01"}) == "Home · from 2026-07-01"
+
+
+@pytest.mark.parametrize(("retailer", "plan", "name", "slug"), [
+    ("CovaU", "SolarMax Residential TOU", "CovaU - SolarMax TOU", "eta_covau_solarmaxtou"),
+    ("AGL", "Residential Solar Savers", "AGL - Solar Savers", "eta_agl_solarsavers"),
+    ("Future X Power", "Endeavour - RESI Time of Use FY27", "Future X Power - Time of Use FY27",
+     "eta_futurexpower_timeofusefy27"),
+    ("GEE Energy", "GEE Smart Value ESSNR Time of Use + CL1", "GEE Energy - Smart Value ESSNR Time of Use + CL1",
+     "eta_geeenergy_smartvalueessnrtimeofusecl1"),
+    ("Indigo Power", "Indigo Power Retail - Community Energy Hub", "Indigo Power - Retail - Community Energy Hub",
+     "eta_indigopower_retailcommunityenergyhub"),
+    ("ENGIE", "NSW ENGIE -Home Business GreenPower Elec", "ENGIE - Home GreenPower Elec",
+     "eta_engie_homegreenpowerelec"),
+    ("Horizon Power", "A2 Residential (Onslow)", "Horizon Power - A2 (Onslow)", "eta_horizonpower_a2onslow"),
+    ("GloBird", "Residential", "GloBird - Residential", "eta_globird_residential"),  # nothing left: keep it
+])
+def test_plan_names_in_home_assistant(retailer, plan, name, slug):
+    entry = {"retailer": retailer, "plan": plan}
+    assert wizard.display_name(entry) == name
+    assert wizard.entity_slug(entry) == slug

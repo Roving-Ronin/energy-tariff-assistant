@@ -125,7 +125,6 @@ def test_seasons_rules():
         ("country", "Australia", "2-letter ISO"),
         ("effective_to", "2026-01-01", "before effective_from"),
         ("effective_from", "202x-10-03", "not a valid date"),
-        ("colour", "blue", "unknown fields ['colour']"),
         ("format", "energy_manager_custom_tariff", "must be 'ha_tariff_plan'"),
     ],
 )
@@ -181,3 +180,13 @@ def test_schema_is_valid_draft_2020_12():
 def test_library_plans_match_schema(path):
     schema = json.loads(SCHEMA.read_text())
     jsonschema.validate(read_json(path), schema)
+
+
+def test_unknown_top_level_fields_are_reported_not_refused():
+    # Older releases must still load library plans that gain information fields (confirmations, problems)
+    result = validate_plan(minimal_plan(colour="blue"))
+    assert result.ok
+    assert any("unknown fields ['colour'] (ignored)" in w for w in result.warnings)
+    period = minimal_plan()
+    period["import"]["periods"][0]["colour"] = "blue"  # inside a plan, unknown fields still fail
+    assert not validate_plan(period).ok

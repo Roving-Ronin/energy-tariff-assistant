@@ -1,4 +1,4 @@
-"""Config and options flows: pick a plan, then the energy sensors to meter."""
+"""Config and options flows: import a plan (library, build, paste, file); Active tariff's settings."""
 
 from __future__ import annotations
 
@@ -10,15 +10,23 @@ from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
     ConfigFlowResult,
+    OptionsFlow,
     OptionsFlowWithReload,
 )
-from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 from homeassistant.loader import async_get_integration
 from homeassistant.util import dt as dt_util
 
+from .active import plan_entries
 from .const import (
+    ACTIVE_TITLE,
+    ACTIVE_UNIQUE_ID,
+    CONF_ACTIVE_ENTRY,
+    CONF_KIND,
+    CONF_SLUG,
+    KIND_ACTIVE,
+    KIND_PLAN,
     CONF_BILLING_DAY,
     CONF_EXPORT_SENSOR,
     CONF_IMPORT_SENSOR,
@@ -77,7 +85,7 @@ BILLING_DAY = selector.NumberSelector(
 
 
 def meters_schema(defaults: dict[str, Any]) -> vol.Schema:
-    """Energy sensors and billing day, with current values as suggestions."""
+    """Active tariff's grid energy sensors and billing day, with current values as suggestions."""
 
     def suggested(key: str) -> dict[str, Any]:
         value = defaults.get(key)
@@ -574,66 +582,82 @@ class PlanSteps:
 
 
 class EnergyTariffConfigFlow(PlanSteps, ConfigFlow, domain=DOMAIN):
-    """Set up a tariff plan for one metering point."""
+    """Import a tariff plan. The first one also creates Active tariff (from `async_step_import`)."""
 
-    VERSION = 1
-
-    def __init__(self) -> None:
-        self._name: str = ""
-        self._plan: dict[str, Any] = {}
-        self._source: dict[str, Any] = {}
+    VERSION = 2
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
-            self._name = user_input[CONF_NAME].strip()
             return await self._go_to_source(user_input[CONF_SOURCE])
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(CONF_NAME, default="Electricity"): selector.TextSelector(),
-                    vol.Required(CONF_SOURCE, default=SOURCE_LIBRARY): SOURCE_SELECTOR,
-                }
-            ),
+            data_schema=vol.Schema({vol.Required(CONF_SOURCE, default=SOURCE_LIBRARY): SOURCE_SELECTOR}),
         )
 
     async def _async_plan_ready(
         self, plan: dict[str, Any], source: dict[str, Any]
     ) -> ConfigFlowResult:
-        self._plan = plan
-        self._source = source
-        return await self.async_step_meters()
+        return self.async_create_entry(
+            title=wizard.display_name(plan),
+            data={CONF_KIND: KIND_PLAN, CONF_SLUG: wizard.entity_slug(plan)},
+            options={CONF_PLAN: plan, CONF_PLAN_SOURCE: source},
+        )
 
-    async def async_step_meters(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        if user_input is not None:
-            return self.async_create_entry(
-                title=self._name,
-                data={},
-                options={
-                    CONF_PLAN: self._plan,
-                    CONF_PLAN_SOURCE: self._source,
-                    **clean_meters(user_input),
-                },
-            )
-        return self.async_show_form(
-            step_id="meters",
-            data_schema=meters_schema({}),
-            description_placeholders={
-                "plan": f"{self._plan.get('retailer')} {self._plan.get('plan')}"
+    async def async_step_import(self, import_data: dict[str, Any]) -> ConfigFlowResult:
+        """Active tariff, created by the first plan entry with that plan in use."""
+        await self.async_set_unique_id(ACTIVE_UNIQUE_ID)
+        self._abort_if_unique_id_configured()
+        return self.async_create_entry(
+            title=ACTIVE_TITLE,
+            data={CONF_KIND: KIND_ACTIVE},
+            options={
+                CONF_ACTIVE_ENTRY: import_data.get(CONF_ACTIVE_ENTRY),
+                CONF_IMPORT_SENSOR: import_data.get(CONF_IMPORT_SENSOR) or None,
+                CONF_EXPORT_SENSOR: import_data.get(CONF_EXPORT_SENSOR) or None,
+                CONF_BILLING_DAY: int(import_data.get(CONF_BILLING_DAY) or 1),
             },
         )
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry: ConfigEntry) -> EnergyTariffOptionsFlow:
+    def async_get_options_flow(config_entry: ConfigEntry) -> EnergyTariffOptionsFlow | ActiveTariffOptionsFlow:
+        if config_entry.data.get(CONF_KIND) == KIND_ACTIVE:
+            return ActiveTariffOptionsFlow()
         return EnergyTariffOptionsFlow()
 
 
-class EnergyTariffOptionsFlow(PlanSteps, OptionsFlowWithReload):
-    """Change the meters or replace the plan."""
+class ActiveTariffOptionsFlow(OptionsFlow):
+    """The plan in use, and the grid energy sensors every plan counts toward its caps."""
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        return self.async_show_menu(step_id="init", menu_options=["meters", "plan", "share"])
+        return await self.async_step_active()
+
+    async def async_step_active(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        options = dict(self.config_entry.options)
+        plans = plan_entries(self.hass)
+        if user_input is not None:
+            return self.async_create_entry(
+                data={**options, CONF_ACTIVE_ENTRY: user_input[CONF_ACTIVE_ENTRY], **clean_meters(user_input)}
+            )
+        choices = [selector.SelectOptionDict(value=e.entry_id, label=e.title) for e in plans]
+        current = options.get(CONF_ACTIVE_ENTRY)
+        schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_ACTIVE_ENTRY, default=current if any(e.entry_id == current for e in plans) else vol.UNDEFINED
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(options=choices, mode=selector.SelectSelectorMode.DROPDOWN)
+                ),
+            }
+        ).extend(meters_schema(options).schema)
+        return self.async_show_form(step_id="active", data_schema=schema)
+
+
+class EnergyTariffOptionsFlow(PlanSteps, OptionsFlowWithReload):
+    """Replace the plan, or share it with the library."""
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        return self.async_show_menu(step_id="init", menu_options=["plan", "share"])
 
     async def async_step_share(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Show a pre-filled link to the plan submission form on GitHub.
@@ -669,15 +693,6 @@ class EnergyTariffOptionsFlow(PlanSteps, OptionsFlowWithReload):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         return self.async_abort(reason="share_done")
-
-    async def async_step_meters(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
-        if user_input is not None:
-            return self.async_create_entry(
-                data={**self.config_entry.options, **clean_meters(user_input)}
-            )
-        return self.async_show_form(
-            step_id="meters", data_schema=meters_schema(dict(self.config_entry.options))
-        )
 
     async def async_step_plan(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
