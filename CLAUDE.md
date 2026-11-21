@@ -29,6 +29,7 @@ python scripts/validate_plans.py && python scripts/build_index.py --check   # pl
 python scripts/build_site.py --out /tmp/site && python -m http.server -d /tmp/site   # plan browser, locally
 python scripts/import_eme_plans.py --dnsp Ausgrid --dry-run   # convert EME plans (needs internet; the Import plans workflow runs it)
 python scripts/fetch_synergy_plans.py --dry-run   # Synergy (WA) plans (needs internet + pypdf; weekly workflow)
+python scripts/fetch_horizon_plans.py --dry-run   # Horizon Power (regional WA) plans (needs internet; weekly workflow)
 ```
 
 CI on every push and PR: Tests (Ruff, pytest), Pull Requests (compile, strings = en.json, engine has no HA
@@ -182,6 +183,12 @@ the HA plugin only if it's installed). Time-dependent tests use `freezer` and `A
   and writes nothing (every plan is read before any is written). A new effective date adds a file and sets the old
   one's `effective_to`; period ids never change. A1 is cross-checked against the WA Government page (warning only).
   Western Power, `Australia/Perth`.
+- **Horizon Power plans (WA)** (weekly workflow, `scripts/fetch_horizon_plans.py`, reuses the Synergy reader and
+  `place_plan`): one pricing page. A2/K2 (= Synergy A1/K1 prices), DEBS and Buyback Bonus **per town** (37): per
+  town an `A2 Residential (<town>)` (DEBS, peak 3pm-9pm) and `A2 Residential Buyback Bonus (<town>)` plan, plus
+  `K2 Combined Use` (no feed-in, as K1). Buyback Bonus always has the four seasonal ids (`peak_nov_mar`,
+  `peak_apr_oct`, `off_peak_nov_mar`, `off_peak_apr_oct`) even when a town's seasons match, so ids never change.
+  Labels contain spans and info icons: lines split without `span`, non-ASCII dropped. REBS ignored (closed).
 - **CDR conversion check** (manual workflow, `scripts/check_cdr_conversion.py`): real plan details are an uploaded
   artifact only, never committed. Tests use hand-written or trimmed samples.
 
