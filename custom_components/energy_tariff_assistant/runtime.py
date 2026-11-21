@@ -43,7 +43,17 @@ from .const import (
     STREAM_IMPORT,
     signal_update,
 )
-from .engine import Ledger, Period, Plan, RateResult, Resolver, build_forecast, build_intervals
+from .engine import (
+    DemandCharge,
+    DemandMeter,
+    Ledger,
+    Period,
+    Plan,
+    RateResult,
+    Resolver,
+    build_forecast,
+    build_intervals,
+)
 from .plan_source import prewarm_holidays
 
 _LOGGER = logging.getLogger(__name__)
@@ -74,6 +84,11 @@ class TariffRuntime:
             stream: Ledger(resolver, stream, billing_day) for stream in self.sources
         }
         self.source_ok: dict[str, bool] = dict.fromkeys(self.sources, False)
+        # Demand charges, measured from grid import (none without it)
+        self.demand: dict[str, DemandMeter] = (
+            {c.id: DemandMeter(resolver, c.id, billing_day) for c in self.demand_charges()}
+            if STREAM_IMPORT in self.sources else {}
+        )
         self._store: Store[dict[str, Any]] = Store(
             hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}"
         )
@@ -147,6 +162,21 @@ class TariffRuntime:
                     seen.setdefault(period.id, period)
         return list(seen.values())
 
+    def demand_charges(self) -> list[DemandCharge]:
+        """Demand charges across plan versions, by id, the latest version's wins (its name and rate)."""
+        seen: dict[str, DemandCharge] = {}
+        for plan in self.resolver.versions:
+            for charge in plan.demand:
+                seen[charge.id] = charge
+        return list(seen.values())
+
+    def demand_total(self, now: datetime | None = None) -> float | None:
+        """Every demand charge so far, $ (None without the grid import sensor)."""
+        if STREAM_IMPORT not in self.sources:
+            return None
+        now = now or dt_util.utcnow()
+        return sum(meter.total(now) for meter in self.demand.values())
+
     def used(self, stream: str, period_id: str) -> float | None:
         """kWh counted toward `period_id`'s cap in its current reset (None without an energy sensor)."""
         ledger = self.ledgers.get(stream)
@@ -165,6 +195,12 @@ class TariffRuntime:
                 except (KeyError, TypeError, ValueError) as err:
                     _LOGGER.warning("Could not restore %s meters: %s", stream, err)
             ledger.roll(dt_util.utcnow())
+        for charge_id, meter in self.demand.items():
+            if saved := stored.get("demand", {}).get(charge_id):
+                try:
+                    meter.restore(saved)
+                except (KeyError, TypeError, ValueError) as err:
+                    _LOGGER.warning("Could not restore the %s demand meter: %s", charge_id, err)
 
         if self.sources:
             self._unsubs.append(
@@ -187,7 +223,10 @@ class TariffRuntime:
         await self._store.async_save(self._data())
 
     def _data(self) -> dict[str, Any]:
-        return {"ledgers": {s: ledger.to_dict() for s, ledger in self.ledgers.items()}}
+        return {
+            "ledgers": {s: ledger.to_dict() for s, ledger in self.ledgers.items()},
+            "demand": {charge_id: meter.to_dict() for charge_id, meter in self.demand.items()},
+        }
 
     @callback
     def async_changed(self, *, forecasts: bool = False) -> None:
@@ -229,6 +268,9 @@ class TariffRuntime:
         moment = moment or state.last_updated
         before = self.ledgers[stream].used_for_tiers(moment)
         changed = self.ledgers[stream].add_reading(value, moment)
+        if stream == STREAM_IMPORT:
+            for meter in self.demand.values():
+                changed |= meter.add_reading(value, moment)
         # A cap being reached changes the price and the forecast.
         tiers_moved = changed and self._tier_crossed(stream, before, moment)
         if changed:

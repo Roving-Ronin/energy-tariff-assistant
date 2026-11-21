@@ -27,15 +27,16 @@ with forecasts** that the Energy dashboard, HAEO, EMHASS and Nimbus read directl
   the plan you're on. Switch plans and these keep their names and history.
 - **Capped rates** ("first 50 kWh free", "first 10 kWh at 15c") tracked against your grid energy sensors, so
   the price changes when the cap is used.
-- Running **totals** for import cost, export compensation and the daily supply charge, kept across plan switches.
+- Running **totals** for import cost, export compensation, the daily supply charge and demand charges, kept across
+  plan switches.
 - Each imported plan's own price sensors, and **library updates** under Settings → Updates.
 
 It replaces the usual pile of `input_number` rates, time helpers, a template price sensor with a hand-written
 forecast, and the automations that switch them at every period boundary.
 
 > **Status: v0.1 (test builds).** Time-of-use import, feed-in (flat, time-of-use or capped), daily supply charge
-> and public holidays are working and tested. Demand charges and controlled-load circuits are in the plan format
-> and the rate engine, but don't have entities yet.
+> and public holidays are working and tested; demand charges are measured. Controlled-load circuits are in the
+> plan format and the rate engine, but don't have entities yet.
 
 ## Installation
 
@@ -167,7 +168,15 @@ A drop of under 1% in a source reading is ignored as sensor jitter; a bigger dro
 resetting to zero.
 
 The supply charge total adds each day at midnight at the rate of the plan in use then, from the day Active Tariff
-was set up. Controlled-load supply charges, demand charges, discounts and concessions aren't included yet.
+was set up. Controlled-load supply charges, discounts and concessions aren't included yet.
+
+**Demand charges** (plans that charge for your highest half hour in a window, e.g. weekdays 5pm-8pm): each plan
+gets a `sensor.<plan>_demand_<charge>_peak` (kW) per demand charge, measured from the grid import sensor: the
+highest 30-minute reading in the charge's windows this month (or billing cycle, or rolling 12 months, as the plan
+says), with the rate, days counted and the charge so far as attributes. `sensor.eta_grid_demand_charge_total` on
+Active Tariff is the running $ total for the plan in use: peak kW x rate x days, as Energy Made Easy explains it. A
+new, higher peak re-prices the earlier days of the month, so the total jumps by the difference. A rolling 12-month
+charge only knows the months it has measured.
 
 ## Plan format in brief
 
