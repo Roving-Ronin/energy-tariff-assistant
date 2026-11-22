@@ -1,7 +1,7 @@
 {
   "format": "eta_retailers",
   "version": 1,
-  "updated_at": "2026-11-20T11:36:47Z",
+  "updated_at": "2026-11-22T22:01:22Z",
   "source": "AER Energy Product Reference Data (Energy Made Easy, Consumer Data Right), current electricity plans",
   "brand_list": "AER retailer base URI list",
   "retailers": [
@@ -180,7 +180,7 @@
     },
     {
       "name": "Alinta Energy",
-      "plans": 483,
+      "plans": 505,
       "states": [
         "NSW",
         "QLD",
@@ -190,7 +190,7 @@
       "distributors": {
         "AusNet Services": {
           "state": "VIC",
-          "residential": 36,
+          "residential": 42,
           "business": 20
         },
         "Ausgrid": {
@@ -200,7 +200,7 @@
         },
         "CitiPower": {
           "state": "VIC",
-          "residential": 27,
+          "residential": 31,
           "business": 20
         },
         "Endeavour Energy": {
@@ -220,12 +220,12 @@
         },
         "Jemena": {
           "state": "VIC",
-          "residential": 26,
+          "residential": 30,
           "business": 24
         },
         "Powercor": {
           "state": "VIC",
-          "residential": 26,
+          "residential": 30,
           "business": 20
         },
         "SA Power Networks": {
@@ -235,7 +235,7 @@
         },
         "United Energy": {
           "state": "VIC",
-          "residential": 26,
+          "residential": 30,
           "business": 16
         }
       },
@@ -1632,7 +1632,7 @@
     },
     {
       "name": "Origin Energy",
-      "plans": 3181,
+      "plans": 3185,
       "states": [
         "ACT",
         "NSW",
@@ -1654,7 +1654,7 @@
         "CitiPower": {
           "state": "VIC",
           "residential": 119,
-          "business": 144
+          "business": 145
         },
         "Endeavour Energy": {
           "state": "NSW",
@@ -1684,12 +1684,12 @@
         "Jemena": {
           "state": "VIC",
           "residential": 119,
-          "business": 94
+          "business": 96
         },
         "Powercor": {
           "state": "VIC",
           "residential": 119,
-          "business": 148
+          "business": 149
         },
         "SA Power Networks": {
           "state": "SA",
@@ -2553,6 +2553,15 @@
     "winconnect",
     "yes-energy",
     "zen-energy"
+  ],
+  "register_brands_not_in_list": [
+    "1st Energy (EL Retail Energy)",
+    "COVAU PTY LIMITED",
+    "ENGIE large business",
+    "Ergon Energy Retail",
+    "Indigo Power",
+    "Snowy Energy",
+    "Sumo Power (legacy)"
   ],
   "diagnostics": {
     "register": {
